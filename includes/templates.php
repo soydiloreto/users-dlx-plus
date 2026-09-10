@@ -115,7 +115,7 @@ function users_plus_styles(): void {
 		return;
 	}
 
-	wp_register_style( 'users-plus', USERS_PLUS_URL . 'assets/upfw.css', array(), users_plus_asset_version( 'assets/upfw.css' ) );
+	wp_register_style( 'users-plus', USERS_PLUS_URL . 'assets/users-plus.css', array(), users_plus_asset_version( 'assets/users-plus.css' ) );
 
 	// Los dos valores que se eligen desde el admin viajan como propiedades, no
 	// como reglas: no hay ningún archivo que generar ni que invalidar, y lo que
