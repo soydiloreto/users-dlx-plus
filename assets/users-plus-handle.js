@@ -9,17 +9,17 @@
 ( function () {
 	'use strict';
 
-	var datos  = window.upfwHandle || null;
-	var campo  = document.getElementById( 'upfw-handle' );
-	var vista  = document.querySelector( '[data-upfw-handle-vista]' );
-	var enlace = document.querySelector( '[data-upfw-handle-url]' );
+	var datos  = window.usersPlusHandle || null;
+	var campo  = document.getElementById( 'users-plus-handle' );
+	var vista  = document.querySelector( '[data-users-plus-handle-vista]' );
+	var enlace = document.querySelector( '[data-users-plus-handle-url]' );
 
 	if ( ! datos || ! campo || ! vista || ! enlace ) {
 		return;
 	}
 
-	var comprobar = document.querySelector( '[data-upfw-handle-check]' );
-	var aviso     = document.querySelector( '[data-upfw-handle-aviso]' );
+	var comprobar = document.querySelector( '[data-users-plus-handle-check]' );
+	var aviso     = document.querySelector( '[data-users-plus-handle-aviso]' );
 	var inicial   = campo.value;
 	var espera    = null;
 	var pedido    = 0;
@@ -45,7 +45,7 @@
 		}
 
 		aviso.textContent = texto;
-		aviso.className   = '' === texto ? '' : 'upfw-handle__aviso is-' + estado;
+		aviso.className   = '' === texto ? '' : 'users-plus-handle__aviso is-' + estado;
 	}
 
 	function pintar() {
@@ -72,7 +72,7 @@
 		var mio = ++pedido;
 		var cuerpo = new URLSearchParams();
 
-		cuerpo.append( 'action', 'upfw_handle_check' );
+		cuerpo.append( 'action', 'users_plus_handle_check' );
 		cuerpo.append( 'nonce', datos.nonce );
 		cuerpo.append( 'handle', campo.value );
 

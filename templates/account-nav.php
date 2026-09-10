@@ -5,15 +5,15 @@
  * @var string                              $current
  * @var array<string, array<string, mixed>> $sections
  *
- * @package UPFW
+ * @package UsersPlus
  */
 
 defined( 'ABSPATH' ) || exit;
 ?>
-<nav class="upfw-account__nav" aria-label="<?php esc_attr_e( 'Account sections', 'users-plus-for-wordpress' ); ?>">
-	<?php foreach ( $sections as $upfw_id => $upfw_section ) : ?>
-		<a class="upfw-account__tab <?php echo $upfw_id === $current ? 'is-current' : ''; ?>"
-			href="<?php echo esc_url( upfw_account_url( $upfw_id ) ); ?>"
-			<?php echo $upfw_id === $current ? 'aria-current="page"' : ''; ?>><?php echo esc_html( $upfw_section['label'] ); ?></a>
+<nav class="users-plus-account__nav" aria-label="<?php esc_attr_e( 'Account sections', 'users-plus' ); ?>">
+	<?php foreach ( $sections as $users_plus_id => $users_plus_section ) : ?>
+		<a class="users-plus-account__tab <?php echo $users_plus_id === $current ? 'is-current' : ''; ?>"
+			href="<?php echo esc_url( users_plus_account_url( $users_plus_id ) ); ?>"
+			<?php echo $users_plus_id === $current ? 'aria-current="page"' : ''; ?>><?php echo esc_html( $users_plus_section['label'] ); ?></a>
 	<?php endforeach; ?>
 </nav>

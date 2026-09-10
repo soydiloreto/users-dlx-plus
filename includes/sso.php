@@ -9,7 +9,7 @@
  * Lo que cambia respecto de Nextend: los proveedores comparten un solo flujo.
  * Acá está el motor; la tabla de proveedores vive en sso-providers.php.
  *
- * @package UPFW
+ * @package UsersPlus
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -18,8 +18,8 @@ defined( 'ABSPATH' ) || exit;
 /**
  * @return array<string, mixed>
  */
-function upfw_sso_credentials( string $id ): array {
-	$all = (array) get_option( 'upfw_sso', array() );
+function users_plus_sso_credentials( string $id ): array {
+	$all = (array) get_option( 'users_plus_sso', array() );
 
 	return array(
 		'active' => ! empty( $all[ $id ]['active'] ),
@@ -32,9 +32,9 @@ function upfw_sso_credentials( string $id ): array {
 /**
  * @param array<string, mixed> $values
  */
-function upfw_sso_save_credentials( string $id, array $values ): void {
-	$all      = (array) get_option( 'upfw_sso', array() );
-	$previous = upfw_sso_credentials( $id );
+function users_plus_sso_save_credentials( string $id, array $values ): void {
+	$all      = (array) get_option( 'users_plus_sso', array() );
+	$previous = users_plus_sso_credentials( $id );
 
 	$new = array(
 		'active' => empty( $values['active'] ) ? 0 : 1,
@@ -45,7 +45,7 @@ function upfw_sso_save_credentials( string $id, array $values ): void {
 	// Si cambiaron las credenciales, lo que se probó fue otra cosa.
 	$cambio = $new['id'] !== $previous['id'] || $new['secret'] !== $previous['secret'];
 
-	$new['tested'] = $cambio ? 0 : ( upfw_sso_tested( $id ) ? 1 : 0 );
+	$new['tested'] = $cambio ? 0 : ( users_plus_sso_tested( $id ) ? 1 : 0 );
 
 	// Y nadie prende un proveedor sin probarlo.
 	if ( ! $new['tested'] ) {
@@ -54,7 +54,7 @@ function upfw_sso_save_credentials( string $id, array $values ): void {
 
 	$all[ $id ] = $new;
 
-	update_option( 'upfw_sso', $all );
+	update_option( 'users_plus_sso', $all );
 }
 
 /**
@@ -68,55 +68,55 @@ function upfw_sso_save_credentials( string $id, array $values ): void {
  *
  * @return string not-configured | not-tested | disabled | enabled
  */
-function upfw_sso_state( string $id ): string {
-	if ( ! upfw_sso_configured( $id ) ) {
+function users_plus_sso_state( string $id ): string {
+	if ( ! users_plus_sso_configured( $id ) ) {
 		return 'not-configured';
 	}
 
-	if ( ! upfw_sso_tested( $id ) ) {
+	if ( ! users_plus_sso_tested( $id ) ) {
 		return 'not-tested';
 	}
 
-	return upfw_sso_credentials( $id )['active'] ? 'enabled' : 'disabled';
+	return users_plus_sso_credentials( $id )['active'] ? 'enabled' : 'disabled';
 }
 
 /** ¿Se probó y funcionó? */
-function upfw_sso_tested( string $id ): bool {
-	$all = (array) get_option( 'upfw_sso', array() );
+function users_plus_sso_tested( string $id ): bool {
+	$all = (array) get_option( 'users_plus_sso', array() );
 
 	return ! empty( $all[ $id ]['tested'] );
 }
 
 /** Marca un proveedor como probado, o le saca la marca. */
-function upfw_sso_set_tested( string $id, bool $tested ): void {
-	$all = (array) get_option( 'upfw_sso', array() );
+function users_plus_sso_set_tested( string $id, bool $tested ): void {
+	$all = (array) get_option( 'users_plus_sso', array() );
 
 	$all[ $id ]           = (array) ( $all[ $id ] ?? array() );
 	$all[ $id ]['tested'] = $tested ? 1 : 0;
 
-	update_option( 'upfw_sso', $all );
+	update_option( 'users_plus_sso', $all );
 }
 
 /** ¿Tiene credenciales cargadas? */
-function upfw_sso_configured( string $id ): bool {
-	$c = upfw_sso_credentials( $id );
+function users_plus_sso_configured( string $id ): bool {
+	$c = users_plus_sso_credentials( $id );
 
 	return '' !== $c['id'] && '' !== $c['secret'];
 }
 
 /** ¿Está listo para que entre gente? Configurado, probado y prendido. */
-function upfw_sso_ready( string $id ): bool {
-	return 'enabled' === upfw_sso_state( $id );
+function users_plus_sso_ready( string $id ): bool {
+	return 'enabled' === users_plus_sso_state( $id );
 }
 
 /** Los proveedores que se pueden mostrar hoy. */
 /**
  * @return array<string, mixed>
  */
-function upfw_sso_available(): array {
+function users_plus_sso_available(): array {
 	return array_filter(
-		upfw_sso_providers(),
-		static fn( array $p, string $id ): bool => upfw_sso_ready( $id ),
+		users_plus_sso_providers(),
+		static fn( array $p, string $id ): bool => users_plus_sso_ready( $id ),
 		ARRAY_FILTER_USE_BOTH
 	);
 }
@@ -128,8 +128,8 @@ function upfw_sso_available(): array {
  * Cambiarlo obliga a repasar las consolas de los proveedores, porque la URL
  * de retorno queda registrada allá.
  */
-function upfw_sso_base(): string {
-	return trim( (string) apply_filters( 'upfw_sso_base', 'sso' ), '/' );
+function users_plus_sso_base(): string {
+	return trim( (string) apply_filters( 'users_plus_sso_base', 'sso' ), '/' );
 }
 
 /**
@@ -137,49 +137,49 @@ function upfw_sso_base(): string {
  *
  * Es una dirección con ruta y sin parámetros a propósito: Microsoft Entra
  * rechaza de plano una URL de retorno con query string («URL may not contain a
- * query string») y Apple hace lo mismo. Lo que antes era `/?upfw_sso=google`
+ * query string») y Apple hace lo mismo. Lo que antes era `/?users_plus_sso=google`
  * dejaba afuera a esos dos, así que la ruta es el camino que sirve para todos.
  *
  * Con enlaces permanentes «simples» no hay ruta posible y se vuelve al
  * parámetro, que es lo único que WordPress puede resolver en ese modo.
  */
-function upfw_sso_redirect_uri( string $id ): string {
+function users_plus_sso_redirect_uri( string $id ): string {
 	if ( '' === (string) get_option( 'permalink_structure' ) ) {
-		return add_query_arg( 'upfw_sso', $id, home_url( '/' ) );
+		return add_query_arg( 'users_plus_sso', $id, home_url( '/' ) );
 	}
 
-	return home_url( '/' . upfw_sso_base() . '/' . $id . '/' );
+	return home_url( '/' . users_plus_sso_base() . '/' . $id . '/' );
 }
 
 /** La URL que dispara el ida y vuelta. */
-function upfw_sso_login_url( string $id ): string {
-	return add_query_arg( 'upfw_go', 1, upfw_sso_redirect_uri( $id ) );
+function users_plus_sso_login_url( string $id ): string {
+	return add_query_arg( 'users_plus_go', 1, users_plus_sso_redirect_uri( $id ) );
 }
 
 /** La URL de la prueba en vivo, para abrir en una ventana aparte. */
-function upfw_sso_test_url( string $id ): string {
+function users_plus_sso_test_url( string $id ): string {
 	return wp_nonce_url(
 		add_query_arg(
 			array(
-				'upfw_go'   => 1,
-				'upfw_test' => 1,
+				'users_plus_go'   => 1,
+				'users_plus_test' => 1,
 			),
-			upfw_sso_redirect_uri( $id )
+			users_plus_sso_redirect_uri( $id )
 		),
-		'upfw_sso_test_' . $id,
-		'upfw_nonce'
+		'users_plus_sso_test_' . $id,
+		'users_plus_nonce'
 	);
 }
 
 /** La regla que hace posible /sso/<red>/. */
-function upfw_sso_rule(): void {
+function users_plus_sso_rule(): void {
 	add_rewrite_rule(
-		'^' . preg_quote( upfw_sso_base(), '/' ) . '/([a-z0-9_-]+)/?$',
-		'index.php?upfw_sso=$matches[1]',
+		'^' . preg_quote( users_plus_sso_base(), '/' ) . '/([a-z0-9_-]+)/?$',
+		'index.php?users_plus_sso=$matches[1]',
 		'top'
 	);
 }
-add_action( 'init', 'upfw_sso_rule' );
+add_action( 'init', 'users_plus_sso_rule' );
 
 /** Sin esto WordPress descarta el valor que capturó la regla. */
 /**
@@ -189,12 +189,12 @@ add_action( 'init', 'upfw_sso_rule' );
  * @param array<int, string> $vars
  * @return array<int, string>
  */
-function upfw_sso_query_var( array $vars ): array {
-	$vars[] = 'upfw_sso';
+function users_plus_sso_query_var( array $vars ): array {
+	$vars[] = 'users_plus_sso';
 
 	return $vars;
 }
-add_filter( 'query_vars', 'upfw_sso_query_var' );
+add_filter( 'query_vars', 'users_plus_sso_query_var' );
 
 /* ── Lectura del perfil de cada proveedor ──────────────────────────── */
 
@@ -205,7 +205,7 @@ add_filter( 'query_vars', 'upfw_sso_query_var' );
  * @param array<string, mixed> $data
  * @return array{id: string, email: string, name: string, last_name: string}
  */
-function upfw_sso_map_oidc( array $data, string $token ): array {
+function users_plus_sso_map_oidc( array $data, string $token ): array {
 	return array(
 		'id'        => (string) ( $data['sub'] ?? '' ),
 		'email'     => (string) ( $data['email'] ?? '' ),
@@ -222,7 +222,7 @@ function upfw_sso_map_oidc( array $data, string $token ): array {
  * @param array<string, mixed> $data
  * @return array<string, mixed>
  */
-function upfw_sso_map_facebook( array $data, string $token ): array {
+function users_plus_sso_map_facebook( array $data, string $token ): array {
 	return array(
 		'id'        => (string) ( $data['id'] ?? '' ),
 		'email'     => (string) ( $data['email'] ?? '' ),
@@ -238,11 +238,11 @@ function upfw_sso_map_facebook( array $data, string $token ): array {
  * @param array<string, mixed> $data
  * @return array<string, mixed>
  */
-function upfw_sso_map_github( array $data, string $token ): array {
+function users_plus_sso_map_github( array $data, string $token ): array {
 	$email = (string) ( $data['email'] ?? '' );
 
 	if ( '' === $email ) {
-		foreach ( (array) upfw_sso_get( 'https://api.github.com/user/emails', $token ) as $row ) {
+		foreach ( (array) users_plus_sso_get( 'https://api.github.com/user/emails', $token ) as $row ) {
 			if ( ! empty( $row['primary'] ) && ! empty( $row['verified'] ) ) {
 				$email = (string) $row['email'];
 				break;
@@ -251,7 +251,7 @@ function upfw_sso_map_github( array $data, string $token ): array {
 	}
 
 	return array_merge(
-		upfw_sso_split_name( (string) ( $data['name'] ?? '' ) ),
+		users_plus_sso_split_name( (string) ( $data['name'] ?? '' ) ),
 		array(
 			'id'    => (string) ( $data['id'] ?? '' ),
 			'email' => $email,
@@ -267,9 +267,9 @@ function upfw_sso_map_github( array $data, string $token ): array {
  * @param array<string, mixed> $data
  * @return array<string, mixed>
  */
-function upfw_sso_map_wordpress( array $data, string $token ): array {
+function users_plus_sso_map_wordpress( array $data, string $token ): array {
 	return array_merge(
-		upfw_sso_split_name( (string) ( $data['display_name'] ?? '' ) ),
+		users_plus_sso_split_name( (string) ( $data['display_name'] ?? '' ) ),
 		array(
 			'id'    => (string) ( $data['ID'] ?? '' ),
 			'email' => (string) ( $data['email'] ?? '' ),
@@ -285,9 +285,9 @@ function upfw_sso_map_wordpress( array $data, string $token ): array {
  * @param array<string, mixed> $data
  * @return array<string, mixed>
  */
-function upfw_sso_map_discord( array $data, string $token ): array {
+function users_plus_sso_map_discord( array $data, string $token ): array {
 	return array_merge(
-		upfw_sso_split_name( (string) ( $data['global_name'] ?? $data['username'] ?? '' ) ),
+		users_plus_sso_split_name( (string) ( $data['global_name'] ?? $data['username'] ?? '' ) ),
 		array(
 			'id'    => (string) ( $data['id'] ?? '' ),
 			'email' => (string) ( $data['email'] ?? '' ),
@@ -303,9 +303,9 @@ function upfw_sso_map_discord( array $data, string $token ): array {
  * @param array<string, mixed> $data
  * @return array<string, mixed>
  */
-function upfw_sso_map_amazon( array $data, string $token ): array {
+function users_plus_sso_map_amazon( array $data, string $token ): array {
 	return array_merge(
-		upfw_sso_split_name( (string) ( $data['name'] ?? '' ) ),
+		users_plus_sso_split_name( (string) ( $data['name'] ?? '' ) ),
 		array(
 			'id'    => (string) ( $data['user_id'] ?? '' ),
 			'email' => (string) ( $data['email'] ?? '' ),
@@ -323,11 +323,11 @@ function upfw_sso_map_amazon( array $data, string $token ): array {
  * @param array<string, mixed> $data
  * @return array<string, mixed>
  */
-function upfw_sso_map_twitter( array $data, string $token ): array {
+function users_plus_sso_map_twitter( array $data, string $token ): array {
 	$user = (array) ( $data['data'] ?? array() );
 
 	return array_merge(
-		upfw_sso_split_name( (string) ( $user['name'] ?? '' ) ),
+		users_plus_sso_split_name( (string) ( $user['name'] ?? '' ) ),
 		array(
 			'id'    => (string) ( $user['id'] ?? '' ),
 			'email' => '',
@@ -340,7 +340,7 @@ function upfw_sso_map_twitter( array $data, string $token ): array {
  *
  * @return array{name: string, last_name: string}
  */
-function upfw_sso_split_name( string $full ): array {
+function users_plus_sso_split_name( string $full ): array {
 	$parts = preg_split( '/\s+/u', trim( $full ) );
 	$parts = is_array( $parts ) ? $parts : array();
 
@@ -357,7 +357,7 @@ function upfw_sso_split_name( string $full ): array {
  *
  * @return array<string, mixed>
  */
-function upfw_sso_get( string $url, string $token ): array {
+function users_plus_sso_get( string $url, string $token ): array {
 	$response = wp_remote_get(
 		$url,
 		array(
@@ -366,7 +366,7 @@ function upfw_sso_get( string $url, string $token ): array {
 				'Authorization' => 'Bearer ' . $token,
 				'Accept'        => 'application/json',
 				// GitHub rechaza los pedidos sin user agent.
-				'User-Agent'    => 'users-plus-for-wordpress',
+				'User-Agent'    => 'users-plus',
 			),
 		)
 	);
@@ -382,8 +382,8 @@ function upfw_sso_get( string $url, string $token ): array {
 /**
  * @param array<string, mixed> $provider
  */
-function upfw_sso_authorize( string $id, array $provider, bool $test = false ): void {
-	$credentials = upfw_sso_credentials( $id );
+function users_plus_sso_authorize( string $id, array $provider, bool $test = false ): void {
+	$credentials = users_plus_sso_credentials( $id );
 	$state       = wp_generate_password( 24, false, false );
 
 	$guardado = array(
@@ -402,12 +402,12 @@ function upfw_sso_authorize( string $id, array $provider, bool $test = false ): 
 
 	// El `state` es lo que impide que alguien fabrique un retorno: se guarda
 	// del lado del servidor y tiene que volver igual.
-	set_transient( 'upfw_sso_' . $state, $guardado, 10 * MINUTE_IN_SECONDS );
+	set_transient( 'users_plus_sso_' . $state, $guardado, 10 * MINUTE_IN_SECONDS );
 
 	$args = array_merge(
 		array(
 			'client_id'     => rawurlencode( $credentials['id'] ),
-			'redirect_uri'  => rawurlencode( upfw_sso_redirect_uri( $id ) ),
+			'redirect_uri'  => rawurlencode( users_plus_sso_redirect_uri( $id ) ),
 			'response_type' => 'code',
 			'scope'         => rawurlencode( $provider['scope'] ),
 			'state'         => $state,
@@ -429,14 +429,14 @@ function upfw_sso_authorize( string $id, array $provider, bool $test = false ): 
 /**
  * @param array<string, mixed> $provider
  */
-function upfw_sso_token( string $id, array $provider, string $code, string $verifier = '' ): string {
-	$credentials = upfw_sso_credentials( $id );
+function users_plus_sso_token( string $id, array $provider, string $code, string $verifier = '' ): string {
+	$credentials = users_plus_sso_credentials( $id );
 
 	$body = array(
 		'client_id'     => $credentials['id'],
 		'client_secret' => $credentials['secret'],
 		'code'          => $code,
-		'redirect_uri'  => upfw_sso_redirect_uri( $id ),
+		'redirect_uri'  => users_plus_sso_redirect_uri( $id ),
 		'grant_type'    => 'authorization_code',
 	);
 
@@ -479,8 +479,8 @@ function upfw_sso_token( string $id, array $provider, string $code, string $veri
  *
  * @param array<string, mixed> $identity
  */
-function upfw_sso_user( string $id, array $identity ): int {
-	$meta = 'upfw_sso_' . $id;
+function users_plus_sso_user( string $id, array $identity ): int {
+	$meta = 'users_plus_sso_' . $id;
 
 	$existing = get_users(
 		array(
@@ -492,7 +492,7 @@ function upfw_sso_user( string $id, array $identity ): int {
 	);
 
 	if ( $existing ) {
-		return upfw_sso_role_blocked( (int) $existing[0] ) ? 0 : (int) $existing[0];
+		return users_plus_sso_role_blocked( (int) $existing[0] ) ? 0 : (int) $existing[0];
 	}
 
 	if ( '' === $identity['email'] || ! is_email( $identity['email'] ) ) {
@@ -505,7 +505,7 @@ function upfw_sso_user( string $id, array $identity ): int {
 	// misma persona, y se le suma la red. Es lo que hace que entrar con Google
 	// hoy y con GitHub mañana sea la misma cuenta y no dos.
 	if ( $known ) {
-		if ( ! upfw_option( 'upfw_sso_link_by_email' ) ) {
+		if ( ! users_plus_option( 'users_plus_sso_link_by_email' ) ) {
 			return 0;
 		}
 
@@ -513,16 +513,16 @@ function upfw_sso_user( string $id, array $identity ): int {
 
 		// Igual que con el enlace por correo: en una red hay que sumarlo a
 		// este sitio, o entra y no puede hacer nada.
-		upfw_join_site( $user_id );
+		users_plus_join_site( $user_id );
 	} else {
-		if ( ! upfw_option( 'upfw_sso_register' ) ) {
+		if ( ! users_plus_option( 'users_plus_sso_register' ) ) {
 			return 0;
 		}
 
-		$user_id = upfw_user_for( $identity['email'] );
+		$user_id = users_plus_user_for( $identity['email'] );
 	}
 
-	if ( $user_id <= 0 || upfw_sso_role_blocked( $user_id ) ) {
+	if ( $user_id <= 0 || users_plus_sso_role_blocked( $user_id ) ) {
 		return 0;
 	}
 
@@ -552,8 +552,8 @@ function upfw_sso_user( string $id, array $identity ): int {
  *
  * @param int $user_id Usuario a revisar.
  */
-function upfw_sso_role_blocked( int $user_id ): bool {
-	$blocked = (array) upfw_option( 'upfw_sso_blocked_roles' );
+function users_plus_sso_role_blocked( int $user_id ): bool {
+	$blocked = (array) users_plus_option( 'users_plus_sso_blocked_roles' );
 
 	if ( array() === $blocked ) {
 		return false;
@@ -574,7 +574,7 @@ function upfw_sso_role_blocked( int $user_id ): bool {
  *
  * @return array<string, mixed>
  */
-function upfw_sso_query(): array {
+function users_plus_sso_query(): array {
 	static $query = null;
 
 	if ( null === $query ) {
@@ -585,22 +585,22 @@ function upfw_sso_query(): array {
 	return $query;
 }
 
-/** La copia del pedido, tomada temprano. El valor lo lee upfw_sso_param(). */
-function upfw_sso_query_snapshot(): void {
-	upfw_sso_query();
+/** La copia del pedido, tomada temprano. El valor lo lee users_plus_sso_param(). */
+function users_plus_sso_query_snapshot(): void {
+	users_plus_sso_query();
 }
-add_action( 'init', 'upfw_sso_query_snapshot', 0 );
+add_action( 'init', 'users_plus_sso_query_snapshot', 0 );
 
 /** Un parámetro del pedido, ya limpio de barras. */
-function upfw_sso_param( string $key ): string {
-	$query = upfw_sso_query();
+function users_plus_sso_param( string $key ): string {
+	$query = users_plus_sso_query();
 
 	return isset( $query[ $key ] ) && is_scalar( $query[ $key ] ) ? (string) $query[ $key ] : '';
 }
 
 /** ¿Vino este parámetro, aunque sea vacío? */
-function upfw_sso_has( string $key ): bool {
-	return array_key_exists( $key, upfw_sso_query() );
+function users_plus_sso_has( string $key ): bool {
+	return array_key_exists( $key, users_plus_sso_query() );
 }
 
 /**
@@ -608,31 +608,31 @@ function upfw_sso_has( string $key ): bool {
  *
  * @param WP|null $wp El objeto que pasa `parse_request`, con la ruta ya resuelta.
  */
-function upfw_sso_handle( $wp = null ): void {
+function users_plus_sso_handle( $wp = null ): void {
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended -- el `state` cumple ese papel.
 	// La red puede venir de la ruta —/sso/google/— o del parámetro, que es lo
 	// que quedó registrado en las consolas de antes y en los sitios con
 	// enlaces permanentes simples.
-	$ruta = $wp instanceof WP && isset( $wp->query_vars['upfw_sso'] );
+	$ruta = $wp instanceof WP && isset( $wp->query_vars['users_plus_sso'] );
 	$id   = $ruta
-		? sanitize_key( (string) $wp->query_vars['upfw_sso'] )
-		: sanitize_key( upfw_sso_param( 'upfw_sso' ) );
+		? sanitize_key( (string) $wp->query_vars['users_plus_sso'] )
+		: sanitize_key( users_plus_sso_param( 'users_plus_sso' ) );
 
 	if ( '' === $id ) {
 		return;
 	}
 
-	$providers = upfw_sso_providers();
+	$providers = users_plus_sso_providers();
 
 	// Alcanza con que tenga credenciales cargadas. Exigir acá que además esté
 	// prendido dejaba la prueba en vivo sin salida: no se puede prender una red
 	// sin probarla, y la prueba no arrancaba porque la red no estaba prendida.
 	// Quién puede disparar cada cosa se decide más abajo.
-	if ( ! isset( $providers[ $id ] ) || ! upfw_sso_configured( $id ) ) {
+	if ( ! isset( $providers[ $id ] ) || ! users_plus_sso_configured( $id ) ) {
 		// Por la ruta sólo se llega a propósito: un enlace viejo a una red que
 		// ya no está tiene que decirlo, no dibujar la portada.
 		if ( $ruta ) {
-			upfw_sso_fail();
+			users_plus_sso_fail();
 		}
 
 		return;
@@ -642,139 +642,139 @@ function upfw_sso_handle( $wp = null ): void {
 
 	// Modo prueba: sólo para quien administra y con su nonce. No inicia
 	// sesión de nadie; hace el ida y vuelta y cuenta cómo salió.
-	$test = upfw_sso_has( 'upfw_test' )
+	$test = users_plus_sso_has( 'users_plus_test' )
 		&& current_user_can( 'manage_options' )
-		&& wp_verify_nonce( sanitize_key( upfw_sso_param( 'upfw_nonce' ) ), 'upfw_sso_test_' . $id );
+		&& wp_verify_nonce( sanitize_key( users_plus_sso_param( 'users_plus_nonce' ) ), 'users_plus_sso_test_' . $id );
 
-	if ( upfw_sso_has( 'upfw_go' ) ) {
+	if ( users_plus_sso_has( 'users_plus_go' ) ) {
 		// Salir a autorizar es de una red prendida, o de la prueba de quien
 		// administra. Una red a medio configurar no manda a nadie a ningún lado.
-		if ( ! $test && ! upfw_sso_ready( $id ) ) {
-			upfw_sso_fail();
+		if ( ! $test && ! users_plus_sso_ready( $id ) ) {
+			users_plus_sso_fail();
 		}
 
-		upfw_sso_authorize( $id, $provider, $test );
+		users_plus_sso_authorize( $id, $provider, $test );
 	}
 
 	// En una vuelta el proveedor puede contestar con un error en vez de un
 	// código: mostrarlo es la mitad del valor de la prueba.
-	if ( upfw_sso_has( 'error' ) ) {
-		$detalle = sanitize_text_field( '' !== upfw_sso_param( 'error_description' ) ? upfw_sso_param( 'error_description' ) : upfw_sso_param( 'error' ) );
-		$estado  = get_transient( 'upfw_sso_' . sanitize_text_field( upfw_sso_param( 'state' ) ) );
+	if ( users_plus_sso_has( 'error' ) ) {
+		$detalle = sanitize_text_field( '' !== users_plus_sso_param( 'error_description' ) ? users_plus_sso_param( 'error_description' ) : users_plus_sso_param( 'error' ) );
+		$estado  = get_transient( 'users_plus_sso_' . sanitize_text_field( users_plus_sso_param( 'state' ) ) );
 
 		if ( is_array( $estado ) && ! empty( $estado['test'] ) ) {
-			upfw_sso_test_result( $provider, false, $detalle );
+			users_plus_sso_test_result( $provider, false, $detalle );
 		}
 
-		upfw_sso_fail();
+		users_plus_sso_fail();
 	}
 
-	$code  = sanitize_text_field( upfw_sso_param( 'code' ) );
-	$state = sanitize_text_field( upfw_sso_param( 'state' ) );
+	$code  = sanitize_text_field( users_plus_sso_param( 'code' ) );
+	$state = sanitize_text_field( users_plus_sso_param( 'state' ) );
 
 	if ( '' === $code || '' === $state ) {
 		return;
 	}
 	// phpcs:enable
 
-	$stored = get_transient( 'upfw_sso_' . $state );
-	delete_transient( 'upfw_sso_' . $state );
+	$stored = get_transient( 'users_plus_sso_' . $state );
+	delete_transient( 'users_plus_sso_' . $state );
 
 	if ( ! is_array( $stored ) || ( $stored['provider'] ?? '' ) !== $id ) {
-		upfw_sso_fail();
+		users_plus_sso_fail();
 	}
 
 	$es_prueba = ! empty( $stored['test'] );
 
 	// La vuelta de una red que se apagó entre la ida y la vuelta no entra a
 	// nadie. La prueba sí sigue: es justamente el paso previo a prenderla.
-	if ( ! $es_prueba && ! upfw_sso_ready( $id ) ) {
-		upfw_sso_fail();
+	if ( ! $es_prueba && ! users_plus_sso_ready( $id ) ) {
+		users_plus_sso_fail();
 	}
 
-	$token = upfw_sso_token( $id, $provider, $code, (string) ( $stored['verifier'] ?? '' ) );
+	$token = users_plus_sso_token( $id, $provider, $code, (string) ( $stored['verifier'] ?? '' ) );
 
 	if ( '' === $token ) {
 		if ( $es_prueba ) {
-			upfw_sso_test_result( $provider, false, __( 'The provider did not hand over an access token. Check the client ID and the secret.', 'users-plus-for-wordpress' ) );
+			users_plus_sso_test_result( $provider, false, __( 'The provider did not hand over an access token. Check the client ID and the secret.', 'users-plus' ) );
 		}
 
-		upfw_sso_fail();
+		users_plus_sso_fail();
 	}
 
-	$identity = call_user_func( $provider['map'], upfw_sso_get( $provider['profile'], $token ), $token );
+	$identity = call_user_func( $provider['map'], users_plus_sso_get( $provider['profile'], $token ), $token );
 
 	// La prueba termina acá: no entra nadie, sólo se anota que funciona.
 	if ( $es_prueba ) {
 		if ( '' === $identity['id'] ) {
-			upfw_sso_test_result( $provider, false, __( 'The token worked but the profile came back empty. The app is probably missing the permissions this provider needs.', 'users-plus-for-wordpress' ) );
+			users_plus_sso_test_result( $provider, false, __( 'The token worked but the profile came back empty. The app is probably missing the permissions this provider needs.', 'users-plus' ) );
 		}
 
-		upfw_sso_set_tested( $id, true );
-		upfw_sso_test_result( $provider, true, $identity['email'] );
+		users_plus_sso_set_tested( $id, true );
+		users_plus_sso_test_result( $provider, true, $identity['email'] );
 	}
 
 	// Si ya está adentro, esto es una vinculación desde el perfil, no un login.
 	if ( is_user_logged_in() ) {
 		if ( '' !== $identity['id'] ) {
-			update_user_meta( get_current_user_id(), 'upfw_sso_' . $id, $identity['id'] );
+			update_user_meta( get_current_user_id(), 'users_plus_sso_' . $id, $identity['id'] );
 
-			upfw_notify_security(
+			users_plus_notify_security(
 				get_current_user_id(),
 				sprintf(
 					/* translators: %s: nombre de la red social */
-					__( 'The %s account was linked, and it now gets into this account.', 'users-plus-for-wordpress' ),
+					__( 'The %s account was linked, and it now gets into this account.', 'users-plus' ),
 					$provider['name']
 				)
 			);
 		}
 
-		$back = (string) get_transient( 'upfw_sso_back_' . get_current_user_id() );
-		wp_safe_redirect( add_query_arg( 'upfw', 'linked', $back ? $back : home_url( '/' ) ) );
+		$back = (string) get_transient( 'users_plus_sso_back_' . get_current_user_id() );
+		wp_safe_redirect( add_query_arg( 'users-plus', 'linked', $back ? $back : home_url( '/' ) ) );
 		exit;
 	}
 
-	$user_id = upfw_sso_user( $id, $identity );
+	$user_id = users_plus_sso_user( $id, $identity );
 
 	if ( $user_id <= 0 ) {
-		upfw_sso_fail();
+		users_plus_sso_fail();
 	}
 
 	/** Ver el filtro homónimo en includes/login.php. */
-	$redirect = (string) apply_filters( 'upfw_login_redirect', home_url( '/' ), $user_id );
+	$redirect = (string) apply_filters( 'users_plus_login_redirect', home_url( '/' ), $user_id );
 
 	// Igual que el enlace por correo: la sesión la abre el camino común, que
 	// es también el que sabe si falta un segundo factor.
-	upfw_complete_login( $user_id, 'sso', true, $redirect );
+	users_plus_complete_login( $user_id, 'sso', true, $redirect );
 }
 
 /*
  * Va en `parse_request` y no en `init` porque es ahí donde WordPress ya
  * resolvió la ruta: antes de eso /sso/google/ todavía no es nada.
  */
-add_action( 'parse_request', 'upfw_sso_handle' );
+add_action( 'parse_request', 'users_plus_sso_handle' );
 
 /** Vuelve a la pantalla de acceso con el aviso de que no se pudo. */
-function upfw_sso_fail(): void {
-	wp_safe_redirect( add_query_arg( 'upfw', 'social', upfw_login_url() ) );
+function users_plus_sso_fail(): void {
+	wp_safe_redirect( add_query_arg( 'users-plus', 'social', users_plus_login_url() ) );
 	exit;
 }
 
 /** Desvincula una red del usuario actual. */
-function upfw_sso_unlink(): void {
-	check_admin_referer( 'upfw_sso_unlink' );
+function users_plus_sso_unlink(): void {
+	check_admin_referer( 'users_plus_sso_unlink' );
 
-	$id = sanitize_key( wp_unslash( $_POST['upfw_provider'] ?? '' ) );
+	$id = sanitize_key( wp_unslash( $_POST['users_plus_provider'] ?? '' ) );
 
 	if ( '' !== $id && is_user_logged_in() ) {
-		delete_user_meta( get_current_user_id(), 'upfw_sso_' . $id );
+		delete_user_meta( get_current_user_id(), 'users_plus_sso_' . $id );
 
-		upfw_notify_security(
+		users_plus_notify_security(
 			get_current_user_id(),
 			sprintf(
 				/* translators: %s: nombre de la red social */
-				__( 'The %s account was unlinked.', 'users-plus-for-wordpress' ),
-				upfw_sso_providers()[ $id ]['name'] ?? $id
+				__( 'The %s account was unlinked.', 'users-plus' ),
+				users_plus_sso_providers()[ $id ]['name'] ?? $id
 			)
 		);
 	}
@@ -783,17 +783,17 @@ function upfw_sso_unlink(): void {
 	wp_safe_redirect( $back ? $back : home_url( '/' ) );
 	exit;
 }
-add_action( 'admin_post_upfw_sso_unlink', 'upfw_sso_unlink' );
+add_action( 'admin_post_users_plus_sso_unlink', 'users_plus_sso_unlink' );
 
 /** ¿Qué redes tiene vinculadas esta persona? */
 /**
  * @return array<int<0, max>, string>
  */
-function upfw_sso_linked( int $user_id ): array {
+function users_plus_sso_linked( int $user_id ): array {
 	$linked = array();
 
-	foreach ( array_keys( upfw_sso_providers() ) as $id ) {
-		if ( '' !== (string) get_user_meta( $user_id, 'upfw_sso_' . $id, true ) ) {
+	foreach ( array_keys( users_plus_sso_providers() ) as $id ) {
+		if ( '' !== (string) get_user_meta( $user_id, 'users_plus_sso_' . $id, true ) ) {
 			$linked[] = $id;
 		}
 	}
@@ -811,26 +811,26 @@ function upfw_sso_linked( int $user_id ): array {
  * @param bool                 $ok
  * @param string               $detail Correo recibido, o el error.
  */
-function upfw_sso_test_result( array $provider, bool $ok, string $detail = '' ): void {
+function users_plus_sso_test_result( array $provider, bool $ok, string $detail = '' ): void {
 	$titulo = $ok
-		? __( 'It works', 'users-plus-for-wordpress' )
-		: __( 'It did not work', 'users-plus-for-wordpress' );
+		? __( 'It works', 'users-plus' )
+		: __( 'It did not work', 'users-plus' );
 
 	$mensaje = $ok
 		? sprintf(
 			/* translators: %s: nombre del proveedor */
-			__( 'The round trip with %s finished correctly. You can enable the button now.', 'users-plus-for-wordpress' ),
+			__( 'The round trip with %s finished correctly. You can enable the button now.', 'users-plus' ),
 			$provider['name']
 		)
 		: sprintf(
 			/* translators: %s: nombre del proveedor */
-			__( 'The round trip with %s failed.', 'users-plus-for-wordpress' ),
+			__( 'The round trip with %s failed.', 'users-plus' ),
 			$provider['name']
 		);
 
 	if ( $ok && '' !== $detail ) {
 		/* translators: %s: dirección de correo */
-		$detail = sprintf( __( 'The provider handed over this email: %s', 'users-plus-for-wordpress' ), $detail );
+		$detail = sprintf( __( 'The provider handed over this email: %s', 'users-plus' ), $detail );
 	}
 
 	nocache_headers();
@@ -858,7 +858,7 @@ function upfw_sso_test_result( array $provider, bool $ok, string $detail = '' ):
 				<p class="detalle"><?php echo esc_html( $detail ); ?></p>
 			<?php endif; ?>
 			<button type="button" onclick="if (window.opener) { window.opener.location.reload(); } window.close();">
-				<?php esc_html_e( 'Close', 'users-plus-for-wordpress' ); ?>
+				<?php esc_html_e( 'Close', 'users-plus' ); ?>
 			</button>
 		</div>
 	</body>

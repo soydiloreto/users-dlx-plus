@@ -23,24 +23,24 @@
  * Esto convive con el registro normal de WordPress: es una puerta más, no un
  * reemplazo. El ajuste "sólo correo" es el que cierra las otras.
  *
- * @package UPFW
+ * @package UsersPlus
  */
 
 defined( 'ABSPATH' ) || exit;
 
-const UPFW_META_HASH    = '_upfw_acceso_hash';
-const UPFW_META_EXPIRES = '_upfw_acceso_vence';
+const USERS_PLUS_META_HASH    = '_users_plus_acceso_hash';
+const USERS_PLUS_META_EXPIRES = '_users_plus_acceso_vence';
 
 /**
  * Genera un token, guarda su hash y devuelve el token en claro.
  *
  * Lo que se persiste es el hash: el token en claro sólo existe en el correo.
  */
-function upfw_token_create( int $user_id ): string {
+function users_plus_token_create( int $user_id ): string {
 	$token = wp_generate_password( 40, false, false );
 
-	update_user_meta( $user_id, UPFW_META_HASH, wp_hash( $token ) );
-	update_user_meta( $user_id, UPFW_META_EXPIRES, time() + ( upfw_login_expiry() * MINUTE_IN_SECONDS ) );
+	update_user_meta( $user_id, USERS_PLUS_META_HASH, wp_hash( $token ) );
+	update_user_meta( $user_id, USERS_PLUS_META_EXPIRES, time() + ( users_plus_login_expiry() * MINUTE_IN_SECONDS ) );
 
 	return $token;
 }
@@ -51,9 +51,9 @@ function upfw_token_create( int $user_id ): string {
  * Se compara con hash_equals para que el tiempo de respuesta no dependa de
  * cuántos caracteres coincidieron.
  */
-function upfw_token_valid( int $user_id, string $token ): bool {
-	$hash  = (string) get_user_meta( $user_id, UPFW_META_HASH, true );
-	$vence = (int) get_user_meta( $user_id, UPFW_META_EXPIRES, true );
+function users_plus_token_valid( int $user_id, string $token ): bool {
+	$hash  = (string) get_user_meta( $user_id, USERS_PLUS_META_HASH, true );
+	$vence = (int) get_user_meta( $user_id, USERS_PLUS_META_EXPIRES, true );
 
 	if ( '' === $hash || $vence <= 0 || time() > $vence ) {
 		return false;
@@ -63,17 +63,17 @@ function upfw_token_valid( int $user_id, string $token ): bool {
 }
 
 /** Quema el token: un enlace sirve una sola vez. */
-function upfw_token_burn( int $user_id ): void {
-	delete_user_meta( $user_id, UPFW_META_HASH );
-	delete_user_meta( $user_id, UPFW_META_EXPIRES );
+function users_plus_token_burn( int $user_id ): void {
+	delete_user_meta( $user_id, USERS_PLUS_META_HASH );
+	delete_user_meta( $user_id, USERS_PLUS_META_EXPIRES );
 }
 
 /** URL del enlace de acceso. */
-function upfw_login_link( int $user_id, string $token ): string {
+function users_plus_login_link( int $user_id, string $token ): string {
 	return add_query_arg(
 		array(
-			'upfw_login' => $user_id,
-			'upfw_token' => $token,
+			'users_plus_login' => $user_id,
+			'users_plus_token' => $token,
 		),
 		home_url( '/' )
 	);
@@ -87,18 +87,18 @@ function upfw_login_link( int $user_id, string $token ): string {
  *
  * @return int ID del usuario, o 0 si no existe y no se puede crear.
  */
-function upfw_user_for( string $email ): int {
+function users_plus_user_for( string $email ): int {
 	$user = get_user_by( 'email', $email );
 
 	if ( $user ) {
 		// En una red, existir no es ser miembro de este sitio: quien viene del
 		// sitio de al lado entra, pero sin rol acá no puede hacer nada.
-		upfw_join_site( (int) $user->ID );
+		users_plus_join_site( (int) $user->ID );
 
 		return (int) $user->ID;
 	}
 
-	if ( ! upfw_option( 'upfw_login_register' ) ) {
+	if ( ! users_plus_option( 'users_plus_login_register' ) ) {
 		return 0;
 	}
 
@@ -107,7 +107,7 @@ function upfw_user_for( string $email ): int {
 	// display_name «alguien@gmail.com» que después sale en los foros, y un
 	// user_nicename «alguiengmail-com» que se lee al derecho en la URL del
 	// perfil. La cuenta se identifica con el correo; publicarlo es otra cosa.
-	$visible = upfw_name_from_email( $email );
+	$visible = users_plus_name_from_email( $email );
 
 	// La contraseña se genera al azar y nadie la conoce, ni siquiera quien se
 	// registra: WordPress necesita el campo, el sitio no lo usa.
@@ -119,7 +119,7 @@ function upfw_user_for( string $email ): int {
 			'display_name'  => $visible,
 			// wp_insert_user() le agrega un sufijo si ya está tomado.
 			'user_nicename' => sanitize_title( $visible ),
-			'role'          => (string) upfw_option( 'upfw_login_role' ),
+			'role'          => (string) users_plus_option( 'users_plus_login_role' ),
 		)
 	);
 
@@ -127,31 +127,31 @@ function upfw_user_for( string $email ): int {
 		return 0;
 	}
 
-	upfw_join_site( (int) $id );
+	users_plus_join_site( (int) $id );
 
 	return (int) $id;
 }
 
 /** Cómo entra la gente: 'link', 'password' o 'both'. */
-function upfw_login_method(): string {
-	$method = (string) upfw_option( 'upfw_login_method' );
+function users_plus_login_method(): string {
+	$method = (string) users_plus_option( 'users_plus_login_method' );
 
 	return in_array( $method, array( 'link', 'password', 'both' ), true ) ? $method : 'both';
 }
 
 /** ¿Se ofrece el enlace por correo? */
-function upfw_login_has_link(): bool {
-	return 'password' !== upfw_login_method();
+function users_plus_login_has_link(): bool {
+	return 'password' !== users_plus_login_method();
 }
 
 /** ¿Se ofrece el formulario de usuario y contraseña? */
-function upfw_login_has_password(): bool {
-	return 'link' !== upfw_login_method();
+function users_plus_login_has_password(): bool {
+	return 'link' !== users_plus_login_method();
 }
 
 /** ¿El enlace por correo es la única puerta? */
-function upfw_login_only_link(): bool {
-	return 'link' === upfw_login_method();
+function users_plus_login_only_link(): bool {
+	return 'link' === users_plus_login_method();
 }
 
 /**
@@ -161,21 +161,21 @@ function upfw_login_only_link(): bool {
  * que va antes de la arroba —el dominio no le dice nada a nadie— y le saca los
  * separadores para que «juan.perez88» se lea «juan perez88».
  */
-function upfw_name_from_email( string $email ): string {
+function users_plus_name_from_email( string $email ): string {
 	$local = (string) strstr( $email, '@', true );
 	$local = '' === $local ? $email : $local;
 	$local = trim( (string) preg_replace( '/[._\-]+/', ' ', $local ) );
 
-	return '' === $local ? __( 'Someone', 'users-plus-for-wordpress' ) : $local;
+	return '' === $local ? __( 'Someone', 'users-plus' ) : $local;
 }
 
 /** El asunto del correo, con el del sitio como respaldo. */
-function upfw_login_subject(): string {
-	$subject = trim( (string) upfw_option( 'upfw_login_subject' ) );
+function users_plus_login_subject(): string {
+	$subject = trim( (string) users_plus_option( 'users_plus_login_subject' ) );
 
 	if ( '' === $subject ) {
 		/* translators: %s: nombre del sitio */
-		$subject = sprintf( __( 'Your sign-in link for %s', 'users-plus-for-wordpress' ), get_bloginfo( 'name' ) );
+		$subject = sprintf( __( 'Your sign-in link for %s', 'users-plus' ), get_bloginfo( 'name' ) );
 	}
 
 	return $subject;
@@ -184,13 +184,13 @@ function upfw_login_subject(): string {
 /**
  * El cuerpo del correo. `{link}` y `{minutes}` se reemplazan.
  */
-function upfw_login_body( string $url ): string {
-	$body = trim( (string) upfw_option( 'upfw_login_body' ) );
+function users_plus_login_body( string $url ): string {
+	$body = trim( (string) users_plus_option( 'users_plus_login_body' ) );
 
 	if ( '' === $body ) {
 		$body = __(
 			"Click here to sign in:\n\n{link}\n\nThe link expires in {minutes} minutes and works once.\n\nIf you did not ask for it, ignore this message: nobody can get into your account without it.",
-			'users-plus-for-wordpress'
+			'users-plus'
 		);
 	}
 
@@ -198,19 +198,19 @@ function upfw_login_body( string $url ): string {
 		$body,
 		array(
 			'{link}'    => $url,
-			'{minutes}' => (string) upfw_login_expiry(),
+			'{minutes}' => (string) users_plus_login_expiry(),
 		)
 	);
 }
 
 /** Manda el correo con el enlace. */
-function upfw_login_send( int $user_id, string $email, string $token ): bool {
-	$url = upfw_login_link( $user_id, $token );
+function users_plus_login_send( int $user_id, string $email, string $token ): bool {
+	$url = users_plus_login_link( $user_id, $token );
 
 	// En desarrollo no suele haber servidor de correo. Dejar el enlace en el
 	// log es lo que hace que el flujo se pueda probar de punta a punta.
 	if ( 'production' !== wp_get_environment_type() ) {
-		error_log( '[upfw] enlace de acceso para ' . $email . ': ' . $url ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		error_log( '[users-plus] enlace de acceso para ' . $email . ': ' . $url ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 	}
 
 	/**
@@ -221,10 +221,10 @@ function upfw_login_send( int $user_id, string $email, string $token ): bool {
 	 * @param string                                $url
 	 */
 	$message = apply_filters(
-		'upfw_login_email',
+		'users_plus_login_email',
 		array(
-			'asunto' => upfw_login_subject(),
-			'cuerpo' => upfw_login_body( $url ),
+			'asunto' => users_plus_login_subject(),
+			'cuerpo' => users_plus_login_body( $url ),
 		),
 		$email,
 		$url
@@ -238,73 +238,73 @@ function upfw_login_send( int $user_id, string $email, string $token ): bool {
  *
  * Responde siempre lo mismo, haya pasado lo que haya pasado.
  */
-function upfw_login_request(): void {
-	$redirect = upfw_login_url();
+function users_plus_login_request(): void {
+	$redirect = users_plus_login_url();
 
-	if ( ! isset( $_POST['upfw_nonce'] ) || ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['upfw_nonce'] ) ), 'upfw_login' ) ) {
-		wp_safe_redirect( add_query_arg( 'upfw', 'error', $redirect ) );
+	if ( ! isset( $_POST['users_plus_nonce'] ) || ! wp_verify_nonce( sanitize_key( wp_unslash( $_POST['users_plus_nonce'] ) ), 'users_plus_login' ) ) {
+		wp_safe_redirect( add_query_arg( 'users-plus', 'error', $redirect ) );
 		exit;
 	}
 
 	// Lo escrito puede ser un correo o, si el sitio lo permite, el nombre
 	// público de alguien. En el segundo caso se sigue con el correo de esa
 	// cuenta: el enlace nunca sale a una dirección escrita en el momento.
-	$typed = sanitize_text_field( wp_unslash( $_POST['upfw_email'] ?? '' ) );
-	$email = sanitize_email( upfw_handle_login_email( $typed ) );
+	$typed = sanitize_text_field( wp_unslash( $_POST['users_plus_email'] ?? '' ) );
+	$email = sanitize_email( users_plus_handle_login_email( $typed ) );
 
 	if ( '' === $email || ! is_email( $email ) ) {
-		wp_safe_redirect( add_query_arg( 'upfw', 'email', $redirect ) );
+		wp_safe_redirect( add_query_arg( 'users-plus', 'email', $redirect ) );
 		exit;
 	}
 
 	// Todo lo que sigue termina en la misma pantalla, exista o no la cuenta.
 	$done     = add_query_arg(
 		array(
-			'upfw'  => 'sent',
-			'email' => rawurlencode( $email ),
+			'users-plus' => 'sent',
+			'email'      => rawurlencode( $email ),
 		),
 		$redirect
 	);
-	$throttle = 'upfw_throttle_' . md5( $email );
+	$throttle = 'users_plus_throttle_' . md5( $email );
 
 	if ( get_transient( $throttle ) ) {
 		wp_safe_redirect( $done );
 		exit;
 	}
 
-	set_transient( $throttle, 1, max( 1, (int) upfw_option( 'upfw_login_throttle' ) ) );
+	set_transient( $throttle, 1, max( 1, (int) users_plus_option( 'users_plus_login_throttle' ) ) );
 
-	$user_id = upfw_user_for( $email );
+	$user_id = users_plus_user_for( $email );
 
 	if ( $user_id > 0 ) {
-		upfw_login_send( $user_id, $email, upfw_token_create( $user_id ) );
+		users_plus_login_send( $user_id, $email, users_plus_token_create( $user_id ) );
 	}
 
 	wp_safe_redirect( $done );
 	exit;
 }
-add_action( 'admin_post_nopriv_upfw_acceso', 'upfw_login_request' );
-add_action( 'admin_post_upfw_acceso', 'upfw_login_request' );
+add_action( 'admin_post_nopriv_users_plus_acceso', 'users_plus_login_request' );
+add_action( 'admin_post_users_plus_acceso', 'users_plus_login_request' );
 
 /**
  * Consume el enlace: valida, inicia sesión y quema el token.
  */
-function upfw_login_consume(): void {
+function users_plus_login_consume(): void {
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended -- el token ES la credencial.
-	if ( ! isset( $_GET['upfw_login'], $_GET['upfw_token'] ) ) {
+	if ( ! isset( $_GET['users_plus_login'], $_GET['users_plus_token'] ) ) {
 		return;
 	}
 
-	$user_id = absint( $_GET['upfw_login'] );
-	$token   = sanitize_text_field( wp_unslash( $_GET['upfw_token'] ) );
+	$user_id = absint( $_GET['users_plus_login'] );
+	$token   = sanitize_text_field( wp_unslash( $_GET['users_plus_token'] ) );
 	// phpcs:enable
 
-	if ( $user_id <= 0 || '' === $token || ! upfw_token_valid( $user_id, $token ) ) {
-		wp_safe_redirect( add_query_arg( 'upfw', 'expired', upfw_login_url() ) );
+	if ( $user_id <= 0 || '' === $token || ! users_plus_token_valid( $user_id, $token ) ) {
+		wp_safe_redirect( add_query_arg( 'users-plus', 'expired', users_plus_login_url() ) );
 		exit;
 	}
 
-	upfw_token_burn( $user_id );
+	users_plus_token_burn( $user_id );
 
 	/**
 	 * Adónde va la persona después de entrar por el enlace.
@@ -314,11 +314,11 @@ function upfw_login_consume(): void {
 	 * @param string $redirect
 	 * @param int    $user_id
 	 */
-	$redirect = (string) apply_filters( 'upfw_login_redirect', home_url( '/' ), $user_id );
+	$redirect = (string) apply_filters( 'users_plus_login_redirect', home_url( '/' ), $user_id );
 
-	// No se abre la sesión acá: la abre upfw_complete_login(), que además
+	// No se abre la sesión acá: la abre users_plus_complete_login(), que además
 	// decide si antes hay que pedir un segundo factor. Todas las puertas
 	// terminan en la misma función a propósito.
-	upfw_complete_login( $user_id, 'link', true, $redirect );
+	users_plus_complete_login( $user_id, 'link', true, $redirect );
 }
-add_action( 'init', 'upfw_login_consume' );
+add_action( 'init', 'users_plus_login_consume' );

@@ -7,12 +7,12 @@
  * nada: la navegación ya está a la izquierda, y ese lugar sirve para las
  * secciones de la pantalla en la que uno está.
  *
- * @package UPFW
+ * @package UsersPlus
  */
 
 defined( 'ABSPATH' ) || exit;
 
-const UPFW_MENU = 'upfw';
+const USERS_PLUS_MENU = 'users-plus';
 
 /**
  * El nombre con el que se presenta el plugin en el escritorio.
@@ -21,8 +21,8 @@ const UPFW_MENU = 'upfw';
  * pestaña del navegador. Escrito en tres lados, tarde o temprano dicen tres
  * cosas distintas.
  */
-function upfw_plugin_name(): string {
-	return (string) apply_filters( 'upfw_plugin_name', __( 'Users+', 'users-plus-for-wordpress' ) );
+function users_plus_plugin_name(): string {
+	return (string) apply_filters( 'users_plus_plugin_name', __( 'Users+', 'users-plus' ) );
 }
 
 /**
@@ -31,11 +31,11 @@ function upfw_plugin_name(): string {
  * En un escritorio con veinte plugins, «Campos de usuario» no dice de quién
  * es esa pantalla. «Usuarios+ | Campos de usuario», sí.
  */
-function upfw_screen_title( string $title ): string {
+function users_plus_screen_title( string $title ): string {
 	return sprintf(
 		/* translators: 1: nombre del plugin, 2: nombre de la pantalla */
-		_x( '%1$s | %2$s', 'título de una pantalla del escritorio', 'users-plus-for-wordpress' ),
-		upfw_plugin_name(),
+		_x( '%1$s | %2$s', 'título de una pantalla del escritorio', 'users-plus' ),
+		users_plus_plugin_name(),
 		$title
 	);
 }
@@ -47,66 +47,66 @@ function upfw_screen_title( string $title ): string {
  * WordPress, para no quedarse con el resto —el nombre del sitio y el
  * «WordPress» del final— que es de él y no nuestro.
  */
-function upfw_admin_title( string $admin_title, string $title ): string {
+function users_plus_admin_title( string $admin_title, string $title ): string {
 	$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
 
-	if ( ! $screen instanceof WP_Screen || false === strpos( (string) $screen->id, UPFW_MENU ) ) {
+	if ( ! $screen instanceof WP_Screen || false === strpos( (string) $screen->id, USERS_PLUS_MENU ) ) {
 		return $admin_title;
 	}
 
-	return str_replace( $title, upfw_screen_title( $title ), $admin_title );
+	return str_replace( $title, users_plus_screen_title( $title ), $admin_title );
 }
-add_filter( 'admin_title', 'upfw_admin_title', 10, 2 );
+add_filter( 'admin_title', 'users_plus_admin_title', 10, 2 );
 
 /** Las pantallas del menú, en orden. */
 /**
  * @return array<string, mixed>
  */
-function upfw_screens(): array {
+function users_plus_screens(): array {
 	return array(
-		'upfw'            => __( 'Overview', 'users-plus-for-wordpress' ),
-		'upfw-fields'     => __( 'User fields', 'users-plus-for-wordpress' ),
-		'upfw-account'    => __( 'Account area', 'users-plus-for-wordpress' ),
-		'upfw-login'      => __( 'Registration and login', 'users-plus-for-wordpress' ),
-		'upfw-social'     => __( 'Social login', 'users-plus-for-wordpress' ),
-		'upfw-sessions'   => __( 'User sessions', 'users-plus-for-wordpress' ),
-		'upfw-appearance' => __( 'Appearance', 'users-plus-for-wordpress' ),
+		'users-plus'            => __( 'Overview', 'users-plus' ),
+		'users-plus-fields'     => __( 'User fields', 'users-plus' ),
+		'users-plus-account'    => __( 'Account area', 'users-plus' ),
+		'users-plus-login'      => __( 'Registration and login', 'users-plus' ),
+		'users-plus-social'     => __( 'Social login', 'users-plus' ),
+		'users-plus-sessions'   => __( 'User sessions', 'users-plus' ),
+		'users-plus-appearance' => __( 'Appearance', 'users-plus' ),
 	);
 }
 
 /** Menu. */
-function upfw_menu(): void {
+function users_plus_menu(): void {
 	add_menu_page(
-		upfw_plugin_name(),
-		upfw_plugin_name(),
+		users_plus_plugin_name(),
+		users_plus_plugin_name(),
 		'manage_options',
-		UPFW_MENU,
-		'upfw_screen_home',
+		USERS_PLUS_MENU,
+		'users_plus_screen_home',
 		'dashicons-groups',
 		71
 	);
 
 	$callbacks = array(
-		'upfw'            => 'upfw_screen_home',
-		'upfw-fields'     => 'upfw_screen_fields',
-		'upfw-account'    => 'upfw_screen_account',
-		'upfw-login'      => 'upfw_screen_login',
-		'upfw-social'     => 'upfw_screen_social',
-		'upfw-sessions'   => 'upfw_screen_sessions',
-		'upfw-appearance' => 'upfw_screen_appearance',
+		'users-plus'            => 'users_plus_screen_home',
+		'users-plus-fields'     => 'users_plus_screen_fields',
+		'users-plus-account'    => 'users_plus_screen_account',
+		'users-plus-login'      => 'users_plus_screen_login',
+		'users-plus-social'     => 'users_plus_screen_social',
+		'users-plus-sessions'   => 'users_plus_screen_sessions',
+		'users-plus-appearance' => 'users_plus_screen_appearance',
 	);
 
-	foreach ( upfw_screens() as $slug => $title ) {
-		add_submenu_page( UPFW_MENU, $title, $title, 'manage_options', $slug, $callbacks[ $slug ] );
+	foreach ( users_plus_screens() as $slug => $title ) {
+		add_submenu_page( USERS_PLUS_MENU, $title, $title, 'manage_options', $slug, $callbacks[ $slug ] );
 	}
 }
-add_action( 'admin_menu', 'upfw_menu' );
+add_action( 'admin_menu', 'users_plus_menu' );
 
 /** La URL de una pantalla del plugin, con los argumentos que haga falta. */
 /**
  * @param array<string, mixed> $args
  */
-function upfw_admin_url( string $screen, array $args = array() ): string {
+function users_plus_admin_url( string $screen, array $args = array() ): string {
 	return add_query_arg( array_merge( array( 'page' => $screen ), $args ), admin_url( 'admin.php' ) );
 }
 
@@ -115,7 +115,7 @@ function upfw_admin_url( string $screen, array $args = array() ): string {
  *
  * @param array<string, string> $tabs
  */
-function upfw_tab( array $tabs ): string {
+function users_plus_tab( array $tabs ): string {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$tab = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : '';
 
@@ -128,7 +128,7 @@ function upfw_tab( array $tabs ): string {
  * @param array<string, string> $tabs
  * @param array<string, mixed>  $extra
  */
-function upfw_tabs( string $screen, array $tabs, string $current, array $extra = array() ): void {
+function users_plus_tabs( string $screen, array $tabs, string $current, array $extra = array() ): void {
 	if ( count( $tabs ) < 2 ) {
 		return;
 	}
@@ -139,7 +139,7 @@ function upfw_tabs( string $screen, array $tabs, string $current, array $extra =
 		printf(
 			'<a class="nav-tab%1$s" href="%2$s">%3$s</a>',
 			$slug === $current ? ' nav-tab-active' : '',
-			esc_url( upfw_admin_url( $screen, array_merge( $extra, array( 'tab' => $slug ) ) ) ),
+			esc_url( users_plus_admin_url( $screen, array_merge( $extra, array( 'tab' => $slug ) ) ) ),
 			esc_html( $title )
 		);
 	}
@@ -155,22 +155,22 @@ function upfw_tabs( string $screen, array $tabs, string $current, array $extra =
  * @param array<string, mixed> $extra
  * @param array<string, mixed> $tabs
  */
-function upfw_screen_open( string $title, string $screen = '', array $tabs = array(), string $current = '', array $extra = array() ): void {
-	echo '<div class="wrap upfw-admin">';
-	printf( '<h1>%s</h1>', esc_html( upfw_screen_title( $title ) ) );
+function users_plus_screen_open( string $title, string $screen = '', array $tabs = array(), string $current = '', array $extra = array() ): void {
+	echo '<div class="wrap users-plus-admin">';
+	printf( '<h1>%s</h1>', esc_html( users_plus_screen_title( $title ) ) );
 
 	if ( array() !== $tabs ) {
-		upfw_tabs( $screen, $tabs, $current, $extra );
+		users_plus_tabs( $screen, $tabs, $current, $extra );
 	}
 }
 
 /** Screen close. */
-function upfw_screen_close(): void {
+function users_plus_screen_close(): void {
 	echo '</div>';
 }
 
 /** Un aviso corto arriba de la pantalla. */
-function upfw_notice( string $text, string $type = 'success' ): void {
+function users_plus_notice( string $text, string $type = 'success' ): void {
 	printf(
 		'<div class="notice notice-%1$s is-dismissible"><p>%2$s</p></div>',
 		esc_attr( $type ),
@@ -185,18 +185,18 @@ function upfw_notice( string $text, string $type = 'success' ): void {
  * porque el día que se sume un tercer ajuste fijable no hay que acordarse de
  * copiar el texto bien.
  */
-function upfw_forzado_aviso( string $key ): void {
-	if ( ! upfw_option_forced( $key ) ) {
+function users_plus_forzado_aviso( string $key ): void {
+	if ( ! users_plus_option_forced( $key ) ) {
 		return;
 	}
 
-	$quienes = upfw_option_forced_by();
+	$quienes = users_plus_option_forced_by();
 	?>
-	<div class="upfw-forzado">
-		<p><?php esc_html_e( 'This site fixes this from code: whatever is chosen here, it stays as it is.', 'users-plus-for-wordpress' ); ?></p>
+	<div class="users-plus-forzado">
+		<p><?php esc_html_e( 'This site fixes this from code: whatever is chosen here, it stays as it is.', 'users-plus' ); ?></p>
 
 		<?php if ( array() !== $quienes ) : ?>
-			<p><?php esc_html_e( 'It is filtered here — open the file to change it or take it out:', 'users-plus-for-wordpress' ); ?></p>
+			<p><?php esc_html_e( 'It is filtered here — open the file to change it or take it out:', 'users-plus' ); ?></p>
 			<ul>
 				<?php foreach ( $quienes as $quien ) : ?>
 					<li><code><?php echo esc_html( $quien ); ?></code></li>
@@ -208,21 +208,21 @@ function upfw_forzado_aviso( string $key ): void {
 }
 
 /** Un párrafo de explicación, con ancho de lectura. */
-function upfw_intro( string $text ): void {
-	printf( '<p class="upfw-admin__intro">%s</p>', esc_html( $text ) );
+function users_plus_intro( string $text ): void {
+	printf( '<p class="users-plus-admin__intro">%s</p>', esc_html( $text ) );
 }
 
 /** Los estilos del admin del plugin. */
-function upfw_admin_styles( string $hook ): void {
-	if ( false === strpos( $hook, 'upfw' ) ) {
+function users_plus_admin_styles( string $hook ): void {
+	if ( false === strpos( $hook, 'users-plus' ) ) {
 		return;
 	}
 
-	wp_enqueue_style( 'upfw-admin', UPFW_URL . 'assets/upfw-admin.css', array(), upfw_asset_version( 'assets/upfw-admin.css' ) );
-	wp_enqueue_script( 'upfw-admin', UPFW_URL . 'assets/upfw-admin.js', array(), upfw_asset_version( 'assets/upfw-admin.js' ), true );
+	wp_enqueue_style( 'users-plus-admin', USERS_PLUS_URL . 'assets/users-plus-admin.css', array(), users_plus_asset_version( 'assets/users-plus-admin.css' ) );
+	wp_enqueue_script( 'users-plus-admin', USERS_PLUS_URL . 'assets/users-plus-admin.js', array(), users_plus_asset_version( 'assets/users-plus-admin.js' ), true );
 
 	// La vista previa de los botones usa la hoja de verdad, la misma que el
 	// sitio: previsualizar con otra sería previsualizar otra cosa.
-	upfw_sso_enqueue_button_styles();
+	users_plus_sso_enqueue_button_styles();
 }
-add_action( 'admin_enqueue_scripts', 'upfw_admin_styles' );
+add_action( 'admin_enqueue_scripts', 'users_plus_admin_styles' );

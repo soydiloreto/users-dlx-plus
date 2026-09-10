@@ -46,7 +46,7 @@ jobs:
       - name: Install Composer dependencies
         # The vendor/ tree produced here is then mounted into the wp-env
         # container as part of the plugin volume — that's how the
-        # container can reach phpunit at /var/www/html/wp-content/plugins/users-plus-for-wordpress/vendor/.
+        # container can reach phpunit at /var/www/html/wp-content/plugins/users-plus/vendor/.
         run: composer install --no-interaction --prefer-dist --no-progress
 
       - name: Install npm dependencies
@@ -61,11 +61,11 @@ jobs:
 
       - name: Activate plugin in tests environment
         # wp-env mounts but does not auto-activate. Activate explicitly so
-        # bootstrap-integration.php finds UPFW_DIR defined.
-        run: npx wp-env run tests-cli wp plugin activate users-plus-for-wordpress
+        # bootstrap-integration.php finds USERS_PLUS_DIR defined.
+        run: npx wp-env run tests-cli wp plugin activate users-plus
 
       - name: Run integration tests
-        run: npx wp-env run tests-cli ./wp-content/plugins/users-plus-for-wordpress/vendor/bin/phpunit -c ./wp-content/plugins/users-plus-for-wordpress/phpunit-integration.xml
+        run: npx wp-env run tests-cli ./wp-content/plugins/users-plus/vendor/bin/phpunit -c ./wp-content/plugins/users-plus/phpunit-integration.xml
 
       - name: Stop wp-env
         if: always()

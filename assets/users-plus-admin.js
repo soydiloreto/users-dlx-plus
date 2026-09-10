@@ -11,13 +11,13 @@
 ( function () {
 	'use strict';
 
-	var tipo = document.getElementById( 'upfw-type' );
+	var tipo = document.getElementById( 'users-plus-type' );
 
 	if ( ! tipo ) {
 		return;
 	}
 
-	var filas = document.querySelectorAll( '.upfw-si-tipo' );
+	var filas = document.querySelectorAll( '.users-plus-si-tipo' );
 
 	function revisar() {
 		var elegido = tipo.value;
@@ -44,19 +44,19 @@
 	'use strict';
 
 	document.addEventListener( 'click', function ( evento ) {
-		var enlace = evento.target.closest( '[data-upfw-popup]' );
+		var enlace = evento.target.closest( '[data-users-plus-popup]' );
 
 		if ( ! enlace ) {
 			return;
 		}
 
-		var medidas = ( enlace.getAttribute( 'data-upfw-popup' ) || '' ).split( 'x' );
+		var medidas = ( enlace.getAttribute( 'data-users-plus-popup' ) || '' ).split( 'x' );
 		var ancho   = parseInt( medidas[ 0 ], 10 ) || 600;
 		var alto    = parseInt( medidas[ 1 ], 10 ) || 740;
 
 		var ventana = window.open(
 			enlace.href,
-			enlace.target || 'upfw-popup',
+			enlace.target || 'users-plus-popup',
 			'width=' + ancho + ',height=' + alto + ',scrollbars=yes,resizable=yes'
 		);
 
@@ -78,7 +78,7 @@
 ( function () {
 	'use strict';
 
-	var lienzo = document.querySelector( '.upfw-botones__lienzo .upfw-socials' );
+	var lienzo = document.querySelector( '.users-plus-botones__lienzo .users-plus-socials' );
 
 	if ( ! lienzo ) {
 		return;
@@ -96,27 +96,27 @@
 		var nueva  = 'cols' === grupo ? 'cols-' + valor : valor;
 
 		clases.forEach( function ( clase ) {
-			lienzo.classList.toggle( 'upfw-socials--' + clase, clase === nueva );
+			lienzo.classList.toggle( 'users-plus-socials--' + clase, clase === nueva );
 		} );
 	}
 
-	document.querySelectorAll( '[data-upfw-vista]' ).forEach( function ( campo ) {
+	document.querySelectorAll( '[data-users-plus-vista]' ).forEach( function ( campo ) {
 		campo.addEventListener( 'change', function () {
-			aplicar( campo.getAttribute( 'data-upfw-vista' ), campo.value );
+			aplicar( campo.getAttribute( 'data-users-plus-vista' ), campo.value );
 		} );
 	} );
 
 	// El fondo del lienzo. Un acabado oscuro sobre blanco se ve bárbaro y
 	// desaparece sobre el fondo oscuro del sitio; hay que poder mirar los dos.
-	var lienzoCaja = document.querySelector( '.upfw-botones__lienzo' );
+	var lienzoCaja = document.querySelector( '.users-plus-botones__lienzo' );
 
-	document.querySelectorAll( '[data-upfw-fondo]' ).forEach( function ( boton ) {
+	document.querySelectorAll( '[data-users-plus-fondo]' ).forEach( function ( boton ) {
 		boton.addEventListener( 'click', function () {
-			var oscuro = 'oscuro' === boton.getAttribute( 'data-upfw-fondo' );
+			var oscuro = 'oscuro' === boton.getAttribute( 'data-users-plus-fondo' );
 
-			lienzoCaja.classList.toggle( 'upfw-botones__lienzo--oscuro', oscuro );
+			lienzoCaja.classList.toggle( 'users-plus-botones__lienzo--oscuro', oscuro );
 
-			document.querySelectorAll( '[data-upfw-fondo]' ).forEach( function ( otro ) {
+			document.querySelectorAll( '[data-users-plus-fondo]' ).forEach( function ( otro ) {
 				otro.setAttribute( 'aria-pressed', String( otro === boton ) );
 			} );
 		} );
@@ -137,7 +137,7 @@
 ( function () {
 	'use strict';
 
-	var lista = document.querySelector( '[data-upfw-sortable]' );
+	var lista = document.querySelector( '[data-users-plus-sortable]' );
 
 	if ( ! lista ) {
 		return;

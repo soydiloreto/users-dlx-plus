@@ -6,7 +6,7 @@
 
 Instead, report the issue privately using **GitHub Security Advisories**:
 
-🔗 **[Open a private security advisory](https://github.com/soydiloreto/users-plus-for-wordpress/security/advisories/new)**
+🔗 **[Open a private security advisory](https://github.com/soydiloreto/users-plus/security/advisories/new)**
 
 This creates a confidential workspace inside the repository where the maintainers and you can discuss the issue, coordinate a fix, and agree on a disclosure timeline. Nothing is public until we both decide it's ready.
 

@@ -7,103 +7,103 @@
  * campos, para las sesiones y para el ingreso. Un ajuste que manda sobre todo
  * el plugin no puede vivir adentro de una de sus partes.
  *
- * @package UPFW
+ * @package UsersPlus
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /** Screen appearance. */
-function upfw_screen_appearance(): void {
+function users_plus_screen_appearance(): void {
 	$tabs = array(
-		'styles' => __( 'Styles', 'users-plus-for-wordpress' ),
-		'photo'  => __( 'Profile photo', 'users-plus-for-wordpress' ),
+		'styles' => __( 'Styles', 'users-plus' ),
+		'photo'  => __( 'Profile photo', 'users-plus' ),
 	);
 
-	$current = upfw_tab( $tabs );
+	$current = users_plus_tab( $tabs );
 
-	if ( isset( $_POST['upfw_appearance_nonce'] ) && wp_verify_nonce( sanitize_key( wp_unslash( $_POST['upfw_appearance_nonce'] ) ), 'upfw_appearance' ) ) {
+	if ( isset( $_POST['users_plus_appearance_nonce'] ) && wp_verify_nonce( sanitize_key( wp_unslash( $_POST['users_plus_appearance_nonce'] ) ), 'users_plus_appearance' ) ) {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- verificado arriba.
 		if ( 'photo' === $current ) {
-			upfw_save_options(
+			users_plus_save_options(
 				array(
-					'upfw_avatar_upload'   => isset( $_POST['upfw_avatar_upload'] ) ? 1 : 0,
-					'upfw_avatar_gravatar' => isset( $_POST['upfw_avatar_gravatar'] ) ? 1 : 0,
-					'upfw_avatar_initials' => isset( $_POST['upfw_avatar_initials'] ) ? 1 : 0,
-					'upfw_avatar_max_kb'   => absint( wp_unslash( $_POST['upfw_avatar_max_kb'] ?? 2048 ) ),
+					'users_plus_avatar_upload'   => isset( $_POST['users_plus_avatar_upload'] ) ? 1 : 0,
+					'users_plus_avatar_gravatar' => isset( $_POST['users_plus_avatar_gravatar'] ) ? 1 : 0,
+					'users_plus_avatar_initials' => isset( $_POST['users_plus_avatar_initials'] ) ? 1 : 0,
+					'users_plus_avatar_max_kb'   => absint( wp_unslash( $_POST['users_plus_avatar_max_kb'] ?? 2048 ) ),
 				)
 			);
 		} else {
-			upfw_save_options(
+			users_plus_save_options(
 				array(
-					'upfw_styles'       => isset( $_POST['upfw_styles'] ) ? 1 : 0,
-					'upfw_style_accent' => sanitize_hex_color( wp_unslash( $_POST['upfw_style_accent'] ?? '' ) ) ?? '',
-					'upfw_style_radius' => sanitize_text_field( wp_unslash( $_POST['upfw_style_radius'] ?? '' ) ),
+					'users_plus_styles'       => isset( $_POST['users_plus_styles'] ) ? 1 : 0,
+					'users_plus_style_accent' => sanitize_hex_color( wp_unslash( $_POST['users_plus_style_accent'] ?? '' ) ) ?? '',
+					'users_plus_style_radius' => sanitize_text_field( wp_unslash( $_POST['users_plus_style_radius'] ?? '' ) ),
 				)
 			);
 		}
 		// phpcs:enable
 
-		upfw_notice( __( 'Saved.', 'users-plus-for-wordpress' ) );
+		users_plus_notice( __( 'Saved.', 'users-plus' ) );
 	}
 
-	upfw_screen_open( __( 'Appearance', 'users-plus-for-wordpress' ), 'upfw-appearance', $tabs, $current );
+	users_plus_screen_open( __( 'Appearance', 'users-plus' ), 'users-plus-appearance', $tabs, $current );
 
 	echo '<form method="post">';
-	wp_nonce_field( 'upfw_appearance', 'upfw_appearance_nonce' );
+	wp_nonce_field( 'users_plus_appearance', 'users_plus_appearance_nonce' );
 
 	if ( 'photo' === $current ) {
-		upfw_screen_appearance_photo();
+		users_plus_screen_appearance_photo();
 	} else {
-		upfw_screen_appearance_styles();
+		users_plus_screen_appearance_styles();
 	}
 
 	submit_button();
 	echo '</form>';
 
-	upfw_screen_close();
+	users_plus_screen_close();
 }
 
 /** La hoja, el color y las esquinas. */
-function upfw_screen_appearance_styles(): void {
-	upfw_intro( __( 'Everything the plugin draws —panels, forms, lists, buttons— takes its colours and its corners from a handful of CSS properties. Change those two below and everything follows; a site with its own design can point them at its own tokens from its stylesheet, without copying anything from here.', 'users-plus-for-wordpress' ) );
+function users_plus_screen_appearance_styles(): void {
+	users_plus_intro( __( 'Everything the plugin draws —panels, forms, lists, buttons— takes its colours and its corners from a handful of CSS properties. Change those two below and everything follows; a site with its own design can point them at its own tokens from its stylesheet, without copying anything from here.', 'users-plus' ) );
 	?>
 	<table class="form-table" role="presentation">
 		<tr>
-			<th scope="row"><?php esc_html_e( 'Styles', 'users-plus-for-wordpress' ); ?></th>
+			<th scope="row"><?php esc_html_e( 'Styles', 'users-plus' ); ?></th>
 			<td>
 				<label>
-					<input type="checkbox" name="upfw_styles" value="1" <?php checked( upfw_option( 'upfw_styles' ), 1 ); ?>>
-					<?php esc_html_e( 'Load the plugin stylesheet', 'users-plus-for-wordpress' ); ?>
+					<input type="checkbox" name="users_plus_styles" value="1" <?php checked( users_plus_option( 'users_plus_styles' ), 1 ); ?>>
+					<?php esc_html_e( 'Load the plugin stylesheet', 'users-plus' ); ?>
 				</label>
-				<p class="description"><?php esc_html_e( 'Only turn it off if the site is going to style every upfw-* class itself. Turned off, its panels and buttons come out bare and the site has to draw them; re-pointing the properties is almost always enough, and it survives the plugin adding a new component.', 'users-plus-for-wordpress' ); ?></p>
-				<p class="description"><code>--upfw-accent</code> <code>--upfw-surface</code> <code>--upfw-border</code> <code>--upfw-text</code> <code>--upfw-muted</code> <code>--upfw-radius</code> <code>--upfw-control-h</code></p>
+				<p class="description"><?php esc_html_e( 'Only turn it off if the site is going to style every users-plus-* class itself. Turned off, its panels and buttons come out bare and the site has to draw them; re-pointing the properties is almost always enough, and it survives the plugin adding a new component.', 'users-plus' ); ?></p>
+				<p class="description"><code>--users-plus-accent</code> <code>--users-plus-surface</code> <code>--users-plus-border</code> <code>--users-plus-text</code> <code>--users-plus-muted</code> <code>--users-plus-radius</code> <code>--users-plus-control-h</code></p>
 			</td>
 		</tr>
 		<tr>
-			<th scope="row"><?php esc_html_e( 'Dark mode', 'users-plus-for-wordpress' ); ?></th>
+			<th scope="row"><?php esc_html_e( 'Dark mode', 'users-plus' ); ?></th>
 			<td>
-				<p class="description"><?php esc_html_e( 'There is none here, on purpose. Dark mode belongs to the site: a light site seen from a dark system used to end up with a light page and black panels. If the site has a dark mode, its own tokens change and these follow.', 'users-plus-for-wordpress' ); ?></p>
+				<p class="description"><?php esc_html_e( 'There is none here, on purpose. Dark mode belongs to the site: a light site seen from a dark system used to end up with a light page and black panels. If the site has a dark mode, its own tokens change and these follow.', 'users-plus' ); ?></p>
 			</td>
 		</tr>
 		<tr>
-			<th scope="row"><label for="upfw_style_accent"><?php esc_html_e( 'Accent colour', 'users-plus-for-wordpress' ); ?></label></th>
+			<th scope="row"><label for="users_plus_style_accent"><?php esc_html_e( 'Accent colour', 'users-plus' ); ?></label></th>
 			<td>
-				<input type="color" id="upfw_style_accent" name="upfw_style_accent" value="<?php echo esc_attr( upfw_style_accent() ); ?>">
-				<p class="description"><?php esc_html_e( 'Buttons, the open tab, links and the drawn avatars.', 'users-plus-for-wordpress' ); ?></p>
+				<input type="color" id="users_plus_style_accent" name="users_plus_style_accent" value="<?php echo esc_attr( users_plus_style_accent() ); ?>">
+				<p class="description"><?php esc_html_e( 'Buttons, the open tab, links and the drawn avatars.', 'users-plus' ); ?></p>
 			</td>
 		</tr>
 		<tr>
-			<th scope="row"><label for="upfw_style_radius"><?php esc_html_e( 'Corners', 'users-plus-for-wordpress' ); ?></label></th>
+			<th scope="row"><label for="users_plus_style_radius"><?php esc_html_e( 'Corners', 'users-plus' ); ?></label></th>
 			<td>
-				<input type="number" id="upfw_style_radius" name="upfw_style_radius" class="small-text" min="0" max="40" value="<?php echo esc_attr( (string) upfw_option( 'upfw_style_radius' ) ); ?>">
-				<?php esc_html_e( 'pixels — empty for the default', 'users-plus-for-wordpress' ); ?>
+				<input type="number" id="users_plus_style_radius" name="users_plus_style_radius" class="small-text" min="0" max="40" value="<?php echo esc_attr( (string) users_plus_option( 'users_plus_style_radius' ) ); ?>">
+				<?php esc_html_e( 'pixels — empty for the default', 'users-plus' ); ?>
 			</td>
 		</tr>
 		<tr>
-			<th scope="row"><?php esc_html_e( 'Templates', 'users-plus-for-wordpress' ); ?></th>
+			<th scope="row"><?php esc_html_e( 'Templates', 'users-plus' ); ?></th>
 			<td>
-				<p class="description"><?php esc_html_e( 'Copy any file from the plugin’s templates/ folder to your theme and edit it there:', 'users-plus-for-wordpress' ); ?></p>
-				<p><code><?php echo esc_html( 'wp-content/themes/' . get_stylesheet() . '/users-plus-for-wordpress/' ); ?></code></p>
+				<p class="description"><?php esc_html_e( 'Copy any file from the plugin’s templates/ folder to your theme and edit it there:', 'users-plus' ); ?></p>
+				<p><code><?php echo esc_html( 'wp-content/themes/' . get_stylesheet() . '/users-plus/' ); ?></code></p>
 				<p class="description"><code>account.php</code> · <code>account-nav.php</code> · <code>account/*.php</code> · <code>login.php</code> · <code>fields.php</code> · <code>accounts.php</code> · <code>sessions.php</code></p>
 			</td>
 		</tr>
@@ -112,32 +112,32 @@ function upfw_screen_appearance_styles(): void {
 }
 
 /** Las tres capas de la foto de perfil. */
-function upfw_screen_appearance_photo(): void {
-	upfw_intro( __( 'Three layers, in this order: the photo the person uploaded, then Gravatar, then their initials drawn on the accent colour. Turn off the ones you do not want.', 'users-plus-for-wordpress' ) );
+function users_plus_screen_appearance_photo(): void {
+	users_plus_intro( __( 'Three layers, in this order: the photo the person uploaded, then Gravatar, then their initials drawn on the accent colour. Turn off the ones you do not want.', 'users-plus' ) );
 	?>
 	<table class="form-table" role="presentation">
 		<tr>
-			<th scope="row"><?php esc_html_e( 'Where it comes from', 'users-plus-for-wordpress' ); ?></th>
+			<th scope="row"><?php esc_html_e( 'Where it comes from', 'users-plus' ); ?></th>
 			<td>
-				<label class="upfw-roles__item">
-					<input type="checkbox" name="upfw_avatar_upload" value="1" <?php checked( upfw_option( 'upfw_avatar_upload' ), 1 ); ?>>
-					<?php esc_html_e( 'Let people upload their own', 'users-plus-for-wordpress' ); ?>
+				<label class="users-plus-roles__item">
+					<input type="checkbox" name="users_plus_avatar_upload" value="1" <?php checked( users_plus_option( 'users_plus_avatar_upload' ), 1 ); ?>>
+					<?php esc_html_e( 'Let people upload their own', 'users-plus' ); ?>
 				</label>
-				<label class="upfw-roles__item">
-					<input type="checkbox" name="upfw_avatar_gravatar" value="1" <?php checked( upfw_option( 'upfw_avatar_gravatar' ), 1 ); ?>>
-					<?php esc_html_e( 'Fall back to Gravatar when there is none', 'users-plus-for-wordpress' ); ?>
+				<label class="users-plus-roles__item">
+					<input type="checkbox" name="users_plus_avatar_gravatar" value="1" <?php checked( users_plus_option( 'users_plus_avatar_gravatar' ), 1 ); ?>>
+					<?php esc_html_e( 'Fall back to Gravatar when there is none', 'users-plus' ); ?>
 				</label>
-				<label class="upfw-roles__item">
-					<input type="checkbox" name="upfw_avatar_initials" value="1" <?php checked( upfw_option( 'upfw_avatar_initials' ), 1 ); ?>>
-					<?php esc_html_e( 'Otherwise, draw their initials', 'users-plus-for-wordpress' ); ?>
+				<label class="users-plus-roles__item">
+					<input type="checkbox" name="users_plus_avatar_initials" value="1" <?php checked( users_plus_option( 'users_plus_avatar_initials' ), 1 ); ?>>
+					<?php esc_html_e( 'Otherwise, draw their initials', 'users-plus' ); ?>
 				</label>
-				<p class="description"><?php esc_html_e( 'Gravatar means sending a hash of every visitor’s email address to a third party. With it off and initials on, nothing leaves the site.', 'users-plus-for-wordpress' ); ?></p>
+				<p class="description"><?php esc_html_e( 'Gravatar means sending a hash of every visitor’s email address to a third party. With it off and initials on, nothing leaves the site.', 'users-plus' ); ?></p>
 			</td>
 		</tr>
 		<tr>
-			<th scope="row"><label for="upfw_avatar_max_kb"><?php esc_html_e( 'Largest photo accepted', 'users-plus-for-wordpress' ); ?></label></th>
+			<th scope="row"><label for="users_plus_avatar_max_kb"><?php esc_html_e( 'Largest photo accepted', 'users-plus' ); ?></label></th>
 			<td>
-				<input type="number" id="upfw_avatar_max_kb" name="upfw_avatar_max_kb" class="small-text" min="64" value="<?php echo esc_attr( (string) upfw_option( 'upfw_avatar_max_kb' ) ); ?>"> KB
+				<input type="number" id="users_plus_avatar_max_kb" name="users_plus_avatar_max_kb" class="small-text" min="64" value="<?php echo esc_attr( (string) users_plus_option( 'users_plus_avatar_max_kb' ) ); ?>"> KB
 			</td>
 		</tr>
 	</table>

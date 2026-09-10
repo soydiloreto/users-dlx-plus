@@ -15,19 +15,19 @@
  * letras: el contrato de `get_avatar` es que devuelve una imagen, y medio
  * WordPress —y medio tema— asume eso.
  *
- * @package UPFW
+ * @package UsersPlus
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /** El adjunto que la persona subió, o 0. */
-function upfw_avatar_id( int $user_id ): int {
-	return (int) get_user_meta( $user_id, 'upfw_avatar', true );
+function users_plus_avatar_id( int $user_id ): int {
+	return (int) get_user_meta( $user_id, 'users_plus_avatar', true );
 }
 
 /** La URL de la foto subida, en el tamaño pedido. Vacío si no hay. */
-function upfw_avatar_url( int $user_id, int $size = 96 ): string {
-	$id = upfw_avatar_id( $user_id );
+function users_plus_avatar_url( int $user_id, int $size = 96 ): string {
+	$id = users_plus_avatar_id( $user_id );
 
 	if ( $id <= 0 || ! wp_attachment_is_image( $id ) ) {
 		return '';
@@ -39,10 +39,10 @@ function upfw_avatar_url( int $user_id, int $size = 96 ): string {
 }
 
 /** Las iniciales de alguien, para el avatar dibujado. */
-function upfw_avatar_initials( int $user_id ): string {
+function users_plus_avatar_initials( int $user_id ): string {
 	$user = get_userdata( $user_id );
 
-	return $user instanceof WP_User ? upfw_initials( $user ) : '?';
+	return $user instanceof WP_User ? users_plus_initials( $user ) : '?';
 }
 
 /**
@@ -52,9 +52,9 @@ function upfw_avatar_initials( int $user_id ): string {
  * generar. El color sale del mismo ajuste que el resto de la hoja, así que un
  * sitio que cambia su acento cambia también estos avatares.
  */
-function upfw_avatar_svg( int $user_id, int $size ): string {
-	$letters = upfw_avatar_initials( $user_id );
-	$accent  = upfw_style_accent();
+function users_plus_avatar_svg( int $user_id, int $size ): string {
+	$letters = users_plus_avatar_initials( $user_id );
+	$accent  = users_plus_style_accent();
 
 	$svg = sprintf(
 		'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="%1$d" height="%1$d" role="img" aria-hidden="true">'
@@ -78,7 +78,7 @@ function upfw_avatar_svg( int $user_id, int $size ): string {
  * @param mixed $id_or_email Lo que haya mandado WordPress: un id, un correo,
  *                           un WP_User, un WP_Comment o un WP_Post.
  */
-function upfw_avatar_user_id( $id_or_email ): int {
+function users_plus_avatar_user_id( $id_or_email ): int {
 	if ( is_numeric( $id_or_email ) ) {
 		return (int) $id_or_email;
 	}
@@ -121,8 +121,8 @@ function upfw_avatar_user_id( $id_or_email ): int {
  * @param mixed                $id_or_email
  * @return array<string, mixed>
  */
-function upfw_avatar_data( array $args, $id_or_email ): array {
-	$user_id = upfw_avatar_user_id( $id_or_email );
+function users_plus_avatar_data( array $args, $id_or_email ): array {
+	$user_id = users_plus_avatar_user_id( $id_or_email );
 
 	if ( $user_id <= 0 ) {
 		return $args;
@@ -130,8 +130,8 @@ function upfw_avatar_data( array $args, $id_or_email ): array {
 
 	$size = isset( $args['size'] ) ? (int) $args['size'] : 96;
 
-	if ( upfw_option( 'upfw_avatar_upload' ) ) {
-		$url = upfw_avatar_url( $user_id, $size );
+	if ( users_plus_option( 'users_plus_avatar_upload' ) ) {
+		$url = users_plus_avatar_url( $user_id, $size );
 
 		if ( '' !== $url ) {
 			$args['url']          = $url;
@@ -141,18 +141,18 @@ function upfw_avatar_data( array $args, $id_or_email ): array {
 		}
 	}
 
-	if ( upfw_option( 'upfw_avatar_gravatar' ) ) {
+	if ( users_plus_option( 'users_plus_avatar_gravatar' ) ) {
 		return $args;
 	}
 
-	if ( upfw_option( 'upfw_avatar_initials' ) ) {
-		$args['url']          = upfw_avatar_svg( $user_id, $size );
+	if ( users_plus_option( 'users_plus_avatar_initials' ) ) {
+		$args['url']          = users_plus_avatar_svg( $user_id, $size );
 		$args['found_avatar'] = true;
 	}
 
 	return $args;
 }
-add_filter( 'pre_get_avatar_data', 'upfw_avatar_data', 99, 2 );
+add_filter( 'pre_get_avatar_data', 'users_plus_avatar_data', 99, 2 );
 
 /* ── Subir y sacar ─────────────────────────────────────────────────── */
 
@@ -160,7 +160,7 @@ add_filter( 'pre_get_avatar_data', 'upfw_avatar_data', 99, 2 );
 /**
  * @return array<int, string>
  */
-function upfw_avatar_types(): array {
+function users_plus_avatar_types(): array {
 	return array( 'image/jpeg', 'image/png', 'image/gif', 'image/webp' );
 }
 
@@ -170,23 +170,23 @@ function upfw_avatar_types(): array {
  * @param array<string, mixed> $file
  * @return int|WP_Error El id del adjunto.
  */
-function upfw_avatar_upload( int $user_id, array $file ) {
-	if ( ! upfw_option( 'upfw_avatar_upload' ) ) {
-		return new WP_Error( 'upfw_avatar_off', __( 'This site does not accept profile photos.', 'users-plus-for-wordpress' ) );
+function users_plus_avatar_upload( int $user_id, array $file ) {
+	if ( ! users_plus_option( 'users_plus_avatar_upload' ) ) {
+		return new WP_Error( 'users_plus_avatar_off', __( 'This site does not accept profile photos.', 'users-plus' ) );
 	}
 
 	if ( empty( $file['tmp_name'] ) || ! is_uploaded_file( $file['tmp_name'] ) ) {
-		return new WP_Error( 'upfw_avatar_none', __( 'No file arrived.', 'users-plus-for-wordpress' ) );
+		return new WP_Error( 'users_plus_avatar_none', __( 'No file arrived.', 'users-plus' ) );
 	}
 
-	$max = max( 1, (int) upfw_option( 'upfw_avatar_max_kb' ) ) * KB_IN_BYTES;
+	$max = max( 1, (int) users_plus_option( 'users_plus_avatar_max_kb' ) ) * KB_IN_BYTES;
 
 	if ( (int) ( $file['size'] ?? 0 ) > $max ) {
 		return new WP_Error(
-			'upfw_avatar_big',
+			'users_plus_avatar_big',
 			sprintf(
 				/* translators: %s: tamaño máximo, ya formateado */
-				__( 'The photo is too heavy: at most %s.', 'users-plus-for-wordpress' ),
+				__( 'The photo is too heavy: at most %s.', 'users-plus' ),
 				size_format( $max )
 			)
 		);
@@ -196,8 +196,8 @@ function upfw_avatar_upload( int $user_id, array $file ) {
 	// extensión la escribe quien sube.
 	$type = wp_check_filetype_and_ext( $file['tmp_name'], (string) ( $file['name'] ?? '' ) );
 
-	if ( empty( $type['type'] ) || ! in_array( $type['type'], upfw_avatar_types(), true ) ) {
-		return new WP_Error( 'upfw_avatar_type', __( 'That is not a photo. It has to be a JPG, PNG, GIF or WebP.', 'users-plus-for-wordpress' ) );
+	if ( empty( $type['type'] ) || ! in_array( $type['type'], users_plus_avatar_types(), true ) ) {
+		return new WP_Error( 'users_plus_avatar_type', __( 'That is not a photo. It has to be a JPG, PNG, GIF or WebP.', 'users-plus' ) );
 	}
 
 	require_once ABSPATH . 'wp-admin/includes/file.php';
@@ -218,8 +218,8 @@ function upfw_avatar_upload( int $user_id, array $file ) {
 		return $attachment_id;
 	}
 
-	upfw_avatar_delete( $user_id );
-	update_user_meta( $user_id, 'upfw_avatar', (int) $attachment_id );
+	users_plus_avatar_delete( $user_id );
+	update_user_meta( $user_id, 'users_plus_avatar', (int) $attachment_id );
 
 	return (int) $attachment_id;
 }
@@ -230,8 +230,8 @@ function upfw_avatar_upload( int $user_id, array $file ) {
  * Se comprueba que el adjunto sea suyo antes de tocarlo: sin eso, una meta
  * con el id de la foto de otra persona borra la foto de esa otra persona.
  */
-function upfw_avatar_delete( int $user_id ): void {
-	$id = upfw_avatar_id( $user_id );
+function users_plus_avatar_delete( int $user_id ): void {
+	$id = users_plus_avatar_id( $user_id );
 
 	if ( $id <= 0 ) {
 		return;
@@ -241,57 +241,57 @@ function upfw_avatar_delete( int $user_id ): void {
 		wp_delete_attachment( $id, true );
 	}
 
-	delete_user_meta( $user_id, 'upfw_avatar' );
+	delete_user_meta( $user_id, 'users_plus_avatar' );
 }
 
-/** El formulario de la foto. Shortcode: [upfw_avatar] */
-function upfw_shortcode_avatar(): string {
-	if ( ! is_user_logged_in() || ! upfw_option( 'upfw_avatar_upload' ) ) {
+/** El formulario de la foto. Shortcode: [users_plus_avatar] */
+function users_plus_shortcode_avatar(): string {
+	if ( ! is_user_logged_in() || ! users_plus_option( 'users_plus_avatar_upload' ) ) {
 		return '';
 	}
 
 	$user = wp_get_current_user();
 
-	return upfw_render(
+	return users_plus_render(
 		'account/avatar',
 		array(
 			'user'  => $user,
-			'has'   => upfw_avatar_id( $user->ID ) > 0,
+			'has'   => users_plus_avatar_id( $user->ID ) > 0,
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- sólo elige el mensaje.
-			'error' => isset( $_GET['upfw_avatar'] ) ? sanitize_text_field( wp_unslash( $_GET['upfw_avatar'] ) ) : '',
+			'error' => isset( $_GET['users_plus_avatar'] ) ? sanitize_text_field( wp_unslash( $_GET['users_plus_avatar'] ) ) : '',
 		)
 	);
 }
-add_shortcode( 'upfw_avatar', 'upfw_shortcode_avatar' );
+add_shortcode( 'users_plus_avatar', 'users_plus_shortcode_avatar' );
 
 /** Recibe la foto o la saca. */
-function upfw_avatar_submit(): void {
+function users_plus_avatar_submit(): void {
 	if ( ! is_user_logged_in() ) {
-		wp_safe_redirect( upfw_login_url() );
+		wp_safe_redirect( users_plus_login_url() );
 		exit;
 	}
 
-	check_admin_referer( 'upfw_avatar' );
+	check_admin_referer( 'users_plus_avatar' );
 
 	$user_id = get_current_user_id();
-	$destino = upfw_account_url( 'details' );
+	$destino = users_plus_account_url( 'details' );
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verificado arriba.
-	if ( isset( $_POST['upfw_avatar_remove'] ) ) {
-		upfw_avatar_delete( $user_id );
-		wp_safe_redirect( add_query_arg( 'upfw', 'saved', $destino ) );
+	if ( isset( $_POST['users_plus_avatar_remove'] ) ) {
+		users_plus_avatar_delete( $user_id );
+		wp_safe_redirect( add_query_arg( 'users-plus', 'saved', $destino ) );
 		exit;
 	}
 
-	// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput -- lo valida upfw_avatar_upload().
-	$result = upfw_avatar_upload( $user_id, (array) ( $_FILES['upfw_avatar_file'] ?? array() ) );
+	// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput -- lo valida users_plus_avatar_upload().
+	$result = users_plus_avatar_upload( $user_id, (array) ( $_FILES['users_plus_avatar_file'] ?? array() ) );
 
 	if ( is_wp_error( $result ) ) {
-		wp_safe_redirect( add_query_arg( 'upfw_avatar', rawurlencode( $result->get_error_message() ), $destino ) );
+		wp_safe_redirect( add_query_arg( 'users_plus_avatar', rawurlencode( $result->get_error_message() ), $destino ) );
 		exit;
 	}
 
-	wp_safe_redirect( add_query_arg( 'upfw', 'saved', $destino ) );
+	wp_safe_redirect( add_query_arg( 'users-plus', 'saved', $destino ) );
 	exit;
 }
-add_action( 'admin_post_upfw_avatar', 'upfw_avatar_submit' );
+add_action( 'admin_post_users_plus_avatar', 'users_plus_avatar_submit' );

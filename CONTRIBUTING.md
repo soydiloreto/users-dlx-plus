@@ -4,12 +4,12 @@ Thanks for your interest in contributing. This document covers how to report iss
 
 ## Reporting bugs and requesting features
 
-Open a [new issue](https://github.com/soydiloreto/users-plus-for-wordpress/issues/new/choose) and pick the appropriate template:
+Open a [new issue](https://github.com/soydiloreto/users-plus/issues/new/choose) and pick the appropriate template:
 
 - **Bug report** — something is broken or behaves unexpectedly.
 - **Feature request** — you'd like the plugin to do something it doesn't do today.
 
-For **end-user support questions** (how do I configure this?, my upload is not working, etc.) please use the [wp.org support forum](https://wordpress.org/support/plugin/users-plus-for-wordpress/) instead — that's where most users look for answers and where we maintain a public Q&A.
+For **end-user support questions** (how do I configure this?, my upload is not working, etc.) please use the [wp.org support forum](https://wordpress.org/support/plugin/users-plus/) instead — that's where most users look for answers and where we maintain a public Q&A.
 
 For **security vulnerabilities**, see [SECURITY.md](SECURITY.md). Do not open a public issue.
 
@@ -70,7 +70,7 @@ A few hard rules the linters can't fully express:
 
 - **PHP 7.4+** is the minimum supported version. Do not use syntax or functions added in later versions without a fallback. (PHPCS's PHPCompatibility ruleset catches most of this.)
 - **No hard dependencies on Composer packages** in the runtime path. The plugin must run on a fresh WordPress install with no extra setup. `composer install` produces only dev tooling — `vendor/` never ships to wp.org.
-- **All user-facing strings** must be wrapped in WordPress translation functions (`__()`, `_e()`, `_n()`, etc.) with the text domain `users-plus-for-wordpress`. `sprintf()` placeholders need a `/* translators: */` comment **on the line immediately preceding** the translation call (a blank line in between makes the comment invisible to gettext).
+- **All user-facing strings** must be wrapped in WordPress translation functions (`__()`, `_e()`, `_n()`, etc.) with the text domain `users-plus`. `sprintf()` placeholders need a `/* translators: */` comment **on the line immediately preceding** the translation call (a blank line in between makes the comment invisible to gettext).
 - **All user input** must be sanitised (`sanitize_text_field`, `wp_kses`, etc.) and all output must be escaped (`esc_html`, `esc_attr`, `esc_url`). Psalm taint analysis enforces this for the obvious sinks; PHPCS catches the rest.
 - **Never log credentials.** API keys, access keys, and decrypted secrets must not appear in `error_log` even when debug mode is on. PHPStan can't catch this — be deliberate.
 
@@ -86,7 +86,7 @@ Repository-only changes (this CONTRIBUTING.md, CI workflows, dev tooling, etc.) 
 
 ### `-dev` suffix on `main`
 
-The `Version:` header in `users-plus-for-wordpress.php` (and the
+The `Version:` header in `users-plus.php` (and the
 `DILUX_CS_VERSION` constant alongside it) carry a **`-dev` suffix on
 `main`** to signal that the working tree is in active development and
 not a tagged release. The pattern matches what Symfony, Laravel,
@@ -130,7 +130,7 @@ CI version-alignment rule and to humans reading the file.
 Release flow is documented for maintainers. Briefly:
 
 1. All PRs targeting the next release are merged into `main`.
-2. The maintainer drops the `-dev` suffix in `users-plus-for-wordpress.php`
+2. The maintainer drops the `-dev` suffix in `users-plus.php`
    (`Version:` header and `DILUX_CS_VERSION` constant), updates
    `Stable tag:` in `readme.txt` if needed, and adds a `== Changelog ==`
    entry. This is typically a single small "release prep" PR.

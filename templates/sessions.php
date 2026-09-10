@@ -3,64 +3,64 @@
  * Las sesiones abiertas de la persona.
  *
  * Reemplazable desde el tema en:
- *   wp-content/themes/<tu-tema>/users-plus-for-wordpress/sesiones.php
+ *   wp-content/themes/<tu-tema>/users-plus/sesiones.php
  *
  * @var array<int, array<string, mixed>> $sessions
  * @var bool                             $can_close_one Si se puede cerrar una suelta.
  * @var string                           $state
  *
- * @package UPFW
+ * @package UsersPlus
  */
 
 defined( 'ABSPATH' ) || exit;
 ?>
-<div class="upfw upfw-sessions">
+<div class="users-plus users-plus-sessions">
 
 	<?php if ( 'sessions' === $state ) : ?>
-		<p class="upfw-notice upfw-notice--ok"><?php esc_html_e( 'Done.', 'users-plus-for-wordpress' ); ?></p>
+		<p class="users-plus-notice users-plus-notice--ok"><?php esc_html_e( 'Done.', 'users-plus' ); ?></p>
 	<?php endif; ?>
 
 	<?php if ( array() === $sessions ) : ?>
-		<p class="upfw-note"><?php esc_html_e( 'There are no open sessions.', 'users-plus-for-wordpress' ); ?></p>
+		<p class="users-plus-note"><?php esc_html_e( 'There are no open sessions.', 'users-plus' ); ?></p>
 	<?php else : ?>
 
-	<ul class="upfw-sessions__list">
-		<?php foreach ( $sessions as $upfw_session ) : ?>
-			<li class="upfw-session<?php echo $upfw_session['current'] ? ' upfw-session--current' : ''; ?>">
-				<div class="upfw-session__what">
+	<ul class="users-plus-sessions__list">
+		<?php foreach ( $sessions as $users_plus_session ) : ?>
+			<li class="users-plus-session<?php echo $users_plus_session['current'] ? ' users-plus-session--current' : ''; ?>">
+				<div class="users-plus-session__what">
 					<strong>
-						<?php echo esc_html( $upfw_session['browser'] ); ?>
-						<?php if ( '' !== $upfw_session['os'] ) : ?>
-							· <?php echo esc_html( $upfw_session['os'] ); ?>
+						<?php echo esc_html( $users_plus_session['browser'] ); ?>
+						<?php if ( '' !== $users_plus_session['os'] ) : ?>
+							· <?php echo esc_html( $users_plus_session['os'] ); ?>
 						<?php endif; ?>
 					</strong>
 					<span>
-						<?php echo esc_html( $upfw_session['device'] ); ?>
-						<?php if ( '' !== $upfw_session['ip'] ) : ?>
-							· <?php echo esc_html( $upfw_session['ip'] ); ?>
+						<?php echo esc_html( $users_plus_session['device'] ); ?>
+						<?php if ( '' !== $users_plus_session['ip'] ) : ?>
+							· <?php echo esc_html( $users_plus_session['ip'] ); ?>
 						<?php endif; ?>
-						<?php if ( $upfw_session['started'] ) : ?>
+						<?php if ( $users_plus_session['started'] ) : ?>
 							· 
 							<?php
 							printf(
 								/* translators: %s: hace cuánto empezó la sesión */
-								esc_html__( 'started %s ago', 'users-plus-for-wordpress' ),
-								esc_html( human_time_diff( $upfw_session['started'] ) )
+								esc_html__( 'started %s ago', 'users-plus' ),
+								esc_html( human_time_diff( $users_plus_session['started'] ) )
 							);
 							?>
 						<?php endif; ?>
 					</span>
 				</div>
 
-				<div class="upfw-session__action">
-					<?php if ( $upfw_session['current'] ) : ?>
-						<span class="upfw-chip"><?php esc_html_e( 'This session', 'users-plus-for-wordpress' ); ?></span>
+				<div class="users-plus-session__action">
+					<?php if ( $users_plus_session['current'] ) : ?>
+						<span class="users-plus-chip"><?php esc_html_e( 'This session', 'users-plus' ); ?></span>
 					<?php elseif ( $can_close_one ) : ?>
 						<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-							<input type="hidden" name="action" value="upfw_sessions">
-							<input type="hidden" name="upfw_session" value="<?php echo esc_attr( $upfw_session['id'] ); ?>">
-							<?php wp_nonce_field( 'upfw_sessions' ); ?>
-							<button type="submit" class="upfw-button upfw-button--soft"><?php esc_html_e( 'Close', 'users-plus-for-wordpress' ); ?></button>
+							<input type="hidden" name="action" value="users_plus_sessions">
+							<input type="hidden" name="users_plus_session" value="<?php echo esc_attr( $users_plus_session['id'] ); ?>">
+							<?php wp_nonce_field( 'users_plus_sessions' ); ?>
+							<button type="submit" class="users-plus-button users-plus-button--soft"><?php esc_html_e( 'Close', 'users-plus' ); ?></button>
 						</form>
 					<?php endif; ?>
 				</div>
@@ -70,10 +70,10 @@ defined( 'ABSPATH' ) || exit;
 	<?php endif; ?>
 
 	<?php if ( count( $sessions ) > 1 ) : ?>
-		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="upfw-sessions__all">
-			<input type="hidden" name="action" value="upfw_sessions">
-			<?php wp_nonce_field( 'upfw_sessions' ); ?>
-			<button type="submit" class="upfw-button upfw-button--soft"><?php esc_html_e( 'Close the others', 'users-plus-for-wordpress' ); ?></button>
+		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" class="users-plus-sessions__all">
+			<input type="hidden" name="action" value="users_plus_sessions">
+			<?php wp_nonce_field( 'users_plus_sessions' ); ?>
+			<button type="submit" class="users-plus-button users-plus-button--soft"><?php esc_html_e( 'Close the others', 'users-plus' ); ?></button>
 		</form>
 	<?php endif; ?>
 </div>

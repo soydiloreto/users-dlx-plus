@@ -11,20 +11,20 @@
  * Lo que sí falta y se calcula al mostrar: de qué navegador y qué sistema es
  * cada sesión, que sale del user agent. No se persiste nada.
  *
- * @package UPFW
+ * @package UsersPlus
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /** Duración de la cookie de sesión, según los ajustes. */
-function upfw_session_duration( int $expiracion, int $user_id, bool $recordar ): int {
+function users_plus_session_duration( int $expiracion, int $user_id, bool $recordar ): int {
 	$dias = $recordar
-		? (int) upfw_option( 'upfw_session_long_days' )
-		: (int) upfw_option( 'upfw_session_short_days' );
+		? (int) users_plus_option( 'users_plus_session_long_days' )
+		: (int) users_plus_option( 'users_plus_session_short_days' );
 
 	return $dias > 0 ? $dias * DAY_IN_SECONDS : $expiracion;
 }
-add_filter( 'auth_cookie_expiration', 'upfw_session_duration', 10, 3 );
+add_filter( 'auth_cookie_expiration', 'users_plus_session_duration', 10, 3 );
 
 /**
  * De qué navegador, dispositivo y sistema es una sesión.
@@ -34,8 +34,8 @@ add_filter( 'auth_cookie_expiration', 'upfw_session_duration', 10, 3 );
  *
  * @return array{browser: string, os: string, device: string}
  */
-function upfw_user_agent( string $ua ): array {
-	$browser = __( 'Unknown browser', 'users-plus-for-wordpress' );
+function users_plus_user_agent( string $ua ): array {
+	$browser = __( 'Unknown browser', 'users-plus' );
 	$os      = '';
 
 	// El orden importa: Edge y Chrome también dicen "Safari" en su cadena.
@@ -76,8 +76,8 @@ function upfw_user_agent( string $ua ): array {
 		'browser' => $browser,
 		'os'      => $os,
 		'device'  => $mobile
-			? __( 'Phone', 'users-plus-for-wordpress' )
-			: __( 'Computer', 'users-plus-for-wordpress' ),
+			? __( 'Phone', 'users-plus' )
+			: __( 'Computer', 'users-plus' ),
 	);
 }
 
@@ -88,7 +88,7 @@ function upfw_user_agent( string $ua ): array {
  * usa su gestor por defecto. Si el sitio cambió el gestor —cosa rara pero
  * posible— no tocamos nada y sólo ofrecemos "cerrar las demás".
  */
-function upfw_sessions_addressable(): bool {
+function users_plus_sessions_addressable(): bool {
 	return 'WP_User_Meta_Session_Tokens' === get_class( WP_Session_Tokens::get_instance( get_current_user_id() ) );
 }
 
@@ -97,7 +97,7 @@ function upfw_sessions_addressable(): bool {
  *
  * @return array<int, array<string, mixed>>
  */
-function upfw_sessions( int $user_id ): array {
+function users_plus_sessions( int $user_id ): array {
 	$raw     = (array) get_user_meta( $user_id, 'session_tokens', true );
 	$current = get_current_user_id() === $user_id && function_exists( 'wp_get_session_token' )
 		? hash( 'sha256', (string) wp_get_session_token() )
@@ -109,10 +109,10 @@ function upfw_sessions( int $user_id ): array {
 		$ua = (string) ( $data['ua'] ?? '' );
 
 		$sessions[] = array_merge(
-			upfw_user_agent( $ua ),
+			users_plus_user_agent( $ua ),
 			array(
 				'id'      => (string) $verifier,
-				'ip'      => upfw_session_ip_of( (array) $data ),
+				'ip'      => users_plus_session_ip_of( (array) $data ),
 				'started' => (int) ( $data['login'] ?? 0 ),
 				'expires' => (int) ( $data['expiration'] ?? 0 ),
 				'current' => (string) $verifier === $current,
@@ -133,8 +133,8 @@ function upfw_sessions( int $user_id ): array {
  * formato de esa meta es el del gestor por defecto y por eso se comprueba
  * antes.
  */
-function upfw_session_close( int $user_id, string $id ): bool {
-	if ( ! upfw_sessions_addressable() ) {
+function users_plus_session_close( int $user_id, string $id ): bool {
+	if ( ! users_plus_sessions_addressable() ) {
 		return false;
 	}
 
@@ -156,7 +156,7 @@ function upfw_session_close( int $user_id, string $id ): bool {
 }
 
 /** Cierra todas menos la que se está usando. */
-function upfw_sessions_close_others( int $user_id ): void {
+function users_plus_sessions_close_others( int $user_id ): void {
 	$manager = WP_Session_Tokens::get_instance( $user_id );
 
 	if ( get_current_user_id() === $user_id && function_exists( 'wp_get_session_token' ) ) {
@@ -168,28 +168,28 @@ function upfw_sessions_close_others( int $user_id ): void {
 }
 
 /** Procesa los botones de la lista de sesiones. */
-function upfw_sessions_action(): void {
+function users_plus_sessions_action(): void {
 	if ( ! is_user_logged_in() ) {
-		wp_die( esc_html__( 'You have to sign in first.', 'users-plus-for-wordpress' ) );
+		wp_die( esc_html__( 'You have to sign in first.', 'users-plus' ) );
 	}
 
-	check_admin_referer( 'upfw_sessions' );
+	check_admin_referer( 'users_plus_sessions' );
 
 	$user_id = get_current_user_id();
-	$id      = sanitize_text_field( wp_unslash( $_POST['upfw_session'] ?? '' ) );
+	$id      = sanitize_text_field( wp_unslash( $_POST['users_plus_session'] ?? '' ) );
 
 	if ( '' !== $id ) {
-		upfw_session_close( $user_id, $id );
+		users_plus_session_close( $user_id, $id );
 	} else {
-		upfw_sessions_close_others( $user_id );
+		users_plus_sessions_close_others( $user_id );
 	}
 
 	$back = wp_get_referer();
 
-	wp_safe_redirect( add_query_arg( 'upfw', 'sessions', $back ? $back : home_url( '/' ) ) );
+	wp_safe_redirect( add_query_arg( 'users-plus', 'sessions', $back ? $back : home_url( '/' ) ) );
 	exit;
 }
-add_action( 'admin_post_upfw_sessions', 'upfw_sessions_action' );
+add_action( 'admin_post_users_plus_sessions', 'users_plus_sessions_action' );
 
 /**
  * Los usuarios con sesiones abiertas, buscados y paginados.
@@ -206,7 +206,7 @@ add_action( 'admin_post_upfw_sessions', 'upfw_sessions_action' );
  * @param int    $per    Cuántos por página.
  * @return array{rows: array<int, array<string, mixed>>, total: int}
  */
-function upfw_sessions_search( string $search = '', int $page = 1, int $per = 20 ): array {
+function users_plus_sessions_search( string $search = '', int $page = 1, int $per = 20 ): array {
 	global $wpdb;
 
 	$page  = max( 1, $page );
@@ -250,14 +250,14 @@ function upfw_sessions_search( string $search = '', int $page = 1, int $per = 20
 		$last = $tokens[0];
 
 		$out[] = array_merge(
-			upfw_user_agent( (string) ( $last['ua'] ?? '' ) ),
+			users_plus_user_agent( (string) ( $last['ua'] ?? '' ) ),
 			array(
 				'user_id'  => (int) $row->ID,
 				'login'    => (string) $row->user_login,
 				'email'    => (string) $row->user_email,
 				'name'     => (string) $row->display_name,
 				'sessions' => count( $tokens ),
-				'ip'       => upfw_session_ip_of( (array) $last ),
+				'ip'       => users_plus_session_ip_of( (array) $last ),
 				'started'  => (int) ( $last['login'] ?? 0 ),
 				'expires'  => (int) ( $last['expiration'] ?? 0 ),
 			)
@@ -271,21 +271,21 @@ function upfw_sessions_search( string $search = '', int $page = 1, int $per = 20
 }
 
 /** Cierra todas las sesiones de un usuario. Sólo para quien administra. */
-function upfw_sessions_admin_close(): void {
+function users_plus_sessions_admin_close(): void {
 	if ( ! current_user_can( 'edit_users' ) ) {
-		wp_die( esc_html__( 'You are not allowed to do this.', 'users-plus-for-wordpress' ) );
+		wp_die( esc_html__( 'You are not allowed to do this.', 'users-plus' ) );
 	}
 
-	check_admin_referer( 'upfw_sessions_admin' );
+	check_admin_referer( 'users_plus_sessions_admin' );
 
-	$user_id = absint( $_POST['upfw_user'] ?? 0 );
+	$user_id = absint( $_POST['users_plus_user'] ?? 0 );
 
 	if ( $user_id > 0 ) {
 		WP_Session_Tokens::get_instance( $user_id )->destroy_all();
 	}
 
 	$back = wp_get_referer();
-	wp_safe_redirect( add_query_arg( 'upfw_done', 'closed', $back ? $back : admin_url( 'admin.php?page=upfw-sessions' ) ) );
+	wp_safe_redirect( add_query_arg( 'users_plus_done', 'closed', $back ? $back : admin_url( 'admin.php?page=users-plus-sessions' ) ) );
 	exit;
 }
-add_action( 'admin_post_upfw_sessions_admin', 'upfw_sessions_admin_close' );
+add_action( 'admin_post_users_plus_sessions_admin', 'users_plus_sessions_admin_close' );

@@ -7,7 +7,7 @@
  * Docker container, where:
  *
  * - WordPress core lives at  /var/www/html/
- * - This plugin is mounted at /var/www/html/wp-content/plugins/users-plus-for-wordpress/
+ * - This plugin is mounted at /var/www/html/wp-content/plugins/users-plus/
  * - Composer vendor/ ships from the host repo via the same mount.
  * - The MySQL database for tests is named `tests-wordpress` (wp-env default).
  *
@@ -80,16 +80,16 @@ if (!file_exists($composer_autoload)) {
 require_once $composer_autoload;
 
 // 7. Verify the plugin loaded.
-if (!defined('UPFW_DIR')) {
-    fwrite(STDERR, "ERROR: users-plus-for-wordpress is not activated in the tests environment.\n");
-    fwrite(STDERR, "Run: npx wp-env run tests-cli wp plugin activate users-plus-for-wordpress\n");
+if (!defined('USERS_PLUS_DIR')) {
+    fwrite(STDERR, "ERROR: users-plus is not activated in the tests environment.\n");
+    fwrite(STDERR, "Run: npx wp-env run tests-cli wp plugin activate users-plus\n");
     exit(1);
 }
 
 // 8. Mark integration test context — the plugin has no custom tables: its
 //    data lives in options and user meta, which WordPress already creates.
-if (!defined('UPFW_INTEGRATION_TESTS')) {
-    define('UPFW_INTEGRATION_TESTS', true);
+if (!defined('USERS_PLUS_INTEGRATION_TESTS')) {
+    define('USERS_PLUS_INTEGRATION_TESTS', true);
 }
 
 // 11. Override wp_die handlers globally so AJAX handlers throw an
@@ -97,19 +97,19 @@ if (!defined('UPFW_INTEGRATION_TESTS')) {
 //     expect wp_die catch WPAjaxDieContinueException.
 class WPAjaxDieContinueException extends \Exception {}
 
-$_upfw_wp_die_test_handler = function ($message, $title = '', $args = []) {
+$_users_plus_wp_die_test_handler = function ($message, $title = '', $args = []) {
     if (function_exists('is_wp_error') && is_wp_error($message)) {
         $message = $message->get_error_message();
     }
     throw new WPAjaxDieContinueException((string) $message);
 };
 
-add_filter('wp_die_ajax_handler', function () use ($_upfw_wp_die_test_handler) {
-    return $_upfw_wp_die_test_handler;
+add_filter('wp_die_ajax_handler', function () use ($_users_plus_wp_die_test_handler) {
+    return $_users_plus_wp_die_test_handler;
 }, 999);
 
-add_filter('wp_die_handler', function () use ($_upfw_wp_die_test_handler) {
-    return $_upfw_wp_die_test_handler;
+add_filter('wp_die_handler', function () use ($_users_plus_wp_die_test_handler) {
+    return $_users_plus_wp_die_test_handler;
 }, 999);
 
 // 12. Confirmation banner (shows in CI logs).
@@ -117,4 +117,4 @@ echo "Integration test bootstrap loaded.\n";
 echo "  Database:    {$db_name}\n";
 echo "  Prefix:      {$wpdb->prefix}\n";
 echo "  WP version:  " . get_bloginfo('version') . "\n";
-echo "  Plugin ver:  " . UPFW_VERSION . "\n";
+echo "  Plugin ver:  " . USERS_PLUS_VERSION . "\n";

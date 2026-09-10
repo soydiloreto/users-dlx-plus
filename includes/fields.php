@@ -2,11 +2,11 @@
 /**
  * Los campos de usuario: qué se le pide a una persona además del correo.
  *
- * La definición vive en una option (`upfw_fields`) y se edita desde el admin;
+ * La definición vive en una option (`users_plus_fields`) y se edita desde el admin;
  * el valor de cada persona vive en su user meta, con la clave del campo. No hay
  * tabla propia: son datos de usuario y WordPress ya tiene dónde ponerlos.
  *
- * @package UPFW
+ * @package UsersPlus
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -16,19 +16,19 @@ defined( 'ABSPATH' ) || exit;
  *
  * @return array<string, string> tipo => nombre para mostrar.
  */
-function upfw_field_types(): array {
+function users_plus_field_types(): array {
 	return array(
-		'text'     => __( 'Text', 'users-plus-for-wordpress' ),
-		'textarea' => __( 'Long text', 'users-plus-for-wordpress' ),
-		'email'    => __( 'Email address', 'users-plus-for-wordpress' ),
-		'phone'    => __( 'Phone with country code', 'users-plus-for-wordpress' ),
-		'country'  => __( 'Country', 'users-plus-for-wordpress' ),
-		'url'      => __( 'Web address', 'users-plus-for-wordpress' ),
-		'number'   => __( 'Number', 'users-plus-for-wordpress' ),
-		'date'     => __( 'Date', 'users-plus-for-wordpress' ),
-		'select'   => __( 'Fixed list', 'users-plus-for-wordpress' ),
-		'datalist' => __( 'Text with suggestions', 'users-plus-for-wordpress' ),
-		'checkbox' => __( 'Yes / no', 'users-plus-for-wordpress' ),
+		'text'     => __( 'Text', 'users-plus' ),
+		'textarea' => __( 'Long text', 'users-plus' ),
+		'email'    => __( 'Email address', 'users-plus' ),
+		'phone'    => __( 'Phone with country code', 'users-plus' ),
+		'country'  => __( 'Country', 'users-plus' ),
+		'url'      => __( 'Web address', 'users-plus' ),
+		'number'   => __( 'Number', 'users-plus' ),
+		'date'     => __( 'Date', 'users-plus' ),
+		'select'   => __( 'Fixed list', 'users-plus' ),
+		'datalist' => __( 'Text with suggestions', 'users-plus' ),
+		'checkbox' => __( 'Yes / no', 'users-plus' ),
 	);
 }
 
@@ -39,7 +39,7 @@ function upfw_field_types(): array {
  * En «país» son los códigos ISO que van arriba de la lista, y en «teléfono»
  * el país que viene elegido por defecto. En el resto no se usan.
  */
-function upfw_field_uses_options( string $type ): string {
+function users_plus_field_uses_options( string $type ): string {
 	switch ( $type ) {
 		case 'select':
 		case 'datalist':
@@ -69,7 +69,7 @@ function upfw_field_uses_options( string $type ): string {
  *
  * @return array<string, string> clave => cómo se guarda.
  */
-function upfw_native_fields(): array {
+function users_plus_native_fields(): array {
 	return array(
 		'first_name' => 'meta',
 		'last_name'  => 'meta',
@@ -77,8 +77,8 @@ function upfw_native_fields(): array {
 }
 
 /** ¿Esta clave es de un campo de WordPress? */
-function upfw_field_is_native( string $key ): bool {
-	return isset( upfw_native_fields()[ $key ] );
+function users_plus_field_is_native( string $key ): bool {
+	return isset( users_plus_native_fields()[ $key ] );
 }
 
 /**
@@ -89,11 +89,11 @@ function upfw_field_is_native( string $key ): bool {
  *
  * @return array<int, array<string, mixed>>
  */
-function upfw_default_fields(): array {
+function users_plus_default_fields(): array {
 	return array(
 		array(
 			'key'      => 'first_name',
-			'label'    => __( 'First name', 'users-plus-for-wordpress' ),
+			'label'    => __( 'First name', 'users-plus' ),
 			'type'     => 'text',
 			'help'     => '',
 			'options'  => array(),
@@ -103,7 +103,7 @@ function upfw_default_fields(): array {
 		),
 		array(
 			'key'      => 'last_name',
-			'label'    => __( 'Last name', 'users-plus-for-wordpress' ),
+			'label'    => __( 'Last name', 'users-plus' ),
 			'type'     => 'text',
 			'help'     => '',
 			'options'  => array(),
@@ -112,8 +112,8 @@ function upfw_default_fields(): array {
 			'active'   => 1,
 		),
 		array(
-			'key'      => 'upfw_country',
-			'label'    => __( 'Country', 'users-plus-for-wordpress' ),
+			'key'      => 'users_plus_country',
+			'label'    => __( 'Country', 'users-plus' ),
 			'type'     => 'country',
 			'help'     => '',
 			// Los de la región primero: el orden alfabético puro deja al país
@@ -124,35 +124,35 @@ function upfw_default_fields(): array {
 			'active'   => 1,
 		),
 		array(
-			'key'      => 'upfw_birthday',
-			'label'    => __( 'Date of birth', 'users-plus-for-wordpress' ),
+			'key'      => 'users_plus_birthday',
+			'label'    => __( 'Date of birth', 'users-plus' ),
 			'type'     => 'date',
-			'help'     => __( 'So we can wish you a happy birthday.', 'users-plus-for-wordpress' ),
+			'help'     => __( 'So we can wish you a happy birthday.', 'users-plus' ),
 			'options'  => array(),
 			'required' => 0,
 			'group'    => 'extra',
 			'active'   => 1,
 		),
 		array(
-			'key'      => 'upfw_gender',
-			'label'    => __( 'Gender', 'users-plus-for-wordpress' ),
+			'key'      => 'users_plus_gender',
+			'label'    => __( 'Gender', 'users-plus' ),
 			'type'     => 'datalist',
-			'help'     => __( 'However you identify. Write anything you like, or leave it empty.', 'users-plus-for-wordpress' ),
+			'help'     => __( 'However you identify. Write anything you like, or leave it empty.', 'users-plus' ),
 			'options'  => array(
-				__( 'Woman', 'users-plus-for-wordpress' ),
-				__( 'Man', 'users-plus-for-wordpress' ),
-				__( 'Non-binary', 'users-plus-for-wordpress' ),
-				__( 'Prefer not to say', 'users-plus-for-wordpress' ),
+				__( 'Woman', 'users-plus' ),
+				__( 'Man', 'users-plus' ),
+				__( 'Non-binary', 'users-plus' ),
+				__( 'Prefer not to say', 'users-plus' ),
 			),
 			'required' => 0,
 			'group'    => 'extra',
 			'active'   => 1,
 		),
 		array(
-			'key'      => 'upfw_phone',
-			'label'    => __( 'Mobile (WhatsApp)', 'users-plus-for-wordpress' ),
+			'key'      => 'users_plus_phone',
+			'label'    => __( 'Mobile (WhatsApp)', 'users-plus' ),
 			'type'     => 'phone',
-			'help'     => __( 'With country code. Only for notifications you ask for.', 'users-plus-for-wordpress' ),
+			'help'     => __( 'With country code. Only for notifications you ask for.', 'users-plus' ),
 			'options'  => array( 'AR' ),
 			'required' => 0,
 			'group'    => 'extra',
@@ -168,7 +168,7 @@ function upfw_default_fields(): array {
  * adicional, el «si querés, contanos un poco más». Se aceptan los nombres
  * viejos para no romper lo que ya esté guardado.
  */
-function upfw_normalize_group( string $group ): string {
+function users_plus_normalize_group( string $group ): string {
 	$viejos = array(
 		'basic'    => 'main',
 		'optional' => 'extra',
@@ -183,10 +183,10 @@ function upfw_normalize_group( string $group ): string {
  *
  * @return array<string, string>
  */
-function upfw_groups(): array {
+function users_plus_groups(): array {
 	return array(
-		'main'  => __( 'Main block — what the site needs', 'users-plus-for-wordpress' ),
-		'extra' => __( 'Extra block — “if you like, tell us more”', 'users-plus-for-wordpress' ),
+		'main'  => __( 'Main block — what the site needs', 'users-plus' ),
+		'extra' => __( 'Extra block — “if you like, tell us more”', 'users-plus' ),
 	);
 }
 
@@ -197,8 +197,8 @@ function upfw_groups(): array {
  * @param array<string, mixed> $field
  * @return array<string, mixed>
  */
-function upfw_normalize_field( array $field ): array {
-	$types = upfw_field_types();
+function users_plus_normalize_field( array $field ): array {
+	$types = users_plus_field_types();
 
 	return array(
 		'key'         => sanitize_key( (string) ( $field['key'] ?? '' ) ),
@@ -216,7 +216,7 @@ function upfw_normalize_field( array $field ): array {
 			)
 		),
 		'required'    => empty( $field['required'] ) ? 0 : 1,
-		'group'       => upfw_normalize_group( (string) ( $field['group'] ?? '' ) ),
+		'group'       => users_plus_normalize_group( (string) ( $field['group'] ?? '' ) ),
 		'active'      => isset( $field['active'] ) && ! $field['active'] ? 0 : 1,
 		// Qué puede hacer con este campo la persona dueña del dato:
 		// 'always' cambiarlo cuando quiera, 'limited' unas cuantas veces,
@@ -235,8 +235,8 @@ function upfw_normalize_field( array $field ): array {
  * @param bool   $solo_activos
  * @return array<int, array<string, mixed>>
  */
-function upfw_fields( string $group = '', bool $solo_activos = true ): array {
-	$fields = array_map( 'upfw_normalize_field', (array) get_option( 'upfw_fields', array() ) );
+function users_plus_fields( string $group = '', bool $solo_activos = true ): array {
+	$fields = array_map( 'users_plus_normalize_field', (array) get_option( 'users_plus_fields', array() ) );
 
 	$fields = array_values(
 		array_filter(
@@ -263,15 +263,15 @@ function upfw_fields( string $group = '', bool $solo_activos = true ): array {
 	 * @param array<int, array<string, mixed>> $fields
 	 * @param string                           $group
 	 */
-	return apply_filters( 'upfw_fields', $fields, $group );
+	return apply_filters( 'users_plus_fields', $fields, $group );
 }
 
 /** Un campo por su clave, o null. */
 /**
  * @return array<string, mixed>
  */
-function upfw_field( string $key ): ?array {
-	foreach ( upfw_fields( '', false ) as $field ) {
+function users_plus_field( string $key ): ?array {
+	foreach ( users_plus_fields( '', false ) as $field ) {
 		if ( $field['key'] === $key ) {
 			return $field;
 		}
@@ -281,7 +281,7 @@ function upfw_field( string $key ): ?array {
 }
 
 /** El valor que tiene una persona en un campo. */
-function upfw_value( int $user_id, string $key ): string {
+function users_plus_value( int $user_id, string $key ): string {
 	return (string) get_user_meta( $user_id, $key, true );
 }
 
@@ -292,7 +292,7 @@ function upfw_value( int $user_id, string $key ): string {
  * Sin esto, quien se llamaba «juan@correo.com» sigue apareciendo así al lado
  * de lo que escribe, aunque haya completado su nombre hace un rato.
  */
-function upfw_refresh_display_name( int $user_id ): void {
+function users_plus_refresh_display_name( int $user_id ): void {
 	$user = get_userdata( $user_id );
 
 	if ( ! $user instanceof WP_User ) {
@@ -323,16 +323,16 @@ function upfw_refresh_display_name( int $user_id ): void {
  *
  * @param array<string, mixed> $field
  */
-function upfw_field_count_edit( int $user_id, array $field, string $value ): void {
+function users_plus_field_count_edit( int $user_id, array $field, string $value ): void {
 	if ( 'limited' !== $field['edit'] || get_current_user_id() !== $user_id ) {
 		return;
 	}
 
-	if ( upfw_value( $user_id, $field['key'] ) === $value ) {
+	if ( users_plus_value( $user_id, $field['key'] ) === $value ) {
 		return;
 	}
 
-	update_user_meta( $user_id, 'upfw_edits_' . $field['key'], upfw_field_edits( $user_id, $field['key'] ) + 1 );
+	update_user_meta( $user_id, 'users_plus_edits_' . $field['key'], users_plus_field_edits( $user_id, $field['key'] ) + 1 );
 }
 
 
@@ -344,20 +344,20 @@ function upfw_field_count_edit( int $user_id, array $field, string $value ): voi
  * existe para que un nombre no cambie todos los días, no para dejar sin
  * arreglo un error de tipeo.
  */
-function upfw_field_edits( int $user_id, string $key ): int {
-	return (int) get_user_meta( $user_id, 'upfw_edits_' . $key, true );
+function users_plus_field_edits( int $user_id, string $key ): int {
+	return (int) get_user_meta( $user_id, 'users_plus_edits_' . $key, true );
 }
 
 /** Cuántos cambios le quedan. -1 si no hay límite. */
 /**
  * @param array<string, mixed> $field
  */
-function upfw_field_edits_left( array $field, int $user_id ): int {
+function users_plus_field_edits_left( array $field, int $user_id ): int {
 	if ( 'limited' !== $field['edit'] ) {
 		return -1;
 	}
 
-	return max( 0, (int) $field['edit_max'] - upfw_field_edits( $user_id, $field['key'] ) );
+	return max( 0, (int) $field['edit_max'] - users_plus_field_edits( $user_id, $field['key'] ) );
 }
 
 /**
@@ -368,7 +368,7 @@ function upfw_field_edits_left( array $field, int $user_id ): int {
  *
  * @param array<string, mixed> $field
  */
-function upfw_field_editable( array $field, int $user_id ): bool {
+function users_plus_field_editable( array $field, int $user_id ): bool {
 	if ( current_user_can( 'edit_users' ) && get_current_user_id() !== $user_id ) {
 		return true;
 	}
@@ -377,7 +377,7 @@ function upfw_field_editable( array $field, int $user_id ): bool {
 		return false;
 	}
 
-	return 'limited' !== $field['edit'] || upfw_field_edits_left( $field, $user_id ) > 0;
+	return 'limited' !== $field['edit'] || users_plus_field_edits_left( $field, $user_id ) > 0;
 }
 
 /**
@@ -386,24 +386,24 @@ function upfw_field_editable( array $field, int $user_id ): bool {
  *
  * @param array<string, mixed> $field
  */
-function upfw_field_edit_note( array $field, int $user_id ): string {
+function users_plus_field_edit_note( array $field, int $user_id ): string {
 	if ( 'never' === $field['edit'] ) {
-		return __( 'This one cannot be changed from here. Write to us if it is wrong.', 'users-plus-for-wordpress' );
+		return __( 'This one cannot be changed from here. Write to us if it is wrong.', 'users-plus' );
 	}
 
 	if ( 'limited' !== $field['edit'] ) {
 		return '';
 	}
 
-	$quedan = upfw_field_edits_left( $field, $user_id );
+	$quedan = users_plus_field_edits_left( $field, $user_id );
 
 	if ( 0 === $quedan ) {
-		return __( 'You already used up the changes for this one. Write to us if it is wrong.', 'users-plus-for-wordpress' );
+		return __( 'You already used up the changes for this one. Write to us if it is wrong.', 'users-plus' );
 	}
 
 	return sprintf(
 		/* translators: %d: cuántas veces más lo puede cambiar */
-		_n( 'You can change this one %d more time.', 'You can change this one %d more times.', $quedan, 'users-plus-for-wordpress' ),
+		_n( 'You can change this one %d more time.', 'You can change this one %d more times.', $quedan, 'users-plus' ),
 		$quedan
 	);
 }
@@ -413,7 +413,7 @@ function upfw_field_edit_note( array $field, int $user_id ): string {
  *
  * @param array<string, mixed> $field
  */
-function upfw_sanitize( array $field, string $value ): string {
+function users_plus_sanitize( array $field, string $value ): string {
 	$value = trim( $value );
 
 	switch ( $field['type'] ) {
@@ -447,7 +447,7 @@ function upfw_sanitize( array $field, string $value ): string {
 			// idioma y con el humor de la geopolítica, el código no.
 			$iso = strtoupper( trim( $value ) );
 
-			return isset( upfw_countries()[ $iso ] ) ? $iso : '';
+			return isset( users_plus_countries()[ $iso ] ) ? $iso : '';
 
 		case 'checkbox':
 			return '' === $value ? '' : '1';
@@ -472,10 +472,10 @@ function upfw_sanitize( array $field, string $value ): string {
  * @param string               $group   Limita a un grupo, o '' para todos.
  * @return array<int, string> Etiquetas de los campos obligatorios que faltan.
  */
-function upfw_save( int $user_id, array $input, string $group = '' ): array {
+function users_plus_save( int $user_id, array $input, string $group = '' ): array {
 	$missing = array();
 
-	foreach ( upfw_fields( $group ) as $field ) {
+	foreach ( users_plus_fields( $group ) as $field ) {
 		$key = $field['key'];
 
 		if ( ! array_key_exists( $key, $input ) ) {
@@ -484,7 +484,7 @@ function upfw_save( int $user_id, array $input, string $group = '' ): array {
 
 		// El control del navegador se puede sacar con el inspector, así que
 		// el que manda es éste: lo que no se puede editar, no se guarda.
-		if ( ! upfw_field_editable( $field, $user_id ) ) {
+		if ( ! users_plus_field_editable( $field, $user_id ) ) {
 			continue;
 		}
 
@@ -494,11 +494,11 @@ function upfw_save( int $user_id, array $input, string $group = '' ): array {
 		// el número. Se juntan acá y no en el navegador para que también valga
 		// cuando el formulario llega sin JavaScript.
 		if ( 'phone' === $field['type'] && '' !== trim( $raw ) ) {
-			$dial = upfw_country_dial( sanitize_text_field( (string) wp_unslash( $input[ $key . '_dial' ] ?? '' ) ) );
+			$dial = users_plus_country_dial( sanitize_text_field( (string) wp_unslash( $input[ $key . '_dial' ] ?? '' ) ) );
 			$raw  = '+' . $dial . preg_replace( '/\D/', '', $raw );
 		}
 
-		$value = upfw_sanitize( $field, $raw );
+		$value = users_plus_sanitize( $field, $raw );
 
 		if ( '' === $value ) {
 			if ( $field['required'] ) {
@@ -506,22 +506,22 @@ function upfw_save( int $user_id, array $input, string $group = '' ): array {
 				continue;
 			}
 
-			upfw_field_count_edit( $user_id, $field, '' );
+			users_plus_field_count_edit( $user_id, $field, '' );
 			delete_user_meta( $user_id, $key );
 			continue;
 		}
 
-		upfw_field_count_edit( $user_id, $field, $value );
+		users_plus_field_count_edit( $user_id, $field, $value );
 
 		update_user_meta( $user_id, $key, $value );
 
-		if ( upfw_field_is_native( $key ) ) {
+		if ( users_plus_field_is_native( $key ) ) {
 			$refrescar = true;
 		}
 	}
 
 	if ( ! empty( $refrescar ) ) {
-		upfw_refresh_display_name( $user_id );
+		users_plus_refresh_display_name( $user_id );
 	}
 
 	/**
@@ -531,7 +531,7 @@ function upfw_save( int $user_id, array $input, string $group = '' ): array {
 	 * @param array<string, mixed> $input
 	 * @param string               $group
 	 */
-	do_action( 'upfw_fields_saved', $user_id, $input, $group );
+	do_action( 'users_plus_fields_saved', $user_id, $input, $group );
 
 	return $missing;
 }

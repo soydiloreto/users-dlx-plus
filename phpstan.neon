@@ -1,4 +1,4 @@
-# PHPStan configuration for users-plus-for-wordpress.
+# PHPStan configuration for users-plus.
 #
 # Level 8 (max strictness) on the production code. The WordPress
 # extension (szepeviktor/phpstan-wordpress) is auto-registered via the
@@ -18,7 +18,7 @@ parameters:
     - vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php
 
   paths:
-    - users-plus-for-wordpress.php
+    - users-plus.php
     - includes
     - templates
 

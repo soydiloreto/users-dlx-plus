@@ -17,7 +17,7 @@
  * Azure App Service, además, escribe la IP con el puerto pegado
  * («190.15.219.128:64110»). Se lo saca.
  *
- * @package UPFW
+ * @package UsersPlus
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -27,14 +27,14 @@ defined( 'ABSPATH' ) || exit;
  *
  * @return array<int, string>
  */
-function upfw_ip_headers(): array {
+function users_plus_ip_headers(): array {
 	/**
 	 * Filtra qué cabeceras se miran para averiguar la IP del cliente.
 	 *
 	 * @param array<int, string> $headers
 	 */
 	return (array) apply_filters(
-		'upfw_ip_headers',
+		'users_plus_ip_headers',
 		array(
 			'HTTP_CF_CONNECTING_IP', // Cloudflare.
 			'HTTP_TRUE_CLIENT_IP',   // Akamai, Cloudflare Enterprise.
@@ -51,7 +51,7 @@ function upfw_ip_headers(): array {
  * que abrió el pedido. También se le saca el puerto que le pega Azure y los
  * corchetes de una IPv6 con puerto.
  */
-function upfw_ip_from( string $value ): string {
+function users_plus_ip_from( string $value ): string {
 	foreach ( explode( ',', $value ) as $candidate ) {
 		$candidate = trim( $candidate );
 
@@ -77,7 +77,7 @@ function upfw_ip_from( string $value ): string {
  * Si REMOTE_ADDR es privada o de loopback, el pedido llegó por un proxy de la
  * propia infraestructura y sus cabeceras son creíbles.
  */
-function upfw_ip_is_internal( string $ip ): bool {
+function users_plus_ip_is_internal( string $ip ): bool {
 	if ( '' === $ip ) {
 		return true;
 	}
@@ -90,17 +90,17 @@ function upfw_ip_is_internal( string $ip ): bool {
  *
  * @param array<string, mixed>|null $server Para poder testearlo sin servidor.
  */
-function upfw_client_ip( ?array $server = null ): string {
+function users_plus_client_ip( ?array $server = null ): string {
 	$server = null === $server ? $_SERVER : $server; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput
-	$remote = upfw_ip_from( (string) ( $server['REMOTE_ADDR'] ?? '' ) );
+	$remote = users_plus_ip_from( (string) ( $server['REMOTE_ADDR'] ?? '' ) );
 
 	// Expuesto directo a internet: las cabeceras no son de fiar.
-	if ( ! upfw_ip_is_internal( $remote ) ) {
+	if ( ! users_plus_ip_is_internal( $remote ) ) {
 		return $remote;
 	}
 
-	foreach ( upfw_ip_headers() as $header ) {
-		$ip = upfw_ip_from( (string) ( $server[ $header ] ?? '' ) );
+	foreach ( users_plus_ip_headers() as $header ) {
+		$ip = users_plus_ip_from( (string) ( $server[ $header ] ?? '' ) );
 
 		if ( '' !== $ip ) {
 			return $ip;
@@ -120,16 +120,16 @@ function upfw_client_ip( ?array $server = null ): string {
  * @param array<string, mixed> $info
  * @return array<string, mixed>
  */
-function upfw_session_ip( array $info ): array {
-	$ip = upfw_client_ip();
+function users_plus_session_ip( array $info ): array {
+	$ip = users_plus_client_ip();
 
 	if ( '' !== $ip ) {
-		$info['upfw_ip'] = $ip;
+		$info['users_plus_ip'] = $ip;
 	}
 
 	return $info;
 }
-add_filter( 'attach_session_information', 'upfw_session_ip' );
+add_filter( 'attach_session_information', 'users_plus_session_ip' );
 
 /**
  * La IP que se muestra de una sesión guardada.
@@ -139,10 +139,10 @@ add_filter( 'attach_session_information', 'upfw_session_ip' );
  *
  * @param array<string, mixed> $session
  */
-function upfw_session_ip_of( array $session ): string {
-	if ( ! empty( $session['upfw_ip'] ) ) {
-		return (string) $session['upfw_ip'];
+function users_plus_session_ip_of( array $session ): string {
+	if ( ! empty( $session['users_plus_ip'] ) ) {
+		return (string) $session['users_plus_ip'];
 	}
 
-	return upfw_ip_from( (string) ( $session['ip'] ?? '' ) );
+	return users_plus_ip_from( (string) ( $session['ip'] ?? '' ) );
 }

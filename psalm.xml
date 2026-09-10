@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-  Psalm configuration for users-plus-for-wordpress.
+  Psalm configuration for users-plus.
 
   Psalm is used here EXCLUSIVELY for taint analysis: tracking user
   controlled values ($_GET, $_POST, $_REQUEST, $_COOKIE, $_FILES,
@@ -31,7 +31,7 @@
     <projectFiles>
         <directory name="includes" />
         <directory name="templates" />
-        <file name="users-plus-for-wordpress.php" />
+        <file name="users-plus.php" />
         <ignoreFiles>
             <directory name="vendor" />
             <directory name="tests" />

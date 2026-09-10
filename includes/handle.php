@@ -13,7 +13,7 @@
  * Así alguien puede elegir cómo lo ven y con qué dirección lo encuentran, sin
  * que eso toque cómo entra: el enlace siempre sale al correo de la cuenta.
  *
- * @package UPFW
+ * @package UsersPlus
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * @return array<int, string>
  */
-function upfw_handle_reserved(): array {
+function users_plus_handle_reserved(): array {
 	$base = array(
 		'admin', 'administrator', 'administrador', 'root', 'sistema', 'system',
 		'soporte', 'support', 'ayuda', 'help', 'api', 'wp-admin', 'wp-login',
@@ -30,7 +30,7 @@ function upfw_handle_reserved(): array {
 		'profile', 'usuario', 'user', 'usuarios', 'users', 'null', 'undefined',
 	);
 
-	$extra = preg_split( '/[\s,]+/', (string) upfw_option( 'upfw_handle_reserved' ), -1, PREG_SPLIT_NO_EMPTY );
+	$extra = preg_split( '/[\s,]+/', (string) users_plus_option( 'users_plus_handle_reserved' ), -1, PREG_SPLIT_NO_EMPTY );
 
 	return array_values( array_unique( array_map( 'sanitize_title', array_merge( $base, is_array( $extra ) ? $extra : array() ) ) ) );
 }
@@ -43,37 +43,37 @@ function upfw_handle_reserved(): array {
  * mostrarlo antes de guardar: nadie tiene que adivinar en qué se convierte lo
  * que escribió.
  */
-function upfw_handle_clean( string $handle ): string {
-	return 'unicode' === upfw_option( 'upfw_handle_charset' )
+function users_plus_handle_clean( string $handle ): string {
+	return 'unicode' === users_plus_option( 'users_plus_handle_charset' )
 		? sanitize_title( $handle, '', 'save' )
 		: sanitize_title( remove_accents( $handle ) );
 }
 
 /** El nombre público de alguien. Vacío si nunca eligió uno. */
-function upfw_handle( int $user_id ): string {
-	return (string) get_user_meta( $user_id, 'upfw_handle', true );
+function users_plus_handle( int $user_id ): string {
+	return (string) get_user_meta( $user_id, 'users_plus_handle', true );
 }
 
 /** Cuándo lo cambió por última vez. 0 si nunca. */
-function upfw_handle_changed( int $user_id ): int {
-	return (int) get_user_meta( $user_id, 'upfw_handle_changed', true );
+function users_plus_handle_changed( int $user_id ): int {
+	return (int) get_user_meta( $user_id, 'users_plus_handle_changed', true );
 }
 
 /** ¿Puede cambiarlo hoy, o todavía está esperando? */
-function upfw_handle_can_change( int $user_id ): bool {
-	$dias   = (int) upfw_option( 'upfw_handle_cooldown' );
-	$ultimo = upfw_handle_changed( $user_id );
+function users_plus_handle_can_change( int $user_id ): bool {
+	$dias   = (int) users_plus_option( 'users_plus_handle_cooldown' );
+	$ultimo = users_plus_handle_changed( $user_id );
 
 	return $dias <= 0 || 0 === $ultimo || ( time() - $ultimo ) >= $dias * DAY_IN_SECONDS;
 }
 
 /** Cuándo va a poder cambiarlo. 0 si ya puede. */
-function upfw_handle_next_change( int $user_id ): int {
-	if ( upfw_handle_can_change( $user_id ) ) {
+function users_plus_handle_next_change( int $user_id ): int {
+	if ( users_plus_handle_can_change( $user_id ) ) {
 		return 0;
 	}
 
-	return upfw_handle_changed( $user_id ) + (int) upfw_option( 'upfw_handle_cooldown' ) * DAY_IN_SECONDS;
+	return users_plus_handle_changed( $user_id ) + (int) users_plus_option( 'users_plus_handle_cooldown' ) * DAY_IN_SECONDS;
 }
 
 /**
@@ -84,34 +84,34 @@ function upfw_handle_next_change( int $user_id ): int {
  *
  * @return string|WP_Error
  */
-function upfw_handle_validate( string $handle, int $user_id ) {
+function users_plus_handle_validate( string $handle, int $user_id ) {
 	$handle = trim( $handle );
-	$min    = max( 1, (int) upfw_option( 'upfw_handle_min' ) );
-	$max    = max( $min, (int) upfw_option( 'upfw_handle_max' ) );
+	$min    = max( 1, (int) users_plus_option( 'users_plus_handle_min' ) );
+	$max    = max( $min, (int) users_plus_option( 'users_plus_handle_max' ) );
 
-	$clean = upfw_handle_clean( $handle );
+	$clean = users_plus_handle_clean( $handle );
 
 	if ( '' === $clean ) {
-		return new WP_Error( 'upfw_handle_empty', __( 'You have to write something.', 'users-plus-for-wordpress' ) );
+		return new WP_Error( 'users_plus_handle_empty', __( 'You have to write something.', 'users-plus' ) );
 	}
 
 	// Los espacios no pueden quedar: una dirección no los tiene. O se cambian
 	// por guiones sin decir nada —que es lo que espera casi todo el mundo— o
 	// se avisa, para que nadie se quede con un nombre que no escribió.
-	if ( 'reject' === upfw_option( 'upfw_handle_spaces' ) && preg_match( '/\s/', $handle ) ) {
-		return new WP_Error( 'upfw_handle_spaces', __( 'It cannot have spaces: this goes in a web address.', 'users-plus-for-wordpress' ) );
+	if ( 'reject' === users_plus_option( 'users_plus_handle_spaces' ) && preg_match( '/\s/', $handle ) ) {
+		return new WP_Error( 'users_plus_handle_spaces', __( 'It cannot have spaces: this goes in a web address.', 'users-plus' ) );
 	}
 
 	if ( is_email( $handle ) ) {
-		return new WP_Error( 'upfw_handle_email', __( 'It cannot be an email address: that is how you sign in, not how people see you.', 'users-plus-for-wordpress' ) );
+		return new WP_Error( 'users_plus_handle_email', __( 'It cannot be an email address: that is how you sign in, not how people see you.', 'users-plus' ) );
 	}
 
 	if ( mb_strlen( $clean ) < $min ) {
 		return new WP_Error(
-			'upfw_handle_short',
+			'users_plus_handle_short',
 			sprintf(
 				/* translators: %d: cantidad mínima de caracteres */
-				__( 'It is too short: at least %d characters.', 'users-plus-for-wordpress' ),
+				__( 'It is too short: at least %d characters.', 'users-plus' ),
 				$min
 			)
 		);
@@ -119,21 +119,21 @@ function upfw_handle_validate( string $handle, int $user_id ) {
 
 	if ( mb_strlen( $clean ) > $max ) {
 		return new WP_Error(
-			'upfw_handle_long',
+			'users_plus_handle_long',
 			sprintf(
 				/* translators: %d: cantidad máxima de caracteres */
-				__( 'It is too long: at most %d characters.', 'users-plus-for-wordpress' ),
+				__( 'It is too long: at most %d characters.', 'users-plus' ),
 				$max
 			)
 		);
 	}
 
-	if ( in_array( $clean, upfw_handle_reserved(), true ) ) {
-		return new WP_Error( 'upfw_handle_reserved', __( 'That one is taken by the site itself. Pick another.', 'users-plus-for-wordpress' ) );
+	if ( in_array( $clean, users_plus_handle_reserved(), true ) ) {
+		return new WP_Error( 'users_plus_handle_reserved', __( 'That one is taken by the site itself. Pick another.', 'users-plus' ) );
 	}
 
-	if ( upfw_handle_taken( $clean, $user_id ) ) {
-		return new WP_Error( 'upfw_handle_taken', __( 'Somebody already has that one.', 'users-plus-for-wordpress' ) );
+	if ( users_plus_handle_taken( $clean, $user_id ) ) {
+		return new WP_Error( 'users_plus_handle_taken', __( 'Somebody already has that one.', 'users-plus' ) );
 	}
 
 	return $clean;
@@ -148,7 +148,7 @@ function upfw_handle_validate( string $handle, int $user_id ) {
  * escribiendo el nombre público, dos personas distintas respondiendo al mismo
  * texto hace que el enlace de acceso salga a la cuenta equivocada.
  */
-function upfw_handle_taken( string $handle, int $user_id ): bool {
+function users_plus_handle_taken( string $handle, int $user_id ): bool {
 	global $wpdb;
 
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- no hay API para buscar contra dos columnas de wp_users, y una respuesta cacheada acá diría que un nombre está libre cuando ya no lo está.
@@ -169,23 +169,23 @@ function upfw_handle_taken( string $handle, int $user_id ): bool {
  *
  * @return true|WP_Error
  */
-function upfw_handle_save( int $user_id, string $handle ) {
-	if ( upfw_handle( $user_id ) === $handle ) {
+function users_plus_handle_save( int $user_id, string $handle ) {
+	if ( users_plus_handle( $user_id ) === $handle ) {
 		return true;
 	}
 
-	if ( ! upfw_handle_can_change( $user_id ) ) {
+	if ( ! users_plus_handle_can_change( $user_id ) ) {
 		return new WP_Error(
-			'upfw_handle_cooldown',
+			'users_plus_handle_cooldown',
 			sprintf(
 				/* translators: %s: fecha a partir de la cual se puede cambiar */
-				__( 'You can change it again on %s.', 'users-plus-for-wordpress' ),
-				wp_date( 'j M Y', upfw_handle_next_change( $user_id ) )
+				__( 'You can change it again on %s.', 'users-plus' ),
+				wp_date( 'j M Y', users_plus_handle_next_change( $user_id ) )
 			)
 		);
 	}
 
-	$clean = upfw_handle_validate( $handle, $user_id );
+	$clean = users_plus_handle_validate( $handle, $user_id );
 
 	if ( is_wp_error( $clean ) ) {
 		return $clean;
@@ -203,14 +203,14 @@ function upfw_handle_save( int $user_id, string $handle ) {
 		return $updated;
 	}
 
-	update_user_meta( $user_id, 'upfw_handle', $clean );
-	update_user_meta( $user_id, 'upfw_handle_changed', time() );
+	update_user_meta( $user_id, 'users_plus_handle', $clean );
+	update_user_meta( $user_id, 'users_plus_handle_changed', time() );
 
 	return true;
 }
 
 /** Quién responde a este nombre público. 0 si nadie. */
-function upfw_handle_user( string $handle ): int {
+function users_plus_handle_user( string $handle ): int {
 	global $wpdb;
 
 	$clean = sanitize_title( remove_accents( $handle ) );
@@ -238,73 +238,73 @@ function upfw_handle_user( string $handle ): int {
  * formulario al lado con su propio botón: quiere el campo adentro del suyo y
  * un solo «Guardar». Eso es esto.
  */
-function upfw_handle_field( ?int $user_id = null ): string {
+function users_plus_handle_field( ?int $user_id = null ): string {
 	$user_id = $user_id ?? get_current_user_id();
 
-	if ( $user_id <= 0 || ! upfw_option( 'upfw_handle_enabled' ) ) {
+	if ( $user_id <= 0 || ! users_plus_option( 'users_plus_handle_enabled' ) ) {
 		return '';
 	}
 
-	upfw_handle_enqueue();
+	users_plus_handle_enqueue();
 
 	$user = get_userdata( $user_id );
 
-	return upfw_render(
+	return users_plus_render(
 		'account/handle-field',
 		array(
-			'handle' => '' !== upfw_handle( $user_id ) ? upfw_handle( $user_id ) : ( $user instanceof WP_User ? $user->user_nicename : '' ),
-			'can'    => upfw_handle_can_change( $user_id ),
-			'next'   => upfw_handle_next_change( $user_id ),
+			'handle' => '' !== users_plus_handle( $user_id ) ? users_plus_handle( $user_id ) : ( $user instanceof WP_User ? $user->user_nicename : '' ),
+			'can'    => users_plus_handle_can_change( $user_id ),
+			'next'   => users_plus_handle_next_change( $user_id ),
 		)
 	);
 }
 
-/** El campo del nombre público. Shortcode: [upfw_handle] */
-function upfw_shortcode_handle(): string {
-	if ( ! is_user_logged_in() || ! upfw_option( 'upfw_handle_enabled' ) ) {
+/** El campo del nombre público. Shortcode: [users_plus_handle] */
+function users_plus_shortcode_handle(): string {
+	if ( ! is_user_logged_in() || ! users_plus_option( 'users_plus_handle_enabled' ) ) {
 		return '';
 	}
 
 	$user = wp_get_current_user();
 
-	upfw_handle_enqueue();
+	users_plus_handle_enqueue();
 
-	return upfw_render(
+	return users_plus_render(
 		'account/handle',
 		array(
 			'user'   => $user,
-			'handle' => '' !== upfw_handle( $user->ID ) ? upfw_handle( $user->ID ) : $user->user_nicename,
-			'can'    => upfw_handle_can_change( $user->ID ),
-			'next'   => upfw_handle_next_change( $user->ID ),
+			'handle' => '' !== users_plus_handle( $user->ID ) ? users_plus_handle( $user->ID ) : $user->user_nicename,
+			'can'    => users_plus_handle_can_change( $user->ID ),
+			'next'   => users_plus_handle_next_change( $user->ID ),
 			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- sólo elige el mensaje.
-			'error'  => isset( $_GET['upfw_handle'] ) ? sanitize_text_field( wp_unslash( $_GET['upfw_handle'] ) ) : '',
+			'error'  => isset( $_GET['users_plus_handle'] ) ? sanitize_text_field( wp_unslash( $_GET['users_plus_handle'] ) ) : '',
 		)
 	);
 }
-add_shortcode( 'upfw_handle', 'upfw_shortcode_handle' );
+add_shortcode( 'users_plus_handle', 'users_plus_shortcode_handle' );
 
 /** Guarda el nombre público desde el front. */
-function upfw_handle_submit(): void {
+function users_plus_handle_submit(): void {
 	if ( ! is_user_logged_in() ) {
-		wp_safe_redirect( upfw_login_url() );
+		wp_safe_redirect( users_plus_login_url() );
 		exit;
 	}
 
-	check_admin_referer( 'upfw_handle' );
+	check_admin_referer( 'users_plus_handle' );
 
-	$destino = upfw_account_url( 'details' );
+	$destino = users_plus_account_url( 'details' );
 	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verificado arriba.
-	$result = upfw_handle_save( get_current_user_id(), sanitize_text_field( wp_unslash( $_POST['upfw_handle'] ?? '' ) ) );
+	$result = users_plus_handle_save( get_current_user_id(), sanitize_text_field( wp_unslash( $_POST['users_plus_handle'] ?? '' ) ) );
 
 	if ( is_wp_error( $result ) ) {
-		wp_safe_redirect( add_query_arg( 'upfw_handle', rawurlencode( $result->get_error_message() ), $destino ) );
+		wp_safe_redirect( add_query_arg( 'users_plus_handle', rawurlencode( $result->get_error_message() ), $destino ) );
 		exit;
 	}
 
-	wp_safe_redirect( add_query_arg( 'upfw', 'saved', $destino ) );
+	wp_safe_redirect( add_query_arg( 'users-plus', 'saved', $destino ) );
 	exit;
 }
-add_action( 'admin_post_upfw_handle', 'upfw_handle_submit' );
+add_action( 'admin_post_users_plus_handle', 'users_plus_handle_submit' );
 
 /**
  * ¿Está libre este nombre?
@@ -314,8 +314,8 @@ add_action( 'admin_post_upfw_handle', 'upfw_handle_submit' );
  * Se contesta sólo a quien tiene sesión: si no, esto sería una forma cómoda de
  * averiguar qué nombres existen en el sitio.
  */
-function upfw_handle_check(): void {
-	check_ajax_referer( 'upfw_handle_check', 'nonce' );
+function users_plus_handle_check(): void {
+	check_ajax_referer( 'users_plus_handle_check', 'nonce' );
 
 	$user_id = get_current_user_id();
 
@@ -324,7 +324,7 @@ function upfw_handle_check(): void {
 	}
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verificado arriba.
-	$clean = upfw_handle_validate( sanitize_text_field( wp_unslash( $_POST['handle'] ?? '' ) ), $user_id );
+	$clean = users_plus_handle_validate( sanitize_text_field( wp_unslash( $_POST['handle'] ?? '' ) ), $user_id );
 
 	if ( is_wp_error( $clean ) ) {
 		wp_send_json_success(
@@ -338,14 +338,14 @@ function upfw_handle_check(): void {
 	wp_send_json_success(
 		array(
 			'free'   => true,
-			'url'    => upfw_handle_base_url() . $clean . '/',
-			'motivo' => upfw_handle( $user_id ) === $clean
-				? __( 'This is the one you have now.', 'users-plus-for-wordpress' )
-				: __( 'Nobody is using it: it is yours when you save.', 'users-plus-for-wordpress' ),
+			'url'    => users_plus_handle_base_url() . $clean . '/',
+			'motivo' => users_plus_handle( $user_id ) === $clean
+				? __( 'This is the one you have now.', 'users-plus' )
+				: __( 'Nobody is using it: it is yours when you save.', 'users-plus' ),
 		)
 	);
 }
-add_action( 'wp_ajax_upfw_handle_check', 'upfw_handle_check' );
+add_action( 'wp_ajax_users_plus_handle_check', 'users_plus_handle_check' );
 
 /**
  * Entrar escribiendo el nombre público.
@@ -355,12 +355,12 @@ add_action( 'wp_ajax_upfw_handle_check', 'upfw_handle_check' );
  * nunca sale a una dirección que la persona haya escrito en ese momento: sale
  * a la de la cuenta, que es lo que hace que esto no abra una puerta nueva.
  */
-function upfw_handle_login_email( string $typed ): string {
-	if ( is_email( $typed ) || ! upfw_option( 'upfw_handle_login' ) ) {
+function users_plus_handle_login_email( string $typed ): string {
+	if ( is_email( $typed ) || ! users_plus_option( 'users_plus_handle_login' ) ) {
 		return $typed;
 	}
 
-	$user_id = upfw_handle_user( $typed );
+	$user_id = users_plus_handle_user( $typed );
 
 	if ( $user_id <= 0 ) {
 		return $typed;
@@ -377,23 +377,23 @@ function upfw_handle_login_email( string $typed ): string {
  * No valida nada —eso lo hace el servidor— sólo evita la sorpresa de escribir
  * «Pablo Di Loreto» y descubrir después que quedó «pablo-di-loreto».
  */
-function upfw_handle_enqueue(): void {
-	if ( wp_script_is( 'upfw-handle', 'enqueued' ) ) {
+function users_plus_handle_enqueue(): void {
+	if ( wp_script_is( 'users-plus-handle', 'enqueued' ) ) {
 		return;
 	}
 
-	wp_enqueue_script( 'upfw-handle', UPFW_URL . 'assets/upfw-handle.js', array(), upfw_asset_version( 'assets/upfw-handle.js' ), true );
+	wp_enqueue_script( 'users-plus-handle', USERS_PLUS_URL . 'assets/users-plus-handle.js', array(), users_plus_asset_version( 'assets/users-plus-handle.js' ), true );
 
 	wp_localize_script(
-		'upfw-handle',
-		'upfwHandle',
+		'users-plus-handle',
+		'usersPlusHandle',
 		array(
-			'base'     => upfw_handle_base_url(),
-			'unicode'  => (bool) ( 'unicode' === upfw_option( 'upfw_handle_charset' ) ),
+			'base'     => users_plus_handle_base_url(),
+			'unicode'  => (bool) ( 'unicode' === users_plus_option( 'users_plus_handle_charset' ) ),
 			'ajax'     => admin_url( 'admin-ajax.php' ),
-			'nonce'    => wp_create_nonce( 'upfw_handle_check' ),
-			'checking' => __( 'Checking…', 'users-plus-for-wordpress' ),
-			'error'    => __( 'We could not check it right now.', 'users-plus-for-wordpress' ),
+			'nonce'    => wp_create_nonce( 'users_plus_handle_check' ),
+			'checking' => __( 'Checking…', 'users-plus' ),
+			'error'    => __( 'We could not check it right now.', 'users-plus' ),
 		)
 	);
 }
@@ -404,7 +404,7 @@ function upfw_handle_enqueue(): void {
  * Con bbPress instalado es la de sus foros, que es la que la gente comparte;
  * si no, la de autor que trae WordPress.
  */
-function upfw_handle_base_url(): string {
+function users_plus_handle_base_url(): string {
 	$base = function_exists( 'bbp_get_user_profile_url' )
 		? (string) bbp_get_user_profile_url( get_current_user_id() )
 		: (string) get_author_posts_url( get_current_user_id() );

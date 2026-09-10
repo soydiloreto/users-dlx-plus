@@ -8,7 +8,7 @@
  * pantalla que tenga el sitio en el front. Un sitio con registro abierto y uno
  * con SSO o enlace por correo terminan con los mismos datos guardados.
  *
- * @package UPFW
+ * @package UsersPlus
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -18,14 +18,14 @@ defined( 'ABSPATH' ) || exit;
  *
  * @param array<string, mixed> $field
  */
-function upfw_field_row( array $field, int $user_id ): void {
-	$value = upfw_value( $user_id, $field['key'] );
-	$id    = 'upfw-' . $field['key'];
+function users_plus_field_row( array $field, int $user_id ): void {
+	$value = users_plus_value( $user_id, $field['key'] );
+	$id    = 'users-plus-' . $field['key'];
 	?>
 	<tr>
 		<th><label for="<?php echo esc_attr( $id ); ?>"><?php echo esc_html( $field['label'] ); ?></label></th>
 		<td>
-			<?php upfw_field_input( $field, $value, $id ); ?>
+			<?php users_plus_field_input( $field, $value, $id ); ?>
 			<?php if ( '' !== $field['help'] ) : ?>
 				<p class="description"><?php echo esc_html( $field['help'] ); ?></p>
 			<?php endif; ?>
@@ -43,7 +43,7 @@ function upfw_field_row( array $field, int $user_id ): void {
  *
  * @param array<string, mixed> $field
  */
-function upfw_field_input( array $field, string $value, string $id = '' ): void {
+function users_plus_field_input( array $field, string $value, string $id = '' ): void {
 	$key              = $field['key'];
 	$id               = '' === $id ? $key : $id;
 	$required_attr    = $field['required'] ? ' required' : '';
@@ -54,7 +54,7 @@ function upfw_field_input( array $field, string $value, string $id = '' ): void 
 	// deja copiar y sigue mandándose; en los de elegir no existe `readonly` y
 	// hay que usar `disabled`. Lo que manda igual es el servidor: esto es
 	// para que se entienda, no para impedir nada.
-	$editable = upfw_field_editable( $field, get_current_user_id() );
+	$editable = users_plus_field_editable( $field, get_current_user_id() );
 	$lock     = $editable ? '' : ' readonly';
 	$lock_sel = $editable ? '' : ' disabled';
 
@@ -72,7 +72,7 @@ function upfw_field_input( array $field, string $value, string $id = '' ): void 
 
 		case 'select':
 			printf( '<select id="%1$s" name="%2$s"%3$s>', esc_attr( $id ), esc_attr( $key ), esc_attr( $required_attr . $lock_sel ) );
-			printf( '<option value="">%s</option>', esc_html__( '— Choose —', 'users-plus-for-wordpress' ) );
+			printf( '<option value="">%s</option>', esc_html__( '— Choose —', 'users-plus' ) );
 
 			foreach ( $field['options'] as $option ) {
 				printf(
@@ -98,9 +98,9 @@ function upfw_field_input( array $field, string $value, string $id = '' ): void 
 
 		case 'country':
 			printf( '<select id="%1$s" name="%2$s"%3$s>', esc_attr( $id ), esc_attr( $key ), esc_attr( $required_attr . $lock_sel ) );
-			printf( '<option value="">%s</option>', esc_html__( '— Choose —', 'users-plus-for-wordpress' ) );
+			printf( '<option value="">%s</option>', esc_html__( '— Choose —', 'users-plus' ) );
 
-			$preferred = upfw_countries_sorted( $field['options'] );
+			$preferred = users_plus_countries_sorted( $field['options'] );
 			$cut       = count( $field['options'] );
 			$n         = 0;
 
@@ -137,7 +137,7 @@ function upfw_field_input( array $field, string $value, string $id = '' ): void 
 				$digits = ltrim( $value, '+' );
 				$best   = 0;
 
-				foreach ( upfw_countries() as $iso => $data ) {
+				foreach ( users_plus_countries() as $iso => $data ) {
 					$len = strlen( $data[1] );
 
 					if ( $len > $best && 0 === strpos( $digits, $data[1] ) ) {
@@ -148,23 +148,23 @@ function upfw_field_input( array $field, string $value, string $id = '' ): void 
 				}
 			}
 
-			echo '<span class="upfw-phone">';
-			printf( '<select id="%1$s-dial" name="%2$s_dial" class="upfw-phone__dial"%3$s>', esc_attr( $id ), esc_attr( $key ), esc_attr( $lock_sel ) );
+			echo '<span class="users-plus-phone">';
+			printf( '<select id="%1$s-dial" name="%2$s_dial" class="users-plus-phone__dial"%3$s>', esc_attr( $id ), esc_attr( $key ), esc_attr( $lock_sel ) );
 
-			foreach ( upfw_countries_sorted( $field['options'] ) as $iso => $country_name ) {
+			foreach ( users_plus_countries_sorted( $field['options'] ) as $iso => $country_name ) {
 				printf(
 					'<option value="%1$s"%2$s>%3$s +%4$s</option>',
 					esc_attr( $iso ),
 					selected( $dial, $iso, false ),
 					esc_html( $country_name ),
-					esc_html( upfw_country_dial( $iso ) )
+					esc_html( users_plus_country_dial( $iso ) )
 				);
 			}
 
 			echo '</select>';
 
 			printf(
-				'<input type="tel" id="%1$s" name="%2$s" value="%3$s" inputmode="tel" class="upfw-phone__number" autocomplete="tel-national"%4$s%5$s>',
+				'<input type="tel" id="%1$s" name="%2$s" value="%3$s" inputmode="tel" class="users-plus-phone__number" autocomplete="tel-national"%4$s%5$s>',
 				esc_attr( $id ),
 				esc_attr( $key ),
 				esc_attr( $national ),
@@ -176,7 +176,7 @@ function upfw_field_input( array $field, string $value, string $id = '' ): void 
 			return;
 
 		case 'datalist':
-			$list = 'upfw-list-' . $key;
+			$list = 'users-plus-list-' . $key;
 
 			printf(
 				'<input type="text" id="%1$s" name="%2$s" value="%3$s" list="%4$s" autocomplete="off"%5$s%6$s>',
@@ -223,59 +223,59 @@ function upfw_field_input( array $field, string $value, string $id = '' ): void 
  *
  * @param WP_User|string $user La persona, o el string que manda el hook de alta.
  */
-function upfw_profile_fields( $user ): void {
+function users_plus_profile_fields( $user ): void {
 	if ( ! $user instanceof WP_User ) {
 		return;
 	}
 
-	$fields = upfw_fields();
+	$fields = users_plus_fields();
 
 	if ( array() === $fields ) {
 		return;
 	}
 	?>
-	<h2><?php esc_html_e( 'Additional details', 'users-plus-for-wordpress' ); ?></h2>
+	<h2><?php esc_html_e( 'Additional details', 'users-plus' ); ?></h2>
 	<table class="form-table" role="presentation">
 		<?php foreach ( $fields as $field ) : ?>
-			<?php upfw_field_row( $field, (int) $user->ID ); ?>
+			<?php users_plus_field_row( $field, (int) $user->ID ); ?>
 		<?php endforeach; ?>
 	</table>
 	<?php
 }
-add_action( 'show_user_profile', 'upfw_profile_fields' );
-add_action( 'edit_user_profile', 'upfw_profile_fields' );
+add_action( 'show_user_profile', 'users_plus_profile_fields' );
+add_action( 'edit_user_profile', 'users_plus_profile_fields' );
 
 /** Profile save. */
-function upfw_profile_save( int $user_id ): void {
+function users_plus_profile_save( int $user_id ): void {
 	if ( ! current_user_can( 'edit_user', $user_id ) ) {
 		return;
 	}
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- WordPress ya verificó el nonce del perfil antes de este hook.
-	upfw_save( $user_id, $_POST );
+	users_plus_save( $user_id, $_POST );
 }
-add_action( 'personal_options_update', 'upfw_profile_save' );
-add_action( 'edit_user_profile_update', 'upfw_profile_save' );
+add_action( 'personal_options_update', 'users_plus_profile_save' );
+add_action( 'edit_user_profile_update', 'users_plus_profile_save' );
 
 /* ── Alta desde el escritorio (Usuarios → Añadir) ──────────────────── */
 
 /** Los campos del plugin, en el alta de una persona desde el escritorio. */
-function upfw_new_user_fields( string $type ): void {
-	$fields = upfw_fields();
+function users_plus_new_user_fields( string $type ): void {
+	$fields = users_plus_fields();
 
 	if ( 'add-new-user' !== $type || array() === $fields ) {
 		return;
 	}
 	?>
-	<h2><?php esc_html_e( 'Additional details', 'users-plus-for-wordpress' ); ?></h2>
+	<h2><?php esc_html_e( 'Additional details', 'users-plus' ); ?></h2>
 	<table class="form-table" role="presentation">
 		<?php foreach ( $fields as $field ) : ?>
-			<?php upfw_field_row( $field, 0 ); ?>
+			<?php users_plus_field_row( $field, 0 ); ?>
 		<?php endforeach; ?>
 	</table>
 	<?php
 }
-add_action( 'user_new_form', 'upfw_new_user_fields' );
+add_action( 'user_new_form', 'users_plus_new_user_fields' );
 
 /* ── Registro nativo de WordPress ──────────────────────────────────── */
 
@@ -285,13 +285,13 @@ add_action( 'user_new_form', 'upfw_new_user_fields' );
  * Sirve para el sitio que sí tiene el registro abierto. En un sitio sin
  * contraseñas este formulario no se usa nunca y esto no molesta.
  */
-function upfw_register_form_fields(): void {
-	foreach ( upfw_fields() as $field ) {
-		$id = 'upfw-' . $field['key'];
+function users_plus_register_form_fields(): void {
+	foreach ( users_plus_fields() as $field ) {
+		$id = 'users-plus-' . $field['key'];
 		?>
 		<p>
 			<label for="<?php echo esc_attr( $id ); ?>"><?php echo esc_html( $field['label'] ); ?></label>
-			<?php upfw_field_input( $field, '', $id ); ?>
+			<?php users_plus_field_input( $field, '', $id ); ?>
 			<?php if ( '' !== $field['help'] ) : ?>
 				<em class="description"><?php echo esc_html( $field['help'] ); ?></em>
 			<?php endif; ?>
@@ -299,7 +299,7 @@ function upfw_register_form_fields(): void {
 		<?php
 	}
 }
-add_action( 'register_form', 'upfw_register_form_fields' );
+add_action( 'register_form', 'users_plus_register_form_fields' );
 
 /**
  * Un campo obligatorio vacío no deja completar el registro.
@@ -309,21 +309,21 @@ add_action( 'register_form', 'upfw_register_form_fields' );
  * @param string   $email   Su correo.
  * @return WP_Error
  */
-function upfw_register_validate( $errores, $login, $email ) {
-	foreach ( upfw_fields() as $field ) {
+function users_plus_register_validate( $errores, $login, $email ) {
+	foreach ( users_plus_fields() as $field ) {
 		if ( ! $field['required'] ) {
 			continue;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- lo verifica el registro de WordPress; el valor lo sanea upfw_sanitize() según el tipo del campo.
-		$value = upfw_sanitize( $field, (string) wp_unslash( $_POST[ $field['key'] ] ?? '' ) );
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- lo verifica el registro de WordPress; el valor lo sanea users_plus_sanitize() según el tipo del campo.
+		$value = users_plus_sanitize( $field, (string) wp_unslash( $_POST[ $field['key'] ] ?? '' ) );
 
 		if ( '' === $value ) {
 			$errores->add(
-				'upfw_' . $field['key'],
+				'users_plus_' . $field['key'],
 				sprintf(
 					/* translators: %s: nombre del campo */
-					esc_html__( 'Error: “%s” is required.', 'users-plus-for-wordpress' ),
+					esc_html__( 'Error: “%s” is required.', 'users-plus' ),
 					esc_html( $field['label'] )
 				)
 			);
@@ -332,11 +332,11 @@ function upfw_register_validate( $errores, $login, $email ) {
 
 	return $errores;
 }
-add_filter( 'registration_errors', 'upfw_register_validate', 10, 3 );
+add_filter( 'registration_errors', 'users_plus_register_validate', 10, 3 );
 
 /** Register save. */
-function upfw_register_save( int $user_id ): void {
+function users_plus_register_save( int $user_id ): void {
 	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- lo verifica el propio registro de WordPress.
-	upfw_save( $user_id, $_POST );
+	users_plus_save( $user_id, $_POST );
 }
-add_action( 'user_register', 'upfw_register_save' );
+add_action( 'user_register', 'users_plus_register_save' );

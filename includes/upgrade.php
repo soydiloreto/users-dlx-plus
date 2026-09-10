@@ -2,23 +2,38 @@
 /**
  * Lo que hay que arreglar cuando el plugin cambia de versión.
  *
- * Por ahora hay una sola cosa: el plugin se llamaba «User & Subscription
- * Manager» y su prefijo era `usmw_`. Los datos guardados llevan ese prefijo
- * —las options del sitio y las user meta de cada persona— y renombrar el
- * código sin renombrar los datos deja un sitio que arranca vacío: sin campos,
- * sin passkeys, sin segundo factor y sin las redes vinculadas de nadie.
+ * Por ahora hay una sola cosa, y es el prefijo. El plugin se llamó «User &
+ * Subscription Manager» con `usmw_` y después «Users Plus for WordPress» con
+ * `upfw_`, antes de quedar en «Users Plus» con `users_plus_`. Los datos
+ * guardados llevan el prefijo de su época —las options del sitio y la user
+ * meta de cada persona— y renombrar el código sin renombrar los datos deja un
+ * sitio que arranca vacío: sin campos, sin passkeys, sin segundo factor y sin
+ * las redes vinculadas de nadie.
  *
- * Así que se renombran los datos también, una sola vez, y se anota que ya se
- * hizo. Corre en `admin_init` y no en la activación porque una actualización
- * por FTP o por git no dispara la activación.
+ * Así que se renombran los datos también, de cualquiera de los prefijos
+ * viejos al de ahora, y se anota que ya se hizo. Corre en `admin_init` y no
+ * en la activación porque una actualización por FTP o por git no dispara la
+ * activación.
  *
- * @package UPFW
+ * @package UsersPlus
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /** La marca de que la mudanza ya se hizo en este sitio. */
-const UPFW_MIGRATED = 'upfw_migrated_from_usmw';
+const USERS_PLUS_MIGRATED = 'users_plus_migrated';
+
+/**
+ * Los prefijos que este plugin usó antes, del más viejo al más nuevo.
+ *
+ * Un sitio puede venir de cualquiera de los dos: del original, o de la vuelta
+ * intermedia. Los dos casos son el mismo trabajo.
+ *
+ * @return array<int, string>
+ */
+function users_plus_old_prefixes(): array {
+	return array( 'usmw_', 'upfw_' );
+}
 
 /**
  * Suelta del caché sólo lo que la migración tocó.
@@ -28,17 +43,18 @@ const UPFW_MIGRATED = 'upfw_migrated_from_usmw';
  * licencia está validada, y al perderlo volvió a pedir la clave. Un plugin no
  * tiene por qué tirar abajo el caché de un sitio entero para arreglar lo suyo.
  *
- * @param array<int, string> $options   Las options viejas, con su nombre anterior.
- * @param array<int, string> $usuarios  Los ids cuya meta se renombró.
+ * @param array<int, string> $options  Las options viejas, con su nombre anterior.
+ * @param array<int, string> $usuarios Los ids cuya meta se renombró.
+ * @param string             $viejo    El prefijo del que se viene.
  */
-function upfw_migration_forget_cache( array $options, array $usuarios ): void {
+function users_plus_migration_forget_cache( array $options, array $usuarios, string $viejo ): void {
 	// La lista completa de options la cachea WordPress en un solo bulto.
 	wp_cache_delete( 'alloptions', 'options' );
 	wp_cache_delete( 'notoptions', 'options' );
 
 	foreach ( $options as $vieja ) {
 		wp_cache_delete( (string) $vieja, 'options' );
-		wp_cache_delete( 'upfw_' . substr( (string) $vieja, 5 ), 'options' );
+		wp_cache_delete( 'users_plus_' . substr( (string) $vieja, strlen( $viejo ) ), 'options' );
 	}
 
 	foreach ( $usuarios as $user_id ) {
@@ -47,19 +63,19 @@ function upfw_migration_forget_cache( array $options, array $usuarios ): void {
 }
 
 /**
- * Renombra los datos que quedaron con el prefijo viejo.
+ * Renombra los datos que quedaron con un prefijo viejo.
  *
  * Se hace con SQL y no con la API de options y meta por una razón práctica:
  * hay una fila por persona y por clave, son 25.000 personas en el sitio que
  * originó esto, y leer y reescribir cada una de a una tarda minutos y se
  * corta a la mitad.
  */
-function upfw_migrate_from_usmw(): void {
+function users_plus_migrate_prefix( string $viejo ): void {
 	global $wpdb;
 
-	if ( get_option( UPFW_MIGRATED ) ) {
-		return;
-	}
+	$largo = strlen( $viejo );
+	$desde = $largo + 1;
+	$like  = str_replace( '_', '\\_', $viejo ) . '%';
 
 	// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- es una migración: una vez, sin entrada de nadie, y suelta del caché sólo lo suyo al final.
 
@@ -69,63 +85,132 @@ function upfw_migrate_from_usmw(): void {
 	// Así que primero se saca la recién sembrada: la que vale es la vieja,
 	// que tiene lo que el sitio configuró.
 	$viejas = $wpdb->get_col(
-		"SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE 'usmw\\_%'"
+		$wpdb->prepare( "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s", $like )
 	);
 
-	foreach ( (array) $viejas as $vieja ) {
-		delete_option( 'upfw_' . substr( (string) $vieja, 5 ) );
+	if ( array() === (array) $viejas ) {
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		return;
 	}
 
-	// SUBSTRING desde el 6 y no REPLACE: REPLACE cambiaría también un `usmw_`
-	// que apareciera en el medio de la clave, y acá lo que se muda es el
-	// prefijo, no todas las apariciones.
+	foreach ( (array) $viejas as $vieja ) {
+		delete_option( 'users_plus_' . substr( (string) $vieja, $largo ) );
+	}
+
+	// SUBSTRING desde el largo del prefijo y no REPLACE: REPLACE cambiaría
+	// también un `usmw_` que apareciera en el medio de la clave, y acá lo que
+	// se muda es el prefijo, no todas las apariciones.
 	$wpdb->query(
-		"UPDATE {$wpdb->options}
-		    SET option_name = CONCAT( 'upfw_', SUBSTRING( option_name, 6 ) )
-		  WHERE option_name LIKE 'usmw\\_%'"
+		$wpdb->prepare(
+			"UPDATE {$wpdb->options}
+			    SET option_name = CONCAT( 'users_plus_', SUBSTRING( option_name, %d ) )
+			  WHERE option_name LIKE %s",
+			$desde,
+			$like
+		)
 	);
 
 	$afectados = $wpdb->get_col(
-		"SELECT DISTINCT user_id FROM {$wpdb->usermeta} WHERE meta_key LIKE 'usmw\\_%'"
+		$wpdb->prepare( "SELECT DISTINCT user_id FROM {$wpdb->usermeta} WHERE meta_key LIKE %s", $like )
 	);
 
 	// La user meta no tiene clave única, pero el problema es el mismo: una
 	// persona podría quedar con la vieja y la nueva, y `get_user_meta()`
 	// devolvería cualquiera de las dos.
 	$wpdb->query(
-		"DELETE nueva FROM {$wpdb->usermeta} nueva
-		   INNER JOIN {$wpdb->usermeta} vieja
-		           ON vieja.user_id = nueva.user_id
-		          AND vieja.meta_key = CONCAT( 'usmw_', SUBSTRING( nueva.meta_key, 6 ) )
-		        WHERE nueva.meta_key LIKE 'upfw\\_%'"
+		$wpdb->prepare(
+			"DELETE nueva FROM {$wpdb->usermeta} nueva
+			   INNER JOIN {$wpdb->usermeta} vieja
+			           ON vieja.user_id = nueva.user_id
+			          AND vieja.meta_key = CONCAT( %s, SUBSTRING( nueva.meta_key, 12 ) )
+			        WHERE nueva.meta_key LIKE %s",
+			$viejo,
+			$wpdb->esc_like( 'users_plus_' ) . '%'
+		)
 	);
 
 	$wpdb->query(
-		"UPDATE {$wpdb->usermeta}
-		    SET meta_key = CONCAT( 'upfw_', SUBSTRING( meta_key, 6 ) )
-		  WHERE meta_key LIKE 'usmw\\_%'"
+		$wpdb->prepare(
+			"UPDATE {$wpdb->usermeta}
+			    SET meta_key = CONCAT( 'users_plus_', SUBSTRING( meta_key, %d ) )
+			  WHERE meta_key LIKE %s",
+			$desde,
+			$like
+		)
 	);
 
 	// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
-	upfw_migration_forget_cache( (array) $viejas, (array) $afectados );
+	users_plus_migration_forget_cache( (array) $viejas, (array) $afectados, $viejo );
 
 	// Las claves de los campos viajan además adentro de la definición, y son
 	// las mismas con las que se guardó el valor de cada persona: si no se
 	// mudan las dos, los campos quedan mirando a una meta que ya no existe.
-	$fields = get_option( 'upfw_fields', false );
+	$fields = get_option( 'users_plus_fields', false );
 
 	if ( is_array( $fields ) ) {
 		foreach ( $fields as $i => $field ) {
-			if ( isset( $field['key'] ) && 0 === strpos( (string) $field['key'], 'usmw_' ) ) {
-				$fields[ $i ]['key'] = 'upfw_' . substr( (string) $field['key'], 5 );
+			if ( isset( $field['key'] ) && 0 === strpos( (string) $field['key'], $viejo ) ) {
+				$fields[ $i ]['key'] = 'users_plus_' . substr( (string) $field['key'], $largo );
 			}
 		}
 
-		update_option( 'upfw_fields', $fields );
+		update_option( 'users_plus_fields', $fields );
 	}
 
-	update_option( UPFW_MIGRATED, 1 );
+	// Y los shortcodes escritos adentro de las páginas.
+	users_plus_migrate_shortcodes( $viejo );
 }
-add_action( 'admin_init', 'upfw_migrate_from_usmw', 0 );
-add_action( 'wp_initialize_site', 'upfw_migrate_from_usmw' );
+
+/**
+ * Los shortcodes que quedaron escritos en el contenido de una página.
+ *
+ * `[usmw_account]` no lo pinta nadie después del renombre: sale el texto tal
+ * cual, y quien mira la página de su cuenta ve el corchete.
+ */
+function users_plus_migrate_shortcodes( string $viejo ): void {
+	global $wpdb;
+
+	// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- ídem.
+	$ids = $wpdb->get_col(
+		$wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_content LIKE %s", '%[' . $wpdb->esc_like( $viejo ) . '%' )
+	);
+
+	if ( array() === (array) $ids ) {
+		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		return;
+	}
+
+	$wpdb->query(
+		$wpdb->prepare(
+			"UPDATE {$wpdb->posts}
+			    SET post_content = REPLACE( post_content, %s, %s )
+			  WHERE post_content LIKE %s",
+			'[' . $viejo,
+			'[users_plus_',
+			'%[' . $wpdb->esc_like( $viejo ) . '%'
+		)
+	);
+	// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
+	// Sin esto WordPress sigue sirviendo el contenido viejo desde el caché de
+	// objetos, y la página muestra el shortcode escrito en vez de la cuenta.
+	foreach ( (array) $ids as $id ) {
+		clean_post_cache( (int) $id );
+	}
+}
+
+/** Corre la mudanza una sola vez, desde cualquier prefijo anterior. */
+function users_plus_migrate(): void {
+	if ( get_option( USERS_PLUS_MIGRATED ) ) {
+		return;
+	}
+
+	foreach ( users_plus_old_prefixes() as $viejo ) {
+		users_plus_migrate_prefix( $viejo );
+	}
+
+	update_option( USERS_PLUS_MIGRATED, 1 );
+}
+add_action( 'admin_init', 'users_plus_migrate', 0 );
+add_action( 'wp_initialize_site', 'users_plus_migrate' );

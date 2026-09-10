@@ -8,19 +8,19 @@
  * combinaciones no se pueden resolver con una cadena de `if`: hace falta un
  * lugar donde estén enumeradas y un solo camino por el que pase todo el mundo.
  *
- * Ese camino es `upfw_complete_login()`. La entren como la entren —contraseña,
+ * Ese camino es `users_plus_complete_login()`. La entren como la entren —contraseña,
  * enlace, red social— todos terminan ahí, y ahí se decide si la sesión se abre
  * o si primero hay que probar algo más. Sin eso, agregar un segundo factor
  * significaría acordarse de agregarlo en cada puerta, y la que se olvide queda
  * abierta.
  *
- * @package UPFW
+ * @package UsersPlus
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /** Cuánto vive un intento de segundo factor a medio terminar. */
-const UPFW_2FA_WINDOW = 10 * MINUTE_IN_SECONDS;
+const USERS_PLUS_2FA_WINDOW = 10 * MINUTE_IN_SECONDS;
 
 /* ── Los segundos factores disponibles ─────────────────────────────── */
 
@@ -47,25 +47,25 @@ const UPFW_2FA_WINDOW = 10 * MINUTE_IN_SECONDS;
  *
  * @return array<string, array<string, mixed>>
  */
-function upfw_2fa_methods(): array {
+function users_plus_2fa_methods(): array {
 	$methods = array(
 		'email' => array(
 			// Por dónde llega el segundo paso. Es lo que permite decidir si
 			// suma algo cuando alguien ya entró por ese mismo canal.
 			'channel'  => 'email',
-			'label'    => __( 'A code by email', 'users-plus-for-wordpress' ),
-			'help'     => __( 'We send a six-digit code to the address on the account. Nothing to install.', 'users-plus-for-wordpress' ),
+			'label'    => __( 'A code by email', 'users-plus' ),
+			'help'     => __( 'We send a six-digit code to the address on the account. Nothing to install.', 'users-plus' ),
 			'ready'    => static fn( int $user_id ): bool => true,
-			'send'     => 'upfw_2fa_email_send',
-			'verify'   => 'upfw_2fa_email_verify',
+			'send'     => 'users_plus_2fa_email_send',
+			'verify'   => 'users_plus_2fa_email_verify',
 			'position' => 20,
 		),
 		'totp'  => array(
 			'channel'  => 'device',
-			'label'    => __( 'An authenticator app', 'users-plus-for-wordpress' ),
-			'help'     => __( 'The six-digit code that changes every thirty seconds, from Google Authenticator, 1Password, Aegis or whichever one you use.', 'users-plus-for-wordpress' ),
-			'ready'    => 'upfw_totp_ready',
-			'verify'   => 'upfw_totp_verify',
+			'label'    => __( 'An authenticator app', 'users-plus' ),
+			'help'     => __( 'The six-digit code that changes every thirty seconds, from Google Authenticator, 1Password, Aegis or whichever one you use.', 'users-plus' ),
+			'ready'    => 'users_plus_totp_ready',
+			'verify'   => 'users_plus_totp_verify',
 			'position' => 10,
 		),
 	);
@@ -75,10 +75,10 @@ function upfw_2fa_methods(): array {
 	 *
 	 * @param array<string, array<string, mixed>> $methods
 	 */
-	$methods = (array) apply_filters( 'upfw_2fa_methods', $methods );
+	$methods = (array) apply_filters( 'users_plus_2fa_methods', $methods );
 
 	// Los que el sitio apagó no existen para nadie.
-	$enabled = (array) upfw_option( 'upfw_2fa_methods' );
+	$enabled = (array) users_plus_option( 'users_plus_2fa_methods' );
 
 	$methods = array_filter(
 		$methods,
@@ -96,9 +96,9 @@ function upfw_2fa_methods(): array {
  *
  * @return array<string, array<string, mixed>>
  */
-function upfw_2fa_available( int $user_id ): array {
+function users_plus_2fa_available( int $user_id ): array {
 	return array_filter(
-		upfw_2fa_methods(),
+		users_plus_2fa_methods(),
 		static fn( array $m ): bool => is_callable( $m['ready'] ) && call_user_func( $m['ready'], $user_id )
 	);
 }
@@ -121,22 +121,22 @@ function upfw_2fa_available( int $user_id ): array {
  *
  * @param string $via 'password', 'link' o 'sso'.
  */
-function upfw_2fa_required( int $user_id, string $via ): bool {
-	$mode = (string) upfw_option( 'upfw_2fa_mode' );
+function users_plus_2fa_required( int $user_id, string $via ): bool {
+	$mode = (string) users_plus_option( 'users_plus_2fa_mode' );
 
 	if ( 'off' === $mode ) {
 		return false;
 	}
 
-	if ( array() === upfw_2fa_available( $user_id ) ) {
+	if ( array() === users_plus_2fa_available( $user_id ) ) {
 		return false;
 	}
 
-	if ( 'link' === $via && ! upfw_2fa_worth_it_on_link( $user_id ) ) {
+	if ( 'link' === $via && ! users_plus_2fa_worth_it_on_link( $user_id ) ) {
 		return false;
 	}
 
-	$roles = (array) upfw_option( 'upfw_2fa_roles' );
+	$roles = (array) users_plus_option( 'users_plus_2fa_roles' );
 
 	if ( array() !== $roles ) {
 		$user = get_userdata( $user_id );
@@ -151,7 +151,7 @@ function upfw_2fa_required( int $user_id, string $via ): bool {
 	}
 
 	// Opcional: sólo a quien lo prendió.
-	return (bool) get_user_meta( $user_id, 'upfw_2fa_on', true );
+	return (bool) get_user_meta( $user_id, 'users_plus_2fa_on', true );
 }
 
 /**
@@ -165,8 +165,8 @@ function upfw_2fa_required( int $user_id, string $via ): bool {
  * El sitio puede forzar las dos respuestas, pero el automático es el que
  * evita tanto la puerta abierta como el trámite que no sirve para nada.
  */
-function upfw_2fa_worth_it_on_link( int $user_id ): bool {
-	$modo = (string) upfw_option( 'upfw_2fa_link' );
+function users_plus_2fa_worth_it_on_link( int $user_id ): bool {
+	$modo = (string) users_plus_option( 'users_plus_2fa_link' );
 
 	if ( 'always' === $modo ) {
 		return true;
@@ -176,7 +176,7 @@ function upfw_2fa_worth_it_on_link( int $user_id ): bool {
 		return false;
 	}
 
-	foreach ( upfw_2fa_available( $user_id ) as $method ) {
+	foreach ( users_plus_2fa_available( $user_id ) as $method ) {
 		if ( 'email' !== ( $method['channel'] ?? 'email' ) ) {
 			return true;
 		}
@@ -199,19 +199,19 @@ function upfw_2fa_worth_it_on_link( int $user_id ): bool {
  *
  * @return array<string, array{label: string, asked: bool}>
  */
-function upfw_2fa_ways( int $user_id ): array {
+function users_plus_2fa_ways( int $user_id ): array {
 	$ways = array();
 
-	if ( upfw_login_has_link() ) {
-		$ways['link'] = __( 'the link we email you', 'users-plus-for-wordpress' );
+	if ( users_plus_login_has_link() ) {
+		$ways['link'] = __( 'the link we email you', 'users-plus' );
 	}
 
-	if ( upfw_login_has_password() ) {
-		$ways['password'] = __( 'your password', 'users-plus-for-wordpress' );
+	if ( users_plus_login_has_password() ) {
+		$ways['password'] = __( 'your password', 'users-plus' );
 	}
 
-	if ( function_exists( 'upfw_sso_available' ) && array() !== upfw_sso_available() ) {
-		$ways['sso'] = __( 'a social account', 'users-plus-for-wordpress' );
+	if ( function_exists( 'users_plus_sso_available' ) && array() !== users_plus_sso_available() ) {
+		$ways['sso'] = __( 'a social account', 'users-plus' );
 	}
 
 	$out = array();
@@ -219,7 +219,7 @@ function upfw_2fa_ways( int $user_id ): array {
 	foreach ( $ways as $via => $label ) {
 		$out[ $via ] = array(
 			'label' => $label,
-			'asked' => upfw_2fa_required( $user_id, $via ),
+			'asked' => users_plus_2fa_required( $user_id, $via ),
 		);
 	}
 
@@ -231,10 +231,10 @@ function upfw_2fa_ways( int $user_id ): array {
  *
  * @return array<int, string>
  */
-function upfw_2fa_ways_asked( int $user_id ): array {
+function users_plus_2fa_ways_asked( int $user_id ): array {
 	return array_values(
 		wp_list_pluck(
-			array_filter( upfw_2fa_ways( $user_id ), static fn( array $w ): bool => $w['asked'] ),
+			array_filter( users_plus_2fa_ways( $user_id ), static fn( array $w ): bool => $w['asked'] ),
 			'label'
 		)
 	);
@@ -247,14 +247,14 @@ function upfw_2fa_ways_asked( int $user_id ): array {
  * durante los días que diga el ajuste. Va firmada con los salts del sitio, así
  * que no se puede fabricar, y lleva el id de quien la pidió.
  */
-function upfw_2fa_trusted( int $user_id ): bool {
-	$days = (int) upfw_option( 'upfw_2fa_remember_days' );
+function users_plus_2fa_trusted( int $user_id ): bool {
+	$days = (int) users_plus_option( 'users_plus_2fa_remember_days' );
 
 	if ( $days <= 0 ) {
 		return false;
 	}
 
-	$cookie = isset( $_COOKIE[ 'upfw_2fa_' . COOKIEHASH ] ) ? sanitize_text_field( wp_unslash( $_COOKIE[ 'upfw_2fa_' . COOKIEHASH ] ) ) : '';
+	$cookie = isset( $_COOKIE[ 'users_plus_2fa_' . COOKIEHASH ] ) ? sanitize_text_field( wp_unslash( $_COOKIE[ 'users_plus_2fa_' . COOKIEHASH ] ) ) : '';
 
 	if ( '' === $cookie ) {
 		return false;
@@ -270,8 +270,8 @@ function upfw_2fa_trusted( int $user_id ): bool {
 }
 
 /** Deja marcado este navegador para no volver a preguntar por unos días. */
-function upfw_2fa_trust( int $user_id ): void {
-	$days = (int) upfw_option( 'upfw_2fa_remember_days' );
+function users_plus_2fa_trust( int $user_id ): void {
+	$days = (int) users_plus_option( 'users_plus_2fa_remember_days' );
 
 	if ( $days <= 0 ) {
 		return;
@@ -281,7 +281,7 @@ function upfw_2fa_trust( int $user_id ): void {
 	$value   = $user_id . '|' . $expires . '|' . wp_hash( $user_id . '|' . $expires, 'secure_auth' );
 
 	setcookie(
-		'upfw_2fa_' . COOKIEHASH,
+		'users_plus_2fa_' . COOKIEHASH,
 		$value,
 		$expires,
 		defined( 'COOKIEPATH' ) ? COOKIEPATH : '/',
@@ -301,11 +301,11 @@ function upfw_2fa_trust( int $user_id ): void {
  * @param bool   $remember Sesión larga.
  * @param string $redirect Adónde va después.
  */
-function upfw_complete_login( int $user_id, string $via, bool $remember = true, string $redirect = '' ): void {
-	$redirect = '' !== $redirect ? $redirect : (string) apply_filters( 'upfw_login_redirect', home_url( '/' ), $user_id );
+function users_plus_complete_login( int $user_id, string $via, bool $remember = true, string $redirect = '' ): void {
+	$redirect = '' !== $redirect ? $redirect : (string) apply_filters( 'users_plus_login_redirect', home_url( '/' ), $user_id );
 
 	// La passkey entra directo: ya probó las dos cosas.
-	if ( 'passkey' === $via || ! upfw_2fa_required( $user_id, $via ) || upfw_2fa_trusted( $user_id ) ) {
+	if ( 'passkey' === $via || ! users_plus_2fa_required( $user_id, $via ) || users_plus_2fa_trusted( $user_id ) ) {
 		wp_set_current_user( $user_id );
 		wp_set_auth_cookie( $user_id, $remember );
 
@@ -315,13 +315,13 @@ function upfw_complete_login( int $user_id, string $via, bool $remember = true, 
 		 * @param int    $user_id
 		 * @param string $via
 		 */
-		do_action( 'upfw_logged_in', $user_id, $via );
+		do_action( 'users_plus_logged_in', $user_id, $via );
 
 		wp_safe_redirect( $redirect );
 		exit;
 	}
 
-	upfw_2fa_challenge( $user_id, $via, $remember, $redirect );
+	users_plus_2fa_challenge( $user_id, $via, $remember, $redirect );
 }
 
 /**
@@ -331,7 +331,7 @@ function upfw_complete_login( int $user_id, string $via, bool $remember = true, 
  * sobrevivir a que la persona abra la pantalla en otra pestaña, y no puede
  * depender de una cookie de sesión que todavía no existe.
  */
-function upfw_2fa_challenge( int $user_id, string $via, bool $remember, string $redirect ): void {
+function users_plus_2fa_challenge( int $user_id, string $via, bool $remember, string $redirect ): void {
 	// Por las dudas: si alguna puerta dejó la cookie puesta, se saca. Una
 	// sesión abierta antes del segundo factor es no tener segundo factor.
 	wp_clear_auth_cookie();
@@ -340,17 +340,17 @@ function upfw_2fa_challenge( int $user_id, string $via, bool $remember, string $
 
 	update_user_meta(
 		$user_id,
-		'upfw_2fa_pending',
+		'users_plus_2fa_pending',
 		array(
 			'nonce'    => wp_hash( $nonce ),
-			'expires'  => time() + UPFW_2FA_WINDOW,
+			'expires'  => time() + USERS_PLUS_2FA_WINDOW,
 			'via'      => $via,
 			'remember' => $remember ? 1 : 0,
 			'redirect' => $redirect,
 		)
 	);
 
-	$methods = upfw_2fa_available( $user_id );
+	$methods = users_plus_2fa_available( $user_id );
 
 	// Entrando por el enlace de correo, se arranca con un método que no sea
 	// otro correo: mandarle un código al buzón que acaba de abrir sería
@@ -366,16 +366,16 @@ function upfw_2fa_challenge( int $user_id, string $via, bool $remember, string $
 
 	$method = (string) array_key_first( $methods );
 
-	upfw_2fa_send( $user_id, $method );
+	users_plus_2fa_send( $user_id, $method );
 
 	wp_safe_redirect(
 		add_query_arg(
 			array(
-				'upfw_2fa'    => $user_id,
-				'upfw_key'    => $nonce,
-				'upfw_method' => $method,
+				'users_plus_2fa'    => $user_id,
+				'users_plus_key'    => $nonce,
+				'users_plus_method' => $method,
 			),
-			upfw_login_url()
+			users_plus_login_url()
 		)
 	);
 	exit;
@@ -385,8 +385,8 @@ function upfw_2fa_challenge( int $user_id, string $via, bool $remember, string $
 /**
  * @return array<string, mixed>
  */
-function upfw_2fa_pending( int $user_id, string $nonce ): array {
-	$pending = (array) get_user_meta( $user_id, 'upfw_2fa_pending', true );
+function users_plus_2fa_pending( int $user_id, string $nonce ): array {
+	$pending = (array) get_user_meta( $user_id, 'users_plus_2fa_pending', true );
 
 	if ( array() === $pending || (int) ( $pending['expires'] ?? 0 ) < time() ) {
 		return array();
@@ -396,8 +396,8 @@ function upfw_2fa_pending( int $user_id, string $nonce ): array {
 }
 
 /** Dispara lo que ese método necesite para empezar (mandar el correo). */
-function upfw_2fa_send( int $user_id, string $method ): void {
-	$methods = upfw_2fa_available( $user_id );
+function users_plus_2fa_send( int $user_id, string $method ): void {
+	$methods = users_plus_2fa_available( $user_id );
 
 	if ( isset( $methods[ $method ]['send'] ) && is_callable( $methods[ $method ]['send'] ) ) {
 		call_user_func( $methods[ $method ]['send'], $user_id );
@@ -410,12 +410,12 @@ function upfw_2fa_send( int $user_id, string $method ): void {
  * Los códigos de respaldo se prueban siempre, sea cual sea el método elegido:
  * son justamente para cuando el método no está a mano.
  */
-function upfw_2fa_verify( int $user_id, string $method, string $code ): bool {
-	if ( upfw_backup_use( $user_id, $code ) ) {
+function users_plus_2fa_verify( int $user_id, string $method, string $code ): bool {
+	if ( users_plus_backup_use( $user_id, $code ) ) {
 		return true;
 	}
 
-	$methods = upfw_2fa_available( $user_id );
+	$methods = users_plus_2fa_available( $user_id );
 
 	if ( ! isset( $methods[ $method ] ) || ! is_callable( $methods[ $method ]['verify'] ) ) {
 		return false;
@@ -430,62 +430,62 @@ function upfw_2fa_verify( int $user_id, string $method, string $code ): bool {
  * Vive en `init` como el resto de las puertas del plugin, para que la página
  * de acceso sea una página del sitio y no wp-login.php.
  */
-function upfw_2fa_handle(): void {
+function users_plus_2fa_handle(): void {
 	// phpcs:disable WordPress.Security.NonceVerification -- el nonce propio ES la credencial.
-	if ( ! isset( $_POST['upfw_2fa_user'], $_POST['upfw_2fa_key'] ) ) {
+	if ( ! isset( $_POST['users_plus_2fa_user'], $_POST['users_plus_2fa_key'] ) ) {
 		return;
 	}
 
-	$user_id = absint( $_POST['upfw_2fa_user'] );
-	$key     = sanitize_text_field( wp_unslash( $_POST['upfw_2fa_key'] ) );
-	$method  = sanitize_key( wp_unslash( $_POST['upfw_2fa_method'] ?? '' ) );
-	$code    = sanitize_text_field( wp_unslash( $_POST['upfw_2fa_code'] ?? '' ) );
-	$trust   = isset( $_POST['upfw_2fa_trust'] );
-	$resend  = isset( $_POST['upfw_2fa_resend'] );
+	$user_id = absint( $_POST['users_plus_2fa_user'] );
+	$key     = sanitize_text_field( wp_unslash( $_POST['users_plus_2fa_key'] ) );
+	$method  = sanitize_key( wp_unslash( $_POST['users_plus_2fa_method'] ?? '' ) );
+	$code    = sanitize_text_field( wp_unslash( $_POST['users_plus_2fa_code'] ?? '' ) );
+	$trust   = isset( $_POST['users_plus_2fa_trust'] );
+	$resend  = isset( $_POST['users_plus_2fa_resend'] );
 	// phpcs:enable
 
-	$pending = upfw_2fa_pending( $user_id, $key );
+	$pending = users_plus_2fa_pending( $user_id, $key );
 
 	if ( array() === $pending ) {
-		wp_safe_redirect( add_query_arg( 'upfw', 'expired', upfw_login_url() ) );
+		wp_safe_redirect( add_query_arg( 'users-plus', 'expired', users_plus_login_url() ) );
 		exit;
 	}
 
 	$back = add_query_arg(
 		array(
-			'upfw_2fa'    => $user_id,
-			'upfw_key'    => $key,
-			'upfw_method' => $method,
+			'users_plus_2fa'    => $user_id,
+			'users_plus_key'    => $key,
+			'users_plus_method' => $method,
 		),
-		upfw_login_url()
+		users_plus_login_url()
 	);
 
 	if ( $resend ) {
-		upfw_2fa_send( $user_id, $method );
-		wp_safe_redirect( add_query_arg( 'upfw', 'sent', $back ) );
+		users_plus_2fa_send( $user_id, $method );
+		wp_safe_redirect( add_query_arg( 'users-plus', 'sent', $back ) );
 		exit;
 	}
 
-	if ( '' === $code || ! upfw_2fa_verify( $user_id, $method, $code ) ) {
-		wp_safe_redirect( add_query_arg( 'upfw', 'code', $back ) );
+	if ( '' === $code || ! users_plus_2fa_verify( $user_id, $method, $code ) ) {
+		wp_safe_redirect( add_query_arg( 'users-plus', 'code', $back ) );
 		exit;
 	}
 
-	delete_user_meta( $user_id, 'upfw_2fa_pending' );
+	delete_user_meta( $user_id, 'users_plus_2fa_pending' );
 
 	if ( $trust ) {
-		upfw_2fa_trust( $user_id );
+		users_plus_2fa_trust( $user_id );
 	}
 
 	wp_set_current_user( $user_id );
 	wp_set_auth_cookie( $user_id, ! empty( $pending['remember'] ) );
 
-	do_action( 'upfw_logged_in', $user_id, (string) $pending['via'] );
+	do_action( 'users_plus_logged_in', $user_id, (string) $pending['via'] );
 
 	wp_safe_redirect( (string) $pending['redirect'] );
 	exit;
 }
-add_action( 'init', 'upfw_2fa_handle', 5 );
+add_action( 'init', 'users_plus_2fa_handle', 5 );
 
 /**
  * La contraseña también pasa por acá.
@@ -494,21 +494,21 @@ add_action( 'init', 'upfw_2fa_handle', 5 );
  * hace es cerrarla enseguida y mandar al desafío. Es feo y es lo que hay: no
  * hay un hook entre «la contraseña era correcta» y «la cookie está puesta».
  */
-function upfw_2fa_after_password( string $login, WP_User $user ): void {
-	if ( ! upfw_2fa_required( (int) $user->ID, 'password' ) || upfw_2fa_trusted( (int) $user->ID ) ) {
+function users_plus_2fa_after_password( string $login, WP_User $user ): void {
+	if ( ! users_plus_2fa_required( (int) $user->ID, 'password' ) || users_plus_2fa_trusted( (int) $user->ID ) ) {
 		return;
 	}
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- lo verificó WordPress al autenticar.
 	$redirect = isset( $_POST['redirect_to'] ) ? esc_url_raw( wp_unslash( $_POST['redirect_to'] ) ) : '';
-	$redirect = '' !== $redirect ? $redirect : (string) apply_filters( 'upfw_login_redirect', home_url( '/' ), (int) $user->ID );
+	$redirect = '' !== $redirect ? $redirect : (string) apply_filters( 'users_plus_login_redirect', home_url( '/' ), (int) $user->ID );
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Missing
 	$remember = ! empty( $_POST['rememberme'] );
 
-	upfw_2fa_challenge( (int) $user->ID, 'password', $remember, $redirect );
+	users_plus_2fa_challenge( (int) $user->ID, 'password', $remember, $redirect );
 }
-add_action( 'wp_login', 'upfw_2fa_after_password', 10, 2 );
+add_action( 'wp_login', 'users_plus_2fa_after_password', 10, 2 );
 
 /* ── Códigos de respaldo ───────────────────────────────────────────── */
 
@@ -521,7 +521,7 @@ add_action( 'wp_login', 'upfw_2fa_after_password', 10, 2 );
  *
  * @return array<int, string>
  */
-function upfw_backup_generate( int $user_id, int $many = 8 ): array {
+function users_plus_backup_generate( int $user_id, int $many = 8 ): array {
 	$plain  = array();
 	$hashes = array();
 
@@ -531,14 +531,14 @@ function upfw_backup_generate( int $user_id, int $many = 8 ): array {
 		$hashes[] = wp_hash_password( $code );
 	}
 
-	update_user_meta( $user_id, 'upfw_backup_codes', $hashes );
+	update_user_meta( $user_id, 'users_plus_backup_codes', $hashes );
 
 	return $plain;
 }
 
 /** Cuántos códigos de respaldo le quedan sin usar. */
-function upfw_backup_left( int $user_id ): int {
-	return count( (array) get_user_meta( $user_id, 'upfw_backup_codes', true ) );
+function users_plus_backup_left( int $user_id ): int {
+	return count( (array) get_user_meta( $user_id, 'users_plus_backup_codes', true ) );
 }
 
 /**
@@ -547,14 +547,14 @@ function upfw_backup_left( int $user_id ): int {
  * Se borra al usarlo: un código de un solo uso que se puede usar dos veces no
  * es un código de un solo uso.
  */
-function upfw_backup_use( int $user_id, string $code ): bool {
+function users_plus_backup_use( int $user_id, string $code ): bool {
 	$code   = strtolower( trim( str_replace( array( ' ', '-' ), '', $code ) ) );
-	$hashes = (array) get_user_meta( $user_id, 'upfw_backup_codes', true );
+	$hashes = (array) get_user_meta( $user_id, 'users_plus_backup_codes', true );
 
 	foreach ( $hashes as $i => $hash ) {
 		if ( wp_check_password( $code, (string) $hash, $user_id ) ) {
 			unset( $hashes[ $i ] );
-			update_user_meta( $user_id, 'upfw_backup_codes', array_values( $hashes ) );
+			update_user_meta( $user_id, 'users_plus_backup_codes', array_values( $hashes ) );
 
 			return true;
 		}

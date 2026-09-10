@@ -7,9 +7,9 @@
  * falla— no hay puerta. Con acceso al servidor, este comando imprime el enlace
  * en la terminal en vez de mandarlo.
  *
- *   wp upfw login pablo@ejemplo.com
+ *   wp users-plus login pablo@ejemplo.com
  *
- * @package UPFW
+ * @package UsersPlus
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -31,13 +31,13 @@ if ( ! defined( 'WP_CLI' ) || ! WP_CLI ) {
  *
  * ## EXAMPLES
  *
- *     wp upfw login pablo@ejemplo.com
- *     wp upfw login pablo@ejemplo.com --send
+ *     wp users-plus login pablo@ejemplo.com
+ *     wp users-plus login pablo@ejemplo.com --send
  *
  * @param array<int, string>    $args
  * @param array<string, string> $options
  */
-function upfw_cli_login( array $args, array $options = array() ): void {
+function users_plus_cli_login( array $args, array $options = array() ): void {
 	$email = sanitize_email( $args[0] ?? '' );
 
 	if ( '' === $email || ! is_email( $email ) ) {
@@ -50,16 +50,16 @@ function upfw_cli_login( array $args, array $options = array() ): void {
 		WP_CLI::error( sprintf( 'No existe ninguna cuenta con el correo %s.', $email ) );
 	}
 
-	$token = upfw_token_create( (int) $user->ID );
-	$url   = upfw_login_link( (int) $user->ID, $token );
+	$token = users_plus_token_create( (int) $user->ID );
+	$url   = users_plus_login_link( (int) $user->ID, $token );
 
 	if ( ! empty( $options['send'] ) ) {
-		$mandado = upfw_login_send( (int) $user->ID, $email, $token );
+		$mandado = users_plus_login_send( (int) $user->ID, $email, $token );
 		WP_CLI::log( $mandado ? 'Correo enviado.' : 'No se pudo enviar el correo.' );
 	}
 
 	WP_CLI::log( $url );
-	WP_CLI::log( sprintf( 'Vence en %d minutos y sirve una sola vez.', upfw_login_expiry() ) );
+	WP_CLI::log( sprintf( 'Vence en %d minutos y sirve una sola vez.', users_plus_login_expiry() ) );
 }
 
-WP_CLI::add_command( 'upfw login', 'upfw_cli_login' );
+WP_CLI::add_command( 'users-plus login', 'users_plus_cli_login' );

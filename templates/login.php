@@ -3,88 +3,88 @@
  * El formulario de acceso.
  *
  * Reemplazable desde el tema en:
- *   wp-content/themes/<tu-tema>/users-plus-for-wordpress/acceso.php
+ *   wp-content/themes/<tu-tema>/users-plus/acceso.php
  *
  * @var string                            $state      Qué pasó ('sent', 'expired', 'email', 'error', 'social').
  * @var string                            $email      Correo al que se mandó el enlace.
  * @var array<string, array<string,mixed>> $providers Redes disponibles.
  * @var int                               $minutes     Vigencia del enlace.
  *
- * @package UPFW
+ * @package UsersPlus
  */
 
 defined( 'ABSPATH' ) || exit;
 ?>
-<div class="upfw upfw-login">
+<div class="users-plus users-plus-login">
 
 	<?php if ( 'sent' === $state ) : ?>
 
-		<h2 class="upfw-login__title"><?php esc_html_e( 'Check your email', 'users-plus-for-wordpress' ); ?></h2>
-		<p><?php esc_html_e( 'We sent a sign-in link to', 'users-plus-for-wordpress' ); ?></p>
-		<p class="upfw-login__email"><strong><?php echo esc_html( $email ); ?></strong></p>
-		<p class="upfw-note">
+		<h2 class="users-plus-login__title"><?php esc_html_e( 'Check your email', 'users-plus' ); ?></h2>
+		<p><?php esc_html_e( 'We sent a sign-in link to', 'users-plus' ); ?></p>
+		<p class="users-plus-login__email"><strong><?php echo esc_html( $email ); ?></strong></p>
+		<p class="users-plus-note">
 			<?php
 			printf(
 				/* translators: %d: minutos de vigencia */
-				esc_html__( 'Click the link and you are in. It expires in %d minutes and works once.', 'users-plus-for-wordpress' ),
+				esc_html__( 'Click the link and you are in. It expires in %d minutes and works once.', 'users-plus' ),
 				(int) $minutes
 			);
 			?>
 		</p>
-		<p class="upfw-note"><?php esc_html_e( 'Did not arrive? Check your spam or promotions folder.', 'users-plus-for-wordpress' ); ?></p>
+		<p class="users-plus-note"><?php esc_html_e( 'Did not arrive? Check your spam or promotions folder.', 'users-plus' ); ?></p>
 
 	<?php else : ?>
 
-		<h2 class="upfw-login__title"><?php esc_html_e( 'Sign in', 'users-plus-for-wordpress' ); ?></h2>
+		<h2 class="users-plus-login__title"><?php esc_html_e( 'Sign in', 'users-plus' ); ?></h2>
 
 		<?php if ( 'expired' === $state ) : ?>
-			<p class="upfw-notice upfw-notice--error"><?php esc_html_e( 'That link expired or was already used. Ask for a new one.', 'users-plus-for-wordpress' ); ?></p>
+			<p class="users-plus-notice users-plus-notice--error"><?php esc_html_e( 'That link expired or was already used. Ask for a new one.', 'users-plus' ); ?></p>
 		<?php elseif ( 'email' === $state ) : ?>
-			<p class="upfw-notice upfw-notice--error"><?php esc_html_e( 'That email address does not look valid.', 'users-plus-for-wordpress' ); ?></p>
+			<p class="users-plus-notice users-plus-notice--error"><?php esc_html_e( 'That email address does not look valid.', 'users-plus' ); ?></p>
 		<?php elseif ( 'social' === $state ) : ?>
-			<p class="upfw-notice upfw-notice--error"><?php esc_html_e( 'We could not finish signing you in with that provider. Try again or use your email.', 'users-plus-for-wordpress' ); ?></p>
+			<p class="users-plus-notice users-plus-notice--error"><?php esc_html_e( 'We could not finish signing you in with that provider. Try again or use your email.', 'users-plus' ); ?></p>
 		<?php elseif ( 'error' === $state ) : ?>
-			<p class="upfw-notice upfw-notice--error"><?php esc_html_e( 'Something went wrong. Try again.', 'users-plus-for-wordpress' ); ?></p>
+			<p class="users-plus-notice users-plus-notice--error"><?php esc_html_e( 'Something went wrong. Try again.', 'users-plus' ); ?></p>
 		<?php endif; ?>
 
-		<?php if ( upfw_passkeys_enabled() ) : ?>
-			<?php upfw_passkeys_enqueue(); ?>
-			<p class="upfw-notice" data-upfw-passkey-aviso hidden></p>
-			<p><button type="button" class="upfw-button upfw-button--ancho" data-upfw-passkey="login"><?php esc_html_e( 'Sign in with a passkey', 'users-plus-for-wordpress' ); ?></button></p>
-			<p class="upfw-divider"><span><?php esc_html_e( 'or', 'users-plus-for-wordpress' ); ?></span></p>
+		<?php if ( users_plus_passkeys_enabled() ) : ?>
+			<?php users_plus_passkeys_enqueue(); ?>
+			<p class="users-plus-notice" data-users-plus-passkey-aviso hidden></p>
+			<p><button type="button" class="users-plus-button users-plus-button--ancho" data-users-plus-passkey="login"><?php esc_html_e( 'Sign in with a passkey', 'users-plus' ); ?></button></p>
+			<p class="users-plus-divider"><span><?php esc_html_e( 'or', 'users-plus' ); ?></span></p>
 		<?php endif; ?>
 
 		<?php if ( array() !== $providers ) : ?>
-			<?php echo upfw_sso_buttons( $providers ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- marcado propio, ya escapado. ?>
+			<?php echo users_plus_sso_buttons( $providers ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- marcado propio, ya escapado. ?>
 
-			<p class="upfw-divider">
+			<p class="users-plus-divider">
 				<span>
 					<?php
-					echo upfw_login_has_link()
-						? esc_html__( 'or with your email', 'users-plus-for-wordpress' )
-						: esc_html__( 'or with your password', 'users-plus-for-wordpress' );
+					echo users_plus_login_has_link()
+						? esc_html__( 'or with your email', 'users-plus' )
+						: esc_html__( 'or with your password', 'users-plus' );
 					?>
 				</span>
 			</p>
 		<?php endif; ?>
 
-		<?php if ( upfw_login_has_link() ) : ?>
-			<form class="upfw-form" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-				<input type="hidden" name="action" value="upfw_login">
-				<?php wp_nonce_field( 'upfw_login', 'upfw_nonce' ); ?>
+		<?php if ( users_plus_login_has_link() ) : ?>
+			<form class="users-plus-form" method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
+				<input type="hidden" name="action" value="users_plus_login">
+				<?php wp_nonce_field( 'users_plus_login', 'users_plus_nonce' ); ?>
 
-				<label for="upfw-email"><?php esc_html_e( 'Email address', 'users-plus-for-wordpress' ); ?></label>
-				<input type="email" id="upfw-email" name="upfw_email" required autocomplete="email" placeholder="vos@ejemplo.com">
+				<label for="users-plus-email"><?php esc_html_e( 'Email address', 'users-plus' ); ?></label>
+				<input type="email" id="users-plus-email" name="users_plus_email" required autocomplete="email" placeholder="vos@ejemplo.com">
 
-				<button type="submit" class="upfw-button"><?php esc_html_e( 'Send me the sign-in link', 'users-plus-for-wordpress' ); ?></button>
+				<button type="submit" class="users-plus-button"><?php esc_html_e( 'Send me the sign-in link', 'users-plus' ); ?></button>
 			</form>
 
-			<p class="upfw-note"><?php esc_html_e( 'You get an email with a link. Click it and you are in: no password to choose or type.', 'users-plus-for-wordpress' ); ?></p>
+			<p class="users-plus-note"><?php esc_html_e( 'You get an email with a link. Click it and you are in: no password to choose or type.', 'users-plus' ); ?></p>
 		<?php endif; ?>
 
-		<?php if ( upfw_login_has_password() ) : ?>
-			<?php if ( upfw_login_has_link() ) : ?>
-				<p class="upfw-divider"><span><?php esc_html_e( 'or with your password', 'users-plus-for-wordpress' ); ?></span></p>
+		<?php if ( users_plus_login_has_password() ) : ?>
+			<?php if ( users_plus_login_has_link() ) : ?>
+				<p class="users-plus-divider"><span><?php esc_html_e( 'or with your password', 'users-plus' ); ?></span></p>
 			<?php endif; ?>
 
 			<?php
@@ -93,16 +93,16 @@ defined( 'ABSPATH' ) || exit;
 			// falta hace tocar.
 			wp_login_form(
 				array(
-					'redirect'       => (string) apply_filters( 'upfw_login_redirect', home_url( '/' ), 0 ),
-					'label_username' => __( 'Email or username', 'users-plus-for-wordpress' ),
-					'label_password' => __( 'Password', 'users-plus-for-wordpress' ),
-					'label_log_in'   => __( 'Sign in', 'users-plus-for-wordpress' ),
+					'redirect'       => (string) apply_filters( 'users_plus_login_redirect', home_url( '/' ), 0 ),
+					'label_username' => __( 'Email or username', 'users-plus' ),
+					'label_password' => __( 'Password', 'users-plus' ),
+					'label_log_in'   => __( 'Sign in', 'users-plus' ),
 				)
 			);
 			?>
 
-			<p class="upfw-note">
-				<a href="<?php echo esc_url( wp_lostpassword_url() ); ?>"><?php esc_html_e( 'I forgot my password', 'users-plus-for-wordpress' ); ?></a>
+			<p class="users-plus-note">
+				<a href="<?php echo esc_url( wp_lostpassword_url() ); ?>"><?php esc_html_e( 'I forgot my password', 'users-plus' ); ?></a>
 			</p>
 		<?php endif; ?>
 

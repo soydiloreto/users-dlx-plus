@@ -3,41 +3,41 @@
  * Las redes sociales vinculadas a la cuenta.
  *
  * Reemplazable desde el tema en:
- *   wp-content/themes/<tu-tema>/users-plus-for-wordpress/accounts.php
+ *   wp-content/themes/<tu-tema>/users-plus/accounts.php
  *
  * @var array<string, array<string, mixed>> $providers Redes disponibles.
  * @var array<int, string>                  $linked    IDs ya vinculados.
  * @var string                              $state
  *
- * @package UPFW
+ * @package UsersPlus
  */
 
 defined( 'ABSPATH' ) || exit;
 ?>
-<div class="upfw upfw-accounts">
+<div class="users-plus users-plus-accounts">
 
 	<?php if ( 'linked' === $state ) : ?>
-		<p class="upfw-notice upfw-notice--ok"><?php esc_html_e( 'Account linked.', 'users-plus-for-wordpress' ); ?></p>
+		<p class="users-plus-notice users-plus-notice--ok"><?php esc_html_e( 'Account linked.', 'users-plus' ); ?></p>
 	<?php endif; ?>
 
 	<?php if ( array() === $providers ) : ?>
-		<p class="upfw-note">
+		<p class="users-plus-note">
 			<?php
 			if ( 'linked' === ( $only ?? '' ) ) {
-				esc_html_e( 'None yet. Link one below and it opens this same account.', 'users-plus-for-wordpress' );
+				esc_html_e( 'None yet. Link one below and it opens this same account.', 'users-plus' );
 			} elseif ( 'available' === ( $only ?? '' ) ) {
-				esc_html_e( 'You already have them all linked.', 'users-plus-for-wordpress' );
+				esc_html_e( 'You already have them all linked.', 'users-plus' );
 			} else {
-				esc_html_e( 'No provider has been set up yet.', 'users-plus-for-wordpress' );
+				esc_html_e( 'No provider has been set up yet.', 'users-plus' );
 			}
 			?>
 		</p>
 	<?php else : ?>
 
-	<ul class="upfw-linked">
+	<ul class="users-plus-linked">
 		<?php
-		foreach ( $providers as $upfw_id => $upfw_provider ) :
-			$upfw_is_linked = in_array( $upfw_id, $linked, true );
+		foreach ( $providers as $users_plus_id => $users_plus_provider ) :
+			$users_plus_is_linked = in_array( $users_plus_id, $linked, true );
 			?>
 			<?php
 			/*
@@ -46,30 +46,30 @@ defined( 'ABSPATH' ) || exit;
 			 * sus guías y lo único donde se lee.
 			 */
 			?>
-			<li class="upfw-linked__item <?php echo $upfw_is_linked ? 'is-linked' : ''; ?> <?php echo upfw_sso_icon_is_colored( $upfw_id ) ? 'has-color' : ''; ?>" style="--upfw-brand: <?php echo esc_attr( $upfw_provider['color'] ); ?>">
-				<span class="upfw-linked__logo"><?php echo upfw_sso_icon( $upfw_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- SVG propio. ?></span>
+			<li class="users-plus-linked__item <?php echo $users_plus_is_linked ? 'is-linked' : ''; ?> <?php echo users_plus_sso_icon_is_colored( $users_plus_id ) ? 'has-color' : ''; ?>" style="--users-plus-brand: <?php echo esc_attr( $users_plus_provider['color'] ); ?>">
+				<span class="users-plus-linked__logo"><?php echo users_plus_sso_icon( $users_plus_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- SVG propio. ?></span>
 
-				<span class="upfw-linked__who">
-					<strong><?php echo esc_html( $upfw_provider['name'] ); ?></strong>
+				<span class="users-plus-linked__who">
+					<strong><?php echo esc_html( $users_plus_provider['name'] ); ?></strong>
 					<span>
 						<?php
-						echo $upfw_is_linked
-							? esc_html__( 'Linked to your account', 'users-plus-for-wordpress' )
-							: esc_html__( 'Not linked', 'users-plus-for-wordpress' );
+						echo $users_plus_is_linked
+							? esc_html__( 'Linked to your account', 'users-plus' )
+							: esc_html__( 'Not linked', 'users-plus' );
 						?>
 					</span>
 				</span>
 
-				<?php if ( $upfw_is_linked ) : ?>
+				<?php if ( $users_plus_is_linked ) : ?>
 					<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-						<input type="hidden" name="action" value="upfw_sso_unlink">
-						<input type="hidden" name="upfw_provider" value="<?php echo esc_attr( $upfw_id ); ?>">
-						<?php wp_nonce_field( 'upfw_sso_unlink' ); ?>
-						<button type="submit" class="upfw-button upfw-button--soft"><?php esc_html_e( 'Unlink', 'users-plus-for-wordpress' ); ?></button>
+						<input type="hidden" name="action" value="users_plus_sso_unlink">
+						<input type="hidden" name="users_plus_provider" value="<?php echo esc_attr( $users_plus_id ); ?>">
+						<?php wp_nonce_field( 'users_plus_sso_unlink' ); ?>
+						<button type="submit" class="users-plus-button users-plus-button--soft"><?php esc_html_e( 'Unlink', 'users-plus' ); ?></button>
 					</form>
 				<?php else : ?>
-					<a class="upfw-button upfw-button--soft" href="<?php echo esc_url( upfw_sso_login_url( $upfw_id ) ); ?>">
-						<?php esc_html_e( 'Link', 'users-plus-for-wordpress' ); ?>
+					<a class="users-plus-button users-plus-button--soft" href="<?php echo esc_url( users_plus_sso_login_url( $users_plus_id ) ); ?>">
+						<?php esc_html_e( 'Link', 'users-plus' ); ?>
 					</a>
 				<?php endif; ?>
 			</li>

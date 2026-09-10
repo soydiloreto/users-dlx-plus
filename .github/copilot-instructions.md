@@ -20,7 +20,7 @@ front end, their sessions and their data.
 **The distinguishing decision** is that the plugin knows nothing about the
 site it runs on. It does not know what a course is, or a membership, or a
 forum. Anything that belongs to another domain enters through a filter
-(`upfw_sections`, `upfw_summaries`, `upfw_notification_prefs`) or through a
+(`users_plus_sections`, `users_plus_summaries`, `users_plus_notification_prefs`) or through a
 shortcode pasted into a section. A pull request that teaches the plugin about
 LifterLMS, WooCommerce or bbPress is going the wrong way — the only exception
 is a `function_exists()`-guarded bridge, and there is exactly one today
@@ -57,8 +57,8 @@ ordering assumption.
 | Data migrations | `upgrade.php` |
 
 Templates live in `templates/` and are overridable from the active theme at
-`wp-content/themes/<theme>/users-plus-for-wordpress/<path>.php`, resolved by
-`upfw_template()`. Styling is driven by `--upfw-*` custom properties so a site
+`wp-content/themes/<theme>/users-plus/<path>.php`, resolved by
+`users_plus_template()`. Styling is driven by `--users-plus-*` custom properties so a site
 can restyle the plugin by redefining tokens, without copying its stylesheet.
 
 ---
@@ -91,7 +91,7 @@ can restyle the plugin by redefining tokens, without copying its stylesheet.
 - Anything shown to a person must be **true at the moment it is shown**. If a
   notice says the second step is not being asked for, that has to hold for
   every way into the site the administrator left open — not just the one the
-  author had in mind. `upfw_2fa_ways()` exists because that notice was wrong.
+  author had in mind. `users_plus_2fa_ways()` exists because that notice was wrong.
 - A new section must declare `available` and `why` if it can ever have nothing
   to show.
 - A new setting that hides something on the front end must actually hide it.
@@ -100,9 +100,9 @@ can restyle the plugin by redefining tokens, without copying its stylesheet.
 ### WordPress conventions
 
 - All user-facing strings go through translation functions with the text
-  domain `users-plus-for-wordpress`. Translations ship with the plugin.
+  domain `users-plus`. Translations ship with the plugin.
 - Multisite-aware: configuration is per-site. Users are network-wide, so
-  anything that gives access calls `upfw_join_site()`.
+  anything that gives access calls `users_plus_join_site()`.
 - HTTP calls use `wp_remote_*` with an explicit `timeout`. Never raw cURL.
 - Every `.php` file starts with `defined( 'ABSPATH' ) || exit;`.
 - **PHP 8.0 minimum**, WordPress 6.0 minimum.
@@ -110,7 +110,7 @@ can restyle the plugin by redefining tokens, without copying its stylesheet.
 ### Data
 
 - Renaming an option or a user meta key **requires a migration** in
-  `upgrade.php`. The plugin already carries one (the `usmw_` → `upfw_`
+  `upgrade.php`. The plugin already carries one (the `usmw_` → `users_plus_`
   rename); it is the reference for how to do the next one.
 - Field keys are user-visible configuration: once a field exists, its key does
   not change, because the key is also the meta key holding everybody's answer.
@@ -129,7 +129,7 @@ Save your review tokens for things that matter.
 - **Comments explain decisions, not mechanics.** A comment that says what the
   next line does is noise and gets removed; one that says why the obvious
   alternative was rejected stays. Don't ask for more of the first kind.
-- **Procedural code with an `upfw_` prefix** is the convention. Don't suggest
+- **Procedural code with an `users_plus_` prefix** is the convention. Don't suggest
   wrapping it in classes.
 
 ---

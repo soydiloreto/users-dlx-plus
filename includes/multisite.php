@@ -11,7 +11,7 @@
  * suele tener su propia página de cuenta, sus propios campos y su propio
  * diseño. Un ajuste de red obligaría a que todos los sitios pidan lo mismo.
  *
- * @package UPFW
+ * @package UsersPlus
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -22,7 +22,7 @@ defined( 'ABSPATH' ) || exit;
  * Se usa el mismo rol que para una cuenta nueva: si el sitio decidió que quien
  * se registra es suscriptor, quien llega desde otro sitio de la red también.
  */
-function upfw_join_site( int $user_id ): void {
+function users_plus_join_site( int $user_id ): void {
 	if ( ! is_multisite() || $user_id <= 0 ) {
 		return;
 	}
@@ -33,11 +33,11 @@ function upfw_join_site( int $user_id ): void {
 
 	// Sin registro abierto, existir en la red no alcanza para entrar acá: es
 	// la misma regla que para un correo nuevo, y la decide el mismo ajuste.
-	if ( ! upfw_option( 'upfw_login_register' ) ) {
+	if ( ! users_plus_option( 'users_plus_login_register' ) ) {
 		return;
 	}
 
-	add_user_to_blog( get_current_blog_id(), $user_id, (string) upfw_option( 'upfw_login_role' ) );
+	add_user_to_blog( get_current_blog_id(), $user_id, (string) users_plus_option( 'users_plus_login_role' ) );
 }
 
 /**
@@ -48,17 +48,17 @@ function upfw_join_site( int $user_id ): void {
  * primera vez que alguien los pide, y sólo si la option no existe: una lista
  * vacía a propósito se respeta.
  */
-function upfw_seed_fields(): void {
-	if ( false === get_option( 'upfw_fields', false ) ) {
-		update_option( 'upfw_fields', upfw_default_fields() );
+function users_plus_seed_fields(): void {
+	if ( false === get_option( 'users_plus_fields', false ) ) {
+		update_option( 'users_plus_fields', users_plus_default_fields() );
 
 		return;
 	}
 
-	upfw_seed_native_fields();
+	users_plus_seed_native_fields();
 }
-add_action( 'wp_initialize_site', 'upfw_seed_fields' );
-add_action( 'admin_init', 'upfw_seed_fields' );
+add_action( 'wp_initialize_site', 'users_plus_seed_fields' );
+add_action( 'admin_init', 'users_plus_seed_fields' );
 
 /**
  * Los campos de WordPress, en un sitio que ya tenía la lista armada.
@@ -67,13 +67,13 @@ add_action( 'admin_init', 'upfw_seed_fields' );
  * pintando el nombre por su cuenta va a ver dos: eso es correcto y se arregla
  * apagando el suyo, no escondiendo el que WordPress ya tenía.
  */
-function upfw_seed_native_fields(): void {
-	$fields = (array) get_option( 'upfw_fields', array() );
+function users_plus_seed_native_fields(): void {
+	$fields = (array) get_option( 'users_plus_fields', array() );
 	$claves = array_column( $fields, 'key' );
 	$faltan = array();
 
-	foreach ( upfw_default_fields() as $field ) {
-		if ( upfw_field_is_native( $field['key'] ) && ! in_array( $field['key'], $claves, true ) ) {
+	foreach ( users_plus_default_fields() as $field ) {
+		if ( users_plus_field_is_native( $field['key'] ) && ! in_array( $field['key'], $claves, true ) ) {
 			$faltan[] = $field;
 		}
 	}
@@ -82,5 +82,5 @@ function upfw_seed_native_fields(): void {
 		return;
 	}
 
-	update_option( 'upfw_fields', array_merge( $faltan, $fields ) );
+	update_option( 'users_plus_fields', array_merge( $faltan, $fields ) );
 }

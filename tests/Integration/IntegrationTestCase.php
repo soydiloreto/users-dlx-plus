@@ -21,13 +21,13 @@ class IntegrationTestCase extends TestCase {
 	 * @var array<int, string>
 	 */
 	protected static array $options = array(
-		'upfw_fields',
-		'upfw_account_sections',
-		'upfw_sso',
-		'upfw_mail_last',
-		'upfw_login_method',
-		'upfw_2fa_mode',
-		'upfw_passkey_enabled',
+		'users_plus_fields',
+		'users_plus_account_sections',
+		'users_plus_sso',
+		'users_plus_mail_last',
+		'users_plus_login_method',
+		'users_plus_2fa_mode',
+		'users_plus_passkey_enabled',
 	);
 
 	protected function setUp(): void {
@@ -42,7 +42,7 @@ class IntegrationTestCase extends TestCase {
 	protected function alguien( string $rol = 'subscriber' ): int {
 		return (int) wp_insert_user(
 			array(
-				'user_login' => 'upfw_' . wp_generate_password( 8, false ),
+				'user_login' => 'users_plus_' . wp_generate_password( 8, false ),
 				'user_email' => wp_generate_password( 8, false ) . '@ejemplo.test',
 				'user_pass'  => wp_generate_password( 16 ),
 				'role'       => $rol,

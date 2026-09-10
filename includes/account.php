@@ -8,17 +8,17 @@
  * el sitio agrega las suyas, y ninguno tiene que editar este archivo.
  *
  * Lo que decide qué se ve y en qué orden es la suma de tres cosas:
- *   1. lo que registra cada quien con upfw_register_section(),
+ *   1. lo que registra cada quien con users_plus_register_section(),
  *   2. lo que quien administra prendió, apagó, renombró o reordenó,
  *   3. las secciones propias que agregó desde el admin.
  *
- * @package UPFW
+ * @package UsersPlus
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /** El endpoint de reescritura: /cuenta/<seccion>/ */
-const UPFW_ACCOUNT_VAR = 'upfw_section';
+const USERS_PLUS_ACCOUNT_VAR = 'users_plus_section';
 
 /**
  * Registra una sección del área de cuenta.
@@ -26,12 +26,12 @@ const UPFW_ACCOUNT_VAR = 'upfw_section';
  * @param string               $id   Identificador. Es lo que va en la URL.
  * @param array<string, mixed> $args label, render, position, capability, source.
  */
-function upfw_register_section( string $id, array $args ): void {
-	global $upfw_sections;
+function users_plus_register_section( string $id, array $args ): void {
+	global $users_plus_sections;
 
-	$upfw_sections = is_array( $upfw_sections ) ? $upfw_sections : array();
+	$users_plus_sections = is_array( $users_plus_sections ) ? $users_plus_sections : array();
 
-	$upfw_sections[ $id ] = wp_parse_args(
+	$users_plus_sections[ $id ] = wp_parse_args(
 		$args,
 		array(
 			'label'      => $id,
@@ -42,7 +42,7 @@ function upfw_register_section( string $id, array $args ): void {
 			// Vacío: la ve cualquiera con sesión iniciada.
 			'capability' => '',
 			// De dónde salió, para que la pantalla de admin lo diga.
-			'source'     => __( 'System', 'users-plus-for-wordpress' ),
+			'source'     => __( 'System', 'users-plus' ),
 			// Las propias del sitio se pueden borrar; las de código, no.
 			'custom'     => false,
 			// Contenido escrito desde el admin. En una sección propia es todo lo
@@ -75,8 +75,8 @@ function upfw_register_section( string $id, array $args ): void {
 /**
  * @return array<string, mixed>
  */
-function upfw_section_config( string $id ): array {
-	$all = (array) upfw_option( 'upfw_account_sections' );
+function users_plus_section_config( string $id ): array {
+	$all = (array) users_plus_option( 'users_plus_account_sections' );
 
 	return isset( $all[ $id ] ) && is_array( $all[ $id ] ) ? $all[ $id ] : array();
 }
@@ -87,23 +87,23 @@ function upfw_section_config( string $id ): array {
  * @param bool $all true para incluir las apagadas (lo necesita el admin).
  * @return array<string, array<string, mixed>>
  */
-function upfw_sections( bool $all = false ): array {
-	global $upfw_sections;
+function users_plus_sections( bool $all = false ): array {
+	global $users_plus_sections;
 
 	// El registro se llena en un hook para que quien agrega una sección no
 	// dependa de en qué orden se cargaron los plugins.
-	do_action( 'upfw_register_sections' );
+	do_action( 'users_plus_register_sections' );
 
-	$sections = is_array( $upfw_sections ) ? $upfw_sections : array();
+	$sections = is_array( $users_plus_sections ) ? $users_plus_sections : array();
 
 	// Las secciones propias no están en ningún código: viven en la option.
-	foreach ( (array) upfw_option( 'upfw_account_sections' ) as $id => $config ) {
+	foreach ( (array) users_plus_option( 'users_plus_account_sections' ) as $id => $config ) {
 		if ( ! isset( $sections[ $id ] ) && ! empty( $config['custom'] ) ) {
-			upfw_register_section(
+			users_plus_register_section(
 				(string) $id,
 				array(
 					'label'   => (string) ( $config['label'] ?? $id ),
-					'source'  => __( 'Yours', 'users-plus-for-wordpress' ),
+					'source'  => __( 'Yours', 'users-plus' ),
 					'custom'  => true,
 					'content' => (string) ( $config['content'] ?? '' ),
 				)
@@ -111,10 +111,10 @@ function upfw_sections( bool $all = false ): array {
 		}
 	}
 
-	$sections = is_array( $upfw_sections ) ? $upfw_sections : array();
+	$sections = is_array( $users_plus_sections ) ? $users_plus_sections : array();
 
 	foreach ( $sections as $id => $section ) {
-		$config = upfw_section_config( $id );
+		$config = users_plus_section_config( $id );
 
 		if ( isset( $config['label'] ) && '' !== $config['label'] ) {
 			$sections[ $id ]['label'] = (string) $config['label'];
@@ -147,9 +147,9 @@ function upfw_sections( bool $all = false ): array {
 		$sections = array_filter(
 			$sections,
 			static fn( array $s ): bool => $s['enabled']
-				&& upfw_section_available( $s )
+				&& users_plus_section_available( $s )
 				&& ( '' === $s['capability'] || current_user_can( $s['capability'] ) )
-				&& upfw_section_role_ok( $s )
+				&& users_plus_section_role_ok( $s )
 		);
 	}
 
@@ -161,7 +161,7 @@ function upfw_sections( bool $all = false ): array {
 	 * @param array<string, array<string, mixed>> $sections
 	 * @param bool                                $all
 	 */
-	return apply_filters( 'upfw_sections', $sections, $all );
+	return apply_filters( 'users_plus_sections', $sections, $all );
 }
 
 /**
@@ -173,7 +173,7 @@ function upfw_sections( bool $all = false ): array {
  *
  * @param array<string, mixed> $section
  */
-function upfw_section_available( array $section ): bool {
+function users_plus_section_available( array $section ): bool {
 	$check = $section['available'] ?? '';
 
 	return '' === $check || ! is_callable( $check ) || (bool) call_user_func( $check );
@@ -188,7 +188,7 @@ function upfw_section_available( array $section ): bool {
  *
  * @param array<string, mixed> $section
  */
-function upfw_section_role_ok( array $section ): bool {
+function users_plus_section_role_ok( array $section ): bool {
 	$roles = (array) ( $section['roles'] ?? array() );
 
 	if ( array() === $roles ) {
@@ -208,7 +208,7 @@ function upfw_section_role_ok( array $section ): bool {
  *
  * @param array<string, mixed> $section
  */
-function upfw_section_has_code( array $section ): bool {
+function users_plus_section_has_code( array $section ): bool {
 	return is_callable( $section['render'] ?? '' );
 }
 
@@ -223,10 +223,10 @@ function upfw_section_has_code( array $section ): bool {
  *
  * @param array<string, mixed> $section
  */
-function upfw_account_section_html( array $section, WP_User $user ): string {
+function users_plus_account_section_html( array $section, WP_User $user ): string {
 	$codigo = '';
 
-	if ( upfw_section_has_code( $section ) ) {
+	if ( users_plus_section_has_code( $section ) ) {
 		ob_start();
 		call_user_func( $section['render'], $user );
 		$codigo = (string) ob_get_clean();
@@ -253,17 +253,17 @@ function upfw_account_section_html( array $section, WP_User $user ): string {
 }
 
 /** La primera sección que se muestra al entrar sin pedir ninguna. */
-function upfw_default_section(): string {
-	$sections = upfw_sections();
+function users_plus_default_section(): string {
+	$sections = users_plus_sections();
 
 	return (string) ( array_key_first( $sections ) ?? '' );
 }
 
 /** La sección abierta ahora. */
-function upfw_current_section(): string {
-	$sections = upfw_sections();
+function users_plus_current_section(): string {
+	$sections = users_plus_sections();
 
-	$asked = (string) get_query_var( UPFW_ACCOUNT_VAR, '' );
+	$asked = (string) get_query_var( USERS_PLUS_ACCOUNT_VAR, '' );
 
 	if ( '' === $asked ) {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- sólo elige qué pintar.
@@ -271,7 +271,7 @@ function upfw_current_section(): string {
 	}
 
 	if ( '' === $asked ) {
-		return upfw_default_section();
+		return users_plus_default_section();
 	}
 
 	// Se busca por dirección, que es lo que escribió el browser. El
@@ -282,12 +282,12 @@ function upfw_current_section(): string {
 		}
 	}
 
-	return upfw_default_section();
+	return users_plus_default_section();
 }
 
 /** La página de cuenta, o 0 si todavía no se eligió ninguna. */
-function upfw_account_page_id(): int {
-	return (int) upfw_option( 'upfw_account_page' );
+function users_plus_account_page_id(): int {
+	return (int) users_plus_option( 'users_plus_account_page' );
 }
 
 /**
@@ -296,8 +296,8 @@ function upfw_account_page_id(): int {
  * Con enlaces permanentes prendidos queda /cuenta/seguridad/; sin ellos, el
  * parámetro de siempre. No hay nada que configurar: se mira lo que hay.
  */
-function upfw_account_url( string $section = '' ): string {
-	$page = upfw_account_page_id();
+function users_plus_account_url( string $section = '' ): string {
+	$page = users_plus_account_page_id();
 
 	if ( $page <= 0 ) {
 		return home_url( '/' );
@@ -305,11 +305,11 @@ function upfw_account_url( string $section = '' ): string {
 
 	$base = (string) get_permalink( $page );
 
-	if ( '' === $section || $section === upfw_default_section() ) {
+	if ( '' === $section || $section === users_plus_default_section() ) {
 		return $base;
 	}
 
-	$sections = upfw_sections( true );
+	$sections = users_plus_sections( true );
 	$slug     = isset( $sections[ $section ] ) ? (string) $sections[ $section ]['slug'] : $section;
 
 	if ( '' === (string) get_option( 'permalink_structure' ) ) {
@@ -323,12 +323,12 @@ function upfw_account_url( string $section = '' ): string {
  * La regla que hace posible /cuenta/<seccion>/.
  *
  * Una regla propia y no add_rewrite_endpoint(): un endpoint pone su nombre en
- * la URL —quedaría /cuenta/upfw_section/seguridad/— y con uno por sección
+ * la URL —quedaría /cuenta/users_plus_section/seguridad/— y con uno por sección
  * habría que declarar de antemano cuántas hay, que es justo lo que este
  * registro evita.
  */
-function upfw_account_rule(): void {
-	$page = upfw_account_page_id();
+function users_plus_account_rule(): void {
+	$page = users_plus_account_page_id();
 
 	if ( $page <= 0 ) {
 		return;
@@ -342,11 +342,11 @@ function upfw_account_rule(): void {
 
 	add_rewrite_rule(
 		'^' . preg_quote( $uri, '/' ) . '/([^/]+)/?$',
-		'index.php?page_id=' . $page . '&' . UPFW_ACCOUNT_VAR . '=$matches[1]',
+		'index.php?page_id=' . $page . '&' . USERS_PLUS_ACCOUNT_VAR . '=$matches[1]',
 		'top'
 	);
 }
-add_action( 'init', 'upfw_account_rule' );
+add_action( 'init', 'users_plus_account_rule' );
 
 /** Sin esto WordPress descarta el valor que capturó la regla. */
 /**
@@ -356,12 +356,12 @@ add_action( 'init', 'upfw_account_rule' );
  * @param array<int, string> $vars
  * @return array<int, string>
  */
-function upfw_account_query_var( array $vars ): array {
-	$vars[] = UPFW_ACCOUNT_VAR;
+function users_plus_account_query_var( array $vars ): array {
+	$vars[] = USERS_PLUS_ACCOUNT_VAR;
 
 	return $vars;
 }
-add_filter( 'query_vars', 'upfw_account_query_var' );
+add_filter( 'query_vars', 'users_plus_account_query_var' );
 
 /**
  * Las reglas de reescritura se guardan una vez, no en cada pedido.
@@ -370,15 +370,15 @@ add_filter( 'query_vars', 'upfw_account_query_var' );
  * versión, que son los dos momentos en los que el endpoint puede haber
  * quedado viejo.
  */
-function upfw_account_flush_rules(): void {
-	if ( get_option( 'upfw_rewrite_version' ) === UPFW_VERSION ) {
+function users_plus_account_flush_rules(): void {
+	if ( get_option( 'users_plus_rewrite_version' ) === USERS_PLUS_VERSION ) {
 		return;
 	}
 
 	flush_rewrite_rules( false );
-	update_option( 'upfw_rewrite_version', UPFW_VERSION );
+	update_option( 'users_plus_rewrite_version', USERS_PLUS_VERSION );
 }
-add_action( 'wp_loaded', 'upfw_account_flush_rules' );
+add_action( 'wp_loaded', 'users_plus_account_flush_rules' );
 
 /**
  * El título de la sección que se está viendo.
@@ -391,7 +391,7 @@ add_action( 'wp_loaded', 'upfw_account_flush_rules' );
  *
  * @param array<string, mixed> $section
  */
-function upfw_account_heading( array $section, string $id, WP_User $user ): string {
+function users_plus_account_heading( array $section, string $id, WP_User $user ): string {
 	/**
 	 * Filtra el título de una sección del área de cuenta.
 	 *
@@ -401,24 +401,24 @@ function upfw_account_heading( array $section, string $id, WP_User $user ): stri
 	 * @param string  $id      Identificador de la sección.
 	 * @param WP_User $user    Quién la está viendo.
 	 */
-	return (string) apply_filters( 'upfw_account_heading', (string) $section['label'], $id, $user );
+	return (string) apply_filters( 'users_plus_account_heading', (string) $section['label'], $id, $user );
 }
 
 /** El título, ya listo para imprimir. Vacío si la sección no lleva. */
 /**
  * @param array<string, mixed> $section
  */
-function upfw_account_heading_html( array $section, string $id, WP_User $user ): string {
-	$heading = upfw_account_heading( $section, $id, $user );
+function users_plus_account_heading_html( array $section, string $id, WP_User $user ): string {
+	$heading = users_plus_account_heading( $section, $id, $user );
 
 	return '' === $heading
 		? ''
-		: sprintf( '<h2 class="upfw-account__titulo">%s</h2>', esc_html( $heading ) );
+		: sprintf( '<h2 class="users-plus-account__titulo">%s</h2>', esc_html( $heading ) );
 }
 
 /** ¿Estamos en el área de cuenta? */
-function upfw_is_account(): bool {
-	$page = upfw_account_page_id();
+function users_plus_is_account(): bool {
+	$page = users_plus_account_page_id();
 
 	return $page > 0 && is_page( $page );
 }
@@ -426,20 +426,20 @@ function upfw_is_account(): bool {
 /* ── Pintado ───────────────────────────────────────────────────────── */
 
 /** El nombre visible de alguien: el que escribió, o el que haya. */
-function upfw_display_name( WP_User $user ): string {
+function users_plus_display_name( WP_User $user ): string {
 	$full = trim( $user->first_name . ' ' . $user->last_name );
 
 	return '' !== $full ? $full : $user->display_name;
 }
 
 /** El nombre de pila, para saludar. */
-function upfw_first_name( WP_User $user ): string {
-	return '' !== $user->first_name ? $user->first_name : upfw_display_name( $user );
+function users_plus_first_name( WP_User $user ): string {
+	return '' !== $user->first_name ? $user->first_name : users_plus_display_name( $user );
 }
 
 /** Las iniciales, para el avatar de letras. */
-function upfw_initials( WP_User $user ): string {
-	$parts = preg_split( '/\s+/', upfw_display_name( $user ), -1, PREG_SPLIT_NO_EMPTY );
+function users_plus_initials( WP_User $user ): string {
+	$parts = preg_split( '/\s+/', users_plus_display_name( $user ), -1, PREG_SPLIT_NO_EMPTY );
 	$parts = is_array( $parts ) ? $parts : array();
 
 	$first = isset( $parts[0] ) ? mb_substr( $parts[0], 0, 1 ) : '';
@@ -453,15 +453,15 @@ function upfw_initials( WP_User $user ): string {
  *
  * @param array<string, array<string, mixed>>|null $sections
  */
-function upfw_account_nav( ?array $sections = null, string $current = '' ): string {
-	$sections = null === $sections ? upfw_sections() : $sections;
-	$current  = '' === $current ? upfw_current_section() : $current;
+function users_plus_account_nav( ?array $sections = null, string $current = '' ): string {
+	$sections = null === $sections ? users_plus_sections() : $sections;
+	$current  = '' === $current ? users_plus_current_section() : $current;
 
 	if ( array() === $sections ) {
 		return '';
 	}
 
-	return upfw_render(
+	return users_plus_render(
 		'account-nav',
 		array(
 			'sections' => $sections,
@@ -470,37 +470,37 @@ function upfw_account_nav( ?array $sections = null, string $current = '' ): stri
 	);
 }
 
-/** El área de cuenta entera. Shortcode: [upfw_account] */
-function upfw_shortcode_account(): string {
+/** El área de cuenta entera. Shortcode: [users_plus_account] */
+function users_plus_shortcode_account(): string {
 	if ( ! is_user_logged_in() ) {
-		return upfw_render( 'account-guest', array( 'url' => upfw_login_url() ) );
+		return users_plus_render( 'account-guest', array( 'url' => users_plus_login_url() ) );
 	}
 
-	$sections = upfw_sections();
+	$sections = users_plus_sections();
 
 	if ( array() === $sections ) {
 		return '';
 	}
 
-	upfw_enqueue_styles();
+	users_plus_enqueue_styles();
 
-	$current = upfw_current_section();
+	$current = users_plus_current_section();
 
-	return upfw_render(
+	return users_plus_render(
 		'account',
 		array(
 			'user'     => wp_get_current_user(),
 			'sections' => $sections,
 			'current'  => $current,
-			'layout'   => (string) upfw_option( 'upfw_account_layout' ),
-			'header'   => (bool) upfw_option( 'upfw_account_header' ),
+			'layout'   => (string) users_plus_option( 'users_plus_account_layout' ),
+			'header'   => (bool) users_plus_option( 'users_plus_account_header' ),
 		)
 	);
 }
-add_shortcode( 'upfw_account', 'upfw_shortcode_account' );
+add_shortcode( 'users_plus_account', 'users_plus_shortcode_account' );
 
-/** Sólo la navegación. Shortcode: [upfw_account_nav] */
-function upfw_shortcode_account_nav(): string {
-	return is_user_logged_in() ? upfw_account_nav() : '';
+/** Sólo la navegación. Shortcode: [users_plus_account_nav] */
+function users_plus_shortcode_account_nav(): string {
+	return is_user_logged_in() ? users_plus_account_nav() : '';
 }
-add_shortcode( 'upfw_account_nav', 'upfw_shortcode_account_nav' );
+add_shortcode( 'users_plus_account_nav', 'users_plus_shortcode_account_nav' );
