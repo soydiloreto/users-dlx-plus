@@ -35,7 +35,6 @@
         <ignoreFiles>
             <directory name="vendor" />
             <directory name="tests" />
-            <directory name=".wordpress-org" />
             <directory name="assets" />
         </ignoreFiles>
     </projectFiles>

@@ -127,7 +127,7 @@ function upfw_section_save( array $input ): string {
  */
 function upfw_account_actions(): void {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	if ( 'upfw-account' !== ( $_GET['page'] ?? '' ) || ! isset( $_GET['upfw_action'], $_GET['section'] ) ) {
+	if ( 'upfw-account' !== sanitize_key( wp_unslash( $_GET['page'] ?? '' ) ) || ! isset( $_GET['upfw_action'], $_GET['section'] ) ) {
 		return;
 	}
 
@@ -156,6 +156,7 @@ function upfw_account_actions(): void {
 }
 add_action( 'admin_init', 'upfw_account_actions' );
 
+/** La pantalla del área de cuenta: sus dos solapas. */
 function upfw_screen_account(): void {
 	$tabs = array(
 		'sections' => __( 'Sections', 'users-plus-for-wordpress' ),
@@ -187,7 +188,7 @@ function upfw_screen_account(): void {
  */
 function upfw_account_post(): void {
 	// phpcs:disable WordPress.Security.NonceVerification -- cada rama verifica el suyo.
-	if ( 'upfw-account' !== ( $_GET['page'] ?? '' ) || ! current_user_can( 'manage_options' ) ) {
+	if ( 'upfw-account' !== sanitize_key( wp_unslash( $_GET['page'] ?? '' ) ) || ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
 
@@ -200,6 +201,7 @@ function upfw_account_post(): void {
 	}
 
 	if ( isset( $_POST['upfw_seccion_nonce'] ) && wp_verify_nonce( sanitize_key( wp_unslash( $_POST['upfw_seccion_nonce'] ) ), 'upfw_seccion' ) ) {
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- lo sanea campo por campo upfw_section_save().
 		$guardada = upfw_section_save( (array) wp_unslash( $_POST['upfw_seccion'] ?? array() ) );
 
 		upfw_account_back(
@@ -211,7 +213,7 @@ function upfw_account_post(): void {
 	if ( isset( $_POST['upfw_layout_nonce'] ) && wp_verify_nonce( sanitize_key( wp_unslash( $_POST['upfw_layout_nonce'] ) ), 'upfw_layout' ) ) {
 		upfw_save_options(
 			array(
-				'upfw_account_page'   => (int) ( $_POST['upfw_account_page'] ?? 0 ),
+				'upfw_account_page'   => absint( wp_unslash( $_POST['upfw_account_page'] ?? 0 ) ),
 				'upfw_account_layout' => sanitize_key( wp_unslash( $_POST['upfw_account_layout'] ?? 'tabs' ) ),
 				'upfw_account_header' => isset( $_POST['upfw_account_header'] ) ? 1 : 0,
 			)
@@ -306,9 +308,10 @@ function upfw_screen_account_sections(): void {
 
 				<?php
 				/*
-				Sin JavaScript no hay arrastre, así que queda el botón:
-						una pantalla que sólo se puede usar con arrastre no se
-						puede usar con el teclado. */
+				 * Sin JavaScript no hay arrastre, así que queda el botón: una
+				 * pantalla que sólo se puede usar con arrastre no se puede usar
+				 * con el teclado.
+				 */
 				?>
 				<p class="upfw-endpoints__guardar-orden">
 					<button type="submit" class="button"><?php esc_html_e( 'Save the order', 'users-plus-for-wordpress' ); ?></button>
@@ -414,7 +417,7 @@ function upfw_screen_account_section( string $id, array $sections, int $page ): 
 						);
 						?>
 								"
-						onclick="return confirm(<?php echo esc_attr( (string) wp_json_encode( __( 'Delete this section?', 'users-plus-for-wordpress' ) ) ); ?>);">
+						onclick="return confirm(<?php echo esc_attr( (string) (string) wp_json_encode( __( 'Delete this section?', 'users-plus-for-wordpress' ) ) ); ?>);">
 						<?php esc_html_e( 'Remove', 'users-plus-for-wordpress' ); ?>
 					</a>
 				<?php endif; ?>
@@ -558,6 +561,7 @@ function upfw_screen_account_layout(): void {
 						'option_none_value' => 0,
 					);
 
+					// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_dropdown_pages() escapa lo suyo y pinta él.
 					wp_dropdown_pages( $upfw_dropdown );
 					?>
 					<p class="description">

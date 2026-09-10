@@ -224,7 +224,7 @@ function upfw_screen_social_buttons( array $providers ): void {
 					<td>
 						<input type="text" class="regular-text" id="upfw_sso_button_text" name="upfw_sso_button_text"
 							value="<?php echo esc_attr( (string) upfw_option( 'upfw_sso_button_text' ) ); ?>"
-							<?php /* translators: %s: nombre de la red social, que pone el navegador al pintar el botón. */ ?>
+							<?php /* translators: %s: nombre de la red social */ ?>
 							placeholder="<?php echo esc_attr( __( 'Continue with %s', 'users-plus-for-wordpress' ) ); ?>">
 						<p class="description">
 							<?php
