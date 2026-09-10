@@ -76,11 +76,15 @@ update: ## Update dev dependencies (composer update).
 # -- Linting / static analysis ----------------------------------------
 .PHONY: lint
 lint: ## PHPCS + WordPress Coding Standards.
-	$(VENDOR) ./vendor/bin/phpcs
+	# --no-cache a propósito: PHPCS cachea por archivo y, cuando un archivo
+	# vuelve a un contenido que ya analizó, responde con el resultado viejo.
+	# Eso da verde en local mientras el CI —que siempre arranca limpio— está
+	# en rojo, y se pierde media hora buscando la diferencia.
+	$(VENDOR) ./vendor/bin/phpcs --no-cache
 
 .PHONY: lint-fix
 lint-fix: ## Auto-fix PHPCS violations where possible.
-	$(VENDOR) ./vendor/bin/phpcbf
+	$(VENDOR) ./vendor/bin/phpcbf --no-cache
 
 .PHONY: stan
 stan: ## PHPStan level 8 (no baseline).
