@@ -21,6 +21,32 @@ defined( 'ABSPATH' ) || exit;
 const UPFW_MIGRATED = 'upfw_migrated_from_usmw';
 
 /**
+ * Suelta del caché sólo lo que la migración tocó.
+ *
+ * `wp_cache_flush()` sería una línea y vacía el caché de TODO el sitio: los
+ * transients de los demás plugins incluidos. Uno de ellos guarda ahí que su
+ * licencia está validada, y al perderlo volvió a pedir la clave. Un plugin no
+ * tiene por qué tirar abajo el caché de un sitio entero para arreglar lo suyo.
+ *
+ * @param array<int, string> $options   Las options viejas, con su nombre anterior.
+ * @param array<int, string> $usuarios  Los ids cuya meta se renombró.
+ */
+function upfw_migration_forget_cache( array $options, array $usuarios ): void {
+	// La lista completa de options la cachea WordPress en un solo bulto.
+	wp_cache_delete( 'alloptions', 'options' );
+	wp_cache_delete( 'notoptions', 'options' );
+
+	foreach ( $options as $vieja ) {
+		wp_cache_delete( (string) $vieja, 'options' );
+		wp_cache_delete( 'upfw_' . substr( (string) $vieja, 5 ), 'options' );
+	}
+
+	foreach ( $usuarios as $user_id ) {
+		wp_cache_delete( (int) $user_id, 'user_meta' );
+	}
+}
+
+/**
  * Renombra los datos que quedaron con el prefijo viejo.
  *
  * Se hace con SQL y no con la API de options y meta por una razón práctica:
@@ -35,7 +61,7 @@ function upfw_migrate_from_usmw(): void {
 		return;
 	}
 
-	// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- es una migración: una vez, sin entrada de nadie, y con wp_cache_flush() al final.
+	// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- es una migración: una vez, sin entrada de nadie, y suelta del caché sólo lo suyo al final.
 
 	// Las options tienen la clave única. Si el plugin ya sembró la suya —al
 	// activarse, que pasa antes de esto— el UPDATE choca con esa fila y falla
@@ -59,6 +85,10 @@ function upfw_migrate_from_usmw(): void {
 		  WHERE option_name LIKE 'usmw\\_%'"
 	);
 
+	$afectados = $wpdb->get_col(
+		"SELECT DISTINCT user_id FROM {$wpdb->usermeta} WHERE meta_key LIKE 'usmw\\_%'"
+	);
+
 	// La user meta no tiene clave única, pero el problema es el mismo: una
 	// persona podría quedar con la vieja y la nueva, y `get_user_meta()`
 	// devolvería cualquiera de las dos.
@@ -78,11 +108,7 @@ function upfw_migrate_from_usmw(): void {
 
 	// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
-	// El renombre de arriba fue por SQL, así que el caché de options todavía
-	// contesta lo de antes: el borrado de la sembrada y la ausencia de la
-	// vieja. Sin vaciarlo, el `get_option()` que viene devuelve false y los
-	// campos se quedan sin migrar sin que nadie se entere.
-	wp_cache_flush();
+	upfw_migration_forget_cache( (array) $viejas, (array) $afectados );
 
 	// Las claves de los campos viajan además adentro de la definición, y son
 	// las mismas con las que se guardó el valor de cada persona: si no se
@@ -98,8 +124,6 @@ function upfw_migrate_from_usmw(): void {
 
 		update_option( 'upfw_fields', $fields );
 	}
-
-	wp_cache_flush();
 
 	update_option( UPFW_MIGRATED, 1 );
 }
