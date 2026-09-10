@@ -1,0 +1,697 @@
+/**
+ * Los estilos del plugin.
+ *
+ * Un plugin de usuarios cae en cualquier sitio, con cualquier tema, y lo que
+ * pinta —formularios, paneles, listas, botones— tiene que leerse igual en
+ * todos. Por eso acá hay componentes de verdad y no cuatro reglas sueltas.
+ *
+ * La única forma de que además NO desentonen es que el sitio pueda cambiarlos
+ * sin reescribirlos. De ahí el sistema:
+ *
+ *   1. Todo lo visual sale de propiedades personalizadas `--users-dlx-plus-*` que se
+ *      declaran una sola vez, acá abajo.
+ *   2. Los componentes nunca escriben un color ni un radio literal: usan esas
+ *      propiedades.
+ *   3. Un sitio con diseño propio no copia esta hoja ni la apaga: redefine las
+ *      propiedades apuntándolas a sus propios tokens, y todo se acomoda.
+ *
+ * Las medidas heredan del tema donde tiene sentido —tipografía y tamaño de
+ * letra— para que el bloque no parezca pegado de otro lado.
+ */
+
+:root {
+	--users-dlx-plus-font: inherit;
+	--users-dlx-plus-radius: 12px;
+	--users-dlx-plus-radius-sm: 8px;
+	--users-dlx-plus-control-h: 46px;
+	--users-dlx-plus-gap: 16px;
+
+	--users-dlx-plus-surface: #ffffff;
+	--users-dlx-plus-surface-alt: #f5f6f8;
+	--users-dlx-plus-border: #e2e5ec;
+	--users-dlx-plus-text: #16181d;
+	--users-dlx-plus-muted: #626a7a;
+
+	/* El acento se parte en dos porque son dos trabajos distintos: el color
+	   de un enlace tiene que leerse SOBRE el fondo, y el de un botón tiene
+	   que leerse DEBAJO de su propio texto. En modo oscuro un sitio suele
+	   aclarar el primero y dejar el segundo igual; con un solo token, el
+	   botón terminaba lavanda claro con letras blancas. */
+	--users-dlx-plus-accent: #2b59d6;
+	--users-dlx-plus-accent-bg: var(--users-dlx-plus-accent);
+	--users-dlx-plus-accent-ink: #ffffff;
+	--users-dlx-plus-ok: #0f7b4f;
+	--users-dlx-plus-danger: #b3261e;
+}
+
+/* Acá no hay un bloque de modo oscuro, y es a propósito.
+ *
+ * Lo había, siguiendo a `prefers-color-scheme`, y era un error: el modo oscuro
+ * es del SITIO, no del plugin. Un sitio claro visto desde un sistema en oscuro
+ * terminaba con la página clara y los paneles del plugin en negro, con el
+ * texto ilegible encima. Y como ese bloque tenía más especificidad que las
+ * propiedades de arriba, ni siquiera se lo podía pisar reapuntándolas.
+ *
+ * Un sitio con modo oscuro ya sabe cuándo está en oscuro —por su propia clase,
+ * su propio interruptor o su propia media query— y sus tokens cambian ahí. Con
+ * las propiedades apuntadas a esos tokens, esto cambia con él y nunca por su
+ * cuenta.
+ */
+
+.users-dlx-plus,
+.users-dlx-plus-account {
+	font-family: var(--users-dlx-plus-font);
+	color: var(--users-dlx-plus-text);
+}
+
+.users-dlx-plus *,
+.users-dlx-plus-account * { box-sizing: border-box; }
+
+/* ── Superficies ────────────────────────────────────────────────────── */
+
+.users-dlx-plus-panel {
+	padding: 22px 24px;
+	margin: 0 0 var(--users-dlx-plus-gap);
+	background: var(--users-dlx-plus-surface);
+	border: 1px solid var(--users-dlx-plus-border);
+	border-radius: var(--users-dlx-plus-radius);
+}
+.users-dlx-plus-panel > :first-child { margin-top: 0; }
+.users-dlx-plus-panel > :last-child { margin-bottom: 0; }
+
+/* Un solo tamaño para el título de una caja, venga de un h3 escrito a mano o
+   del <summary> de una que se abre y se cierra. Tenerlos distintos es lo que
+   hacía que dos cajas pegadas parecieran de dos páginas distintas. */
+.users-dlx-plus-panel h3,
+.users-dlx-plus-panel__titulo {
+	margin: 0;
+	font-size: 1.32em;
+	font-weight: 700;
+	line-height: 1.25;
+}
+.users-dlx-plus-panel h3 { margin-bottom: 10px; }
+
+/* ── Cajas que se abren y se cierran ────────────────────────────────── */
+
+details.users-dlx-plus-panel { padding: 0; }
+.users-dlx-plus-panel__cabeza {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	padding: 20px 22px 20px 26px;
+	cursor: pointer;
+	list-style: none;
+}
+/* El triangulito que ponen los navegadores por su cuenta: se saca en los dos
+   dialectos, porque cada uno usa el suyo y hay que apagar los dos. */
+.users-dlx-plus-panel__cabeza::-webkit-details-marker { display: none; }
+.users-dlx-plus-panel__cabeza::marker { content: ''; }
+
+.users-dlx-plus-panel__titulo { flex: 1 1 auto; min-width: 0; }
+
+/* El botón de abrir y cerrar es un botón: redondo, del tamaño de un dedo y a
+   la derecha. Una flechita de nueve píxeles no se ve ni se toca. */
+.users-dlx-plus-panel__flecha {
+	position: relative;
+	flex: 0 0 auto;
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	background: var(--users-dlx-plus-surface-alt);
+	transition: transform .18s ease, background-color .18s ease;
+}
+/* La punta: dos bordes girados 45°, que es lo único que sale nítido en
+   cualquier pantalla y a cualquier zoom. */
+.users-dlx-plus-panel__flecha::before {
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 11px;
+	height: 11px;
+	border-right: 2.5px solid var(--users-dlx-plus-text);
+	border-bottom: 2.5px solid var(--users-dlx-plus-text);
+	transform: translate(-50%, -70%) rotate(45deg);
+}
+details.users-dlx-plus-panel[open] > .users-dlx-plus-panel__cabeza .users-dlx-plus-panel__flecha { transform: rotate(180deg); }
+.users-dlx-plus-panel__cabeza:hover .users-dlx-plus-panel__flecha { background-color: color-mix( in srgb, var(--users-dlx-plus-accent) 16%, var(--users-dlx-plus-surface-alt) ); }
+.users-dlx-plus-panel__cabeza:focus-visible { outline: 2px solid var(--users-dlx-plus-accent); outline-offset: -3px; border-radius: var(--users-dlx-plus-radius); }
+
+.users-dlx-plus-panel__cuerpo { padding: 4px 26px 24px; }
+.users-dlx-plus-panel__cuerpo > :first-child { margin-top: 0; }
+.users-dlx-plus-panel__cuerpo > :last-child { margin-bottom: 0; }
+
+/* El botón de guardar de cada caja. Están adentro del mismo formulario, así
+   que cualquiera de ellos manda la página entera: no hay que elegir cuál. */
+.users-dlx-plus-panel__guardar { margin-top: 22px; padding-top: 20px; border-top: 1px solid var(--users-dlx-plus-border); }
+
+/* Un panel que contiene una lista con su propio marco: el de adentro sobra,
+   y dos marcos pegados se ven como un error. */
+.users-dlx-plus-panel__cuerpo .users-dlx-plus-linked,
+.users-dlx-plus-panel__cuerpo .users-dlx-plus-sessions__list,
+.users-dlx-plus-panel--lista .users-dlx-plus-linked,
+.users-dlx-plus-panel--lista .users-dlx-plus-sessions__list {
+	border: 0;
+	border-radius: 0;
+	margin-bottom: 0;
+	background: transparent;
+}
+.users-dlx-plus-panel__cuerpo .users-dlx-plus-linked__item:first-child,
+.users-dlx-plus-panel__cuerpo .users-dlx-plus-session:first-child,
+.users-dlx-plus-panel--lista .users-dlx-plus-linked__item:first-child,
+.users-dlx-plus-panel--lista .users-dlx-plus-session:first-child { border-top: 1px solid var(--users-dlx-plus-border); }
+.users-dlx-plus-panel__cuerpo .users-dlx-plus-linked__item,
+.users-dlx-plus-panel__cuerpo .users-dlx-plus-session,
+.users-dlx-plus-panel--lista .users-dlx-plus-linked__item,
+.users-dlx-plus-panel--lista .users-dlx-plus-session { padding-inline: 0; }
+.users-dlx-plus-panel--lista .users-dlx-plus-sessions__all { margin-top: 16px; }
+
+.users-dlx-plus-note,
+.users-dlx-plus-nota { margin: 8px 0 0; font-size: 0.9em; color: var(--users-dlx-plus-muted); }
+
+.users-dlx-plus-datos { display: grid; grid-template-columns: auto 1fr; gap: 6px 20px; margin: 0; }
+.users-dlx-plus-datos dt { color: var(--users-dlx-plus-muted); }
+.users-dlx-plus-datos dd { margin: 0; }
+
+/* ── Avisos ─────────────────────────────────────────────────────────── */
+
+.users-dlx-plus-notice {
+	margin: 0 0 var(--users-dlx-plus-gap);
+	padding: 12px 16px;
+	border-left: 3px solid var(--users-dlx-plus-border);
+	border-radius: var(--users-dlx-plus-radius-sm);
+	background: var(--users-dlx-plus-surface-alt);
+	font-size: 0.95em;
+}
+.users-dlx-plus-notice--ok { border-left-color: var(--users-dlx-plus-ok); }
+.users-dlx-plus-notice--error { border-left-color: var(--users-dlx-plus-danger); }
+.users-dlx-plus-notice--info { border-left-color: var(--users-dlx-plus-accent); }
+
+/* ── Formularios ────────────────────────────────────────────────────── */
+
+.users-dlx-plus-form { display: flex; flex-direction: column; align-items: stretch; gap: 8px; max-width: 34rem; }
+.users-dlx-plus-form label { font-weight: 600; }
+/* Un botón dentro de un formulario en columna se estira a todo el ancho y
+   parece un banner. Ocupa lo que dice, y arranca a la izquierda. */
+.users-dlx-plus-form > .users-dlx-plus-button,
+.users-dlx-plus-form > button { align-self: flex-start; margin-top: 6px; }
+
+.users-dlx-plus-form input[type="text"],
+.users-dlx-plus-form input[type="email"],
+.users-dlx-plus-form input[type="tel"],
+.users-dlx-plus-form input[type="url"],
+.users-dlx-plus-form input[type="number"],
+.users-dlx-plus-form input[type="date"],
+.users-dlx-plus-form select,
+.users-dlx-plus-form textarea,
+.users-dlx-plus-field input[type="text"],
+.users-dlx-plus-field input[type="email"],
+.users-dlx-plus-field input[type="tel"],
+.users-dlx-plus-field input[type="url"],
+.users-dlx-plus-field input[type="number"],
+.users-dlx-plus-field input[type="date"],
+.users-dlx-plus-field select,
+.users-dlx-plus-field textarea {
+	width: 100%;
+	min-height: var(--users-dlx-plus-control-h);
+	padding: 0 14px;
+	border: 1px solid var(--users-dlx-plus-border);
+	border-radius: var(--users-dlx-plus-radius-sm);
+	background: var(--users-dlx-plus-surface);
+	color: var(--users-dlx-plus-text);
+	font: inherit;
+}
+.users-dlx-plus-form textarea,
+.users-dlx-plus-field textarea { padding: 12px 14px; min-height: 8em; }
+
+.users-dlx-plus-form input:focus,
+.users-dlx-plus-form select:focus,
+.users-dlx-plus-form textarea:focus,
+.users-dlx-plus-field input:focus,
+.users-dlx-plus-field select:focus,
+.users-dlx-plus-field textarea:focus {
+	outline: 2px solid var(--users-dlx-plus-accent);
+	outline-offset: 1px;
+	border-color: var(--users-dlx-plus-accent);
+}
+
+.users-dlx-plus-form input:disabled,
+.users-dlx-plus-field input:disabled { background: var(--users-dlx-plus-surface-alt); color: var(--users-dlx-plus-muted); }
+
+.users-dlx-plus-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+.users-dlx-plus-field__help { margin: 0; font-size: 0.85em; color: var(--users-dlx-plus-muted); }
+.users-dlx-plus-field__required { color: var(--users-dlx-plus-danger); }
+
+/* El teléfono es dos controles que son uno: el código de país y el número. */
+.users-dlx-plus-phone { display: grid; grid-template-columns: minmax(0, 9rem) minmax(0, 1fr); gap: 8px; }
+
+.users-dlx-plus-check { display: flex; align-items: flex-start; gap: 10px; margin: 0 0 12px; }
+.users-dlx-plus-check input { margin-top: 4px; }
+.users-dlx-plus-check small { display: block; color: var(--users-dlx-plus-muted); }
+
+/* ── Botones ────────────────────────────────────────────────────────── */
+
+.users-dlx-plus-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: var(--users-dlx-plus-control-h);
+	padding: 0 22px;
+	border: 1px solid transparent;
+	border-radius: var(--users-dlx-plus-radius-sm);
+	background: var(--users-dlx-plus-accent-bg);
+	color: var(--users-dlx-plus-accent-ink);
+	font: inherit;
+	font-weight: 600;
+	text-decoration: none;
+	cursor: pointer;
+	transition: filter .15s ease;
+}
+.users-dlx-plus-button:hover { filter: brightness(0.93); color: var(--users-dlx-plus-accent-ink); }
+
+.users-dlx-plus-button--soft {
+	background: transparent;
+	border-color: var(--users-dlx-plus-border);
+	color: var(--users-dlx-plus-text);
+}
+.users-dlx-plus-button--soft:hover { background: var(--users-dlx-plus-surface-alt); color: var(--users-dlx-plus-text); filter: none; }
+
+.users-dlx-plus-button--peligro { background: var(--users-dlx-plus-danger); color: #fff; }
+.users-dlx-plus-button--peligro:hover { color: #fff; }
+
+.users-dlx-plus-chip {
+	display: inline-block;
+	padding: 4px 12px;
+	border-radius: 999px;
+	background: var(--users-dlx-plus-surface-alt);
+	color: var(--users-dlx-plus-muted);
+	font-size: 0.85em;
+	font-weight: 600;
+}
+
+/* ── Tablas ─────────────────────────────────────────────────────────── */
+
+.users-dlx-plus-tabla { width: 100%; border-collapse: collapse; margin: 0 0 var(--users-dlx-plus-gap); }
+.users-dlx-plus-tabla th,
+.users-dlx-plus-tabla td { padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--users-dlx-plus-border); }
+.users-dlx-plus-tabla th { font-size: 0.85em; text-transform: uppercase; letter-spacing: .05em; color: var(--users-dlx-plus-muted); }
+
+/* ── Listas de filas (sesiones, redes vinculadas) ───────────────────── */
+
+.users-dlx-plus-linked,
+.users-dlx-plus-sessions__list {
+	list-style: none;
+	margin: 0 0 var(--users-dlx-plus-gap);
+	padding: 0;
+	border: 1px solid var(--users-dlx-plus-border);
+	border-radius: var(--users-dlx-plus-radius);
+	overflow: hidden;
+	background: var(--users-dlx-plus-surface);
+}
+
+.users-dlx-plus-linked__item,
+.users-dlx-plus-session {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding: 14px 18px;
+	margin: 0;
+	border-top: 1px solid var(--users-dlx-plus-border);
+}
+.users-dlx-plus-linked__item:first-child,
+.users-dlx-plus-session:first-child { border-top: 0; }
+
+.users-dlx-plus-linked__logo {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 38px;
+	height: 38px;
+	flex: 0 0 38px;
+	border-radius: 50%;
+	background: var(--users-dlx-plus-surface-alt);
+	color: var(--users-dlx-plus-brand, var(--users-dlx-plus-text));
+}
+.users-dlx-plus-linked__item.is-linked .users-dlx-plus-linked__logo { background: var(--users-dlx-plus-brand, var(--users-dlx-plus-accent-bg)); color: #fff; }
+.users-dlx-plus-linked__item.has-color .users-dlx-plus-linked__logo { background: #fff; box-shadow: inset 0 0 0 1px var(--users-dlx-plus-border); }
+
+.users-dlx-plus-linked__who,
+.users-dlx-plus-session__what { display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0; }
+.users-dlx-plus-linked__who span,
+.users-dlx-plus-session__what span { font-size: 0.9em; color: var(--users-dlx-plus-muted); }
+
+.users-dlx-plus-linked__item form,
+.users-dlx-plus-session__action { margin: 0; flex: 0 0 auto; }
+.users-dlx-plus-linked__item .users-dlx-plus-button,
+.users-dlx-plus-session__action .users-dlx-plus-button { min-height: 38px; padding: 0 16px; font-size: 0.9em; }
+
+.users-dlx-plus-session--current { background: var(--users-dlx-plus-surface-alt); }
+.users-dlx-plus-sessions__all { margin: 0; }
+
+/* Estas listas entran igual en el ancho de una página que en el de una
+   columna al costado, así que lo que manda no es el tamaño de la pantalla
+   sino el del contenedor: con el menú al costado la pantalla es ancha y la
+   caja mide 320px, y un media query no se entera. */
+.users-dlx-plus-linked,
+.users-dlx-plus-sessions__list { container-type: inline-size; }
+
+@container (max-width: 420px) {
+	.users-dlx-plus-linked__item,
+	.users-dlx-plus-session { flex-wrap: wrap; }
+	.users-dlx-plus-linked__who,
+	.users-dlx-plus-session__what { flex: 1 1 100%; order: 2; }
+	.users-dlx-plus-linked__item form,
+	.users-dlx-plus-session__action { order: 3; }
+}
+
+/* Y el respaldo para un navegador que todavía no sepa de contenedores. */
+@media (max-width: 560px) {
+	.users-dlx-plus-linked__item,
+	.users-dlx-plus-session { flex-wrap: wrap; }
+	.users-dlx-plus-linked__who,
+	.users-dlx-plus-session__what { flex: 1 1 100%; order: 2; }
+}
+
+/* ── Las passkeys ───────────────────────────────────────────────────── */
+
+/* Cada llave es una caja que se abre, igual que los paneles de la pantalla:
+   cerrada se lee el nombre, abierta se lo cambia o se saca la llave. Un campo
+   de texto siempre abierto en cada fila parece un formulario a medio llenar. */
+.users-dlx-plus-llaves {
+	list-style: none;
+	margin: 0 0 var(--users-dlx-plus-gap);
+	padding: 0;
+	border: 1px solid var(--users-dlx-plus-border);
+	border-radius: var(--users-dlx-plus-radius);
+	overflow: hidden;
+	background: var(--users-dlx-plus-surface);
+}
+.users-dlx-plus-llaves > li + li { border-top: 1px solid var(--users-dlx-plus-border); }
+
+.users-dlx-plus-llave__fila {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	padding: 12px 16px;
+	cursor: pointer;
+	list-style: none;
+}
+.users-dlx-plus-llave__fila::-webkit-details-marker { display: none; }
+.users-dlx-plus-llave__fila::marker { content: ''; }
+.users-dlx-plus-llave__fila:focus-visible { outline: 2px solid var(--users-dlx-plus-accent); outline-offset: -3px; }
+
+.users-dlx-plus-llave__logo {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 38px;
+	height: 38px;
+	flex: 0 0 38px;
+	border-radius: 50%;
+	background: var(--users-dlx-plus-accent-bg);
+	color: var(--users-dlx-plus-accent-ink);
+}
+.users-dlx-plus-llave__quien { display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0; }
+.users-dlx-plus-llave__quien > span { font-size: 0.9em; color: var(--users-dlx-plus-muted); }
+
+/* La misma punta de los paneles, en chico: es el mismo gesto. */
+.users-dlx-plus-llave__flecha {
+	position: relative;
+	flex: 0 0 auto;
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	background: var(--users-dlx-plus-surface-alt);
+	transition: transform .18s ease, background-color .18s ease;
+}
+.users-dlx-plus-llave__flecha::before {
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 8px;
+	height: 8px;
+	border-right: 2px solid var(--users-dlx-plus-text);
+	border-bottom: 2px solid var(--users-dlx-plus-text);
+	transform: translate(-50%, -70%) rotate(45deg);
+}
+details.users-dlx-plus-llave[open] > .users-dlx-plus-llave__fila .users-dlx-plus-llave__flecha { transform: rotate(180deg); }
+.users-dlx-plus-llave__fila:hover .users-dlx-plus-llave__flecha { background-color: color-mix( in srgb, var(--users-dlx-plus-accent) 16%, var(--users-dlx-plus-surface-alt) ); }
+
+.users-dlx-plus-llave__editar {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 8px;
+	margin: 0;
+	padding: 4px 16px 18px 68px;
+}
+.users-dlx-plus-llave__editar label { font-weight: 600; font-size: 0.9em; }
+.users-dlx-plus-llave__editar input[type="text"] { width: 100%; max-width: 22rem; }
+.users-dlx-plus-llave__acciones { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.users-dlx-plus-llave__acciones .users-dlx-plus-button { min-height: 38px; padding: 0 16px; font-size: 0.9em; }
+
+.users-dlx-plus-llave-alta { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; margin: 0; }
+.users-dlx-plus-llave-alta .users-dlx-plus-llave__campo { display: flex; flex-direction: column; gap: 6px; flex: 0 1 22rem; min-width: 0; }
+.users-dlx-plus-llave-alta label { font-weight: 600; }
+
+@media (max-width: 640px) {
+	.users-dlx-plus-llave__editar { padding-left: 16px; }
+}
+
+/* ── El área de cuenta ──────────────────────────────────────────────── */
+
+.users-dlx-plus-account__header {
+	display: flex;
+	align-items: center;
+	gap: 18px;
+	padding: 0 0 20px;
+	margin-bottom: 20px;
+	border-bottom: 1px solid var(--users-dlx-plus-border);
+}
+.users-dlx-plus-account__avatar {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 64px;
+	height: 64px;
+	flex: 0 0 64px;
+	border-radius: 50%;
+	background: var(--users-dlx-plus-accent-bg);
+	color: var(--users-dlx-plus-accent-ink);
+	font-size: 1.3em;
+	font-weight: 700;
+	overflow: hidden;
+}
+.users-dlx-plus-account__avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.users-dlx-plus-account__name { margin: 0; font-size: 1.5em; }
+.users-dlx-plus-account__since { margin: 2px 0 0; color: var(--users-dlx-plus-muted); }
+
+.users-dlx-plus-account__nav { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 24px; }
+.users-dlx-plus-account__tab {
+	padding: 10px 16px;
+	border-radius: var(--users-dlx-plus-radius-sm);
+	color: var(--users-dlx-plus-muted);
+	text-decoration: none;
+	font-weight: 600;
+}
+.users-dlx-plus-account__tab:hover { background: var(--users-dlx-plus-surface-alt); color: var(--users-dlx-plus-text); }
+.users-dlx-plus-account__tab.is-current { background: var(--users-dlx-plus-accent-bg); color: var(--users-dlx-plus-accent-ink); }
+
+.users-dlx-plus-account__titulo { margin: 0 0 6px; font-size: 1.35em; }
+
+/* Menú al costado: la navegación pasa a columna y el contenido al lado. */
+.users-dlx-plus-account--side .users-dlx-plus-account__cuerpo {
+	display: grid;
+	grid-template-columns: minmax(180px, 220px) minmax(0, 1fr);
+	gap: 32px;
+	align-items: start;
+}
+.users-dlx-plus-account--side .users-dlx-plus-account__nav { flex-direction: column; flex-wrap: nowrap; margin: 0; }
+
+@media (max-width: 782px) {
+	.users-dlx-plus-account--side .users-dlx-plus-account__cuerpo { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+	.users-dlx-plus-account--side .users-dlx-plus-account__nav { flex-direction: row; flex-wrap: wrap; }
+}
+
+/* ── El resumen de la portada ───────────────────────────────────────── */
+
+.users-dlx-plus-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+	gap: var(--users-dlx-plus-gap);
+	margin: 22px 0 0;
+}
+.users-dlx-plus-card-resumen {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	padding: 18px 20px;
+	background: var(--users-dlx-plus-surface);
+	border: 1px solid var(--users-dlx-plus-border);
+	border-radius: var(--users-dlx-plus-radius);
+	text-decoration: none;
+	color: inherit;
+}
+.users-dlx-plus-card-resumen:hover { border-color: var(--users-dlx-plus-accent); }
+.users-dlx-plus-card-resumen__rotulo { font-size: 0.8em; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--users-dlx-plus-muted); }
+.users-dlx-plus-card-resumen__valor { font-size: 1.9em; font-weight: 800; line-height: 1.15; margin-top: 4px; }
+.users-dlx-plus-card-resumen__nota { font-size: 0.92em; color: var(--users-dlx-plus-muted); }
+.users-dlx-plus-card-resumen__cta { margin-top: 10px; font-weight: 700; color: var(--users-dlx-plus-accent); }
+
+/* ── Acceso ─────────────────────────────────────────────────────────── */
+
+.users-dlx-plus-login__title, .users-dlx-plus-fields__title { margin: 0 0 6px; }
+.users-dlx-plus-login__email { font-weight: 700; }
+.users-dlx-plus-divider {
+	display: flex;
+	align-items: center;
+	gap: 14px;
+	margin: 24px 0;
+	color: var(--users-dlx-plus-muted);
+	font-size: 0.9em;
+}
+.users-dlx-plus-divider::before, .users-dlx-plus-divider::after {
+	content: "";
+	flex: 1 1 auto;
+	height: 1px;
+	background: var(--users-dlx-plus-border);
+}
+
+/* ── La foto de perfil ──────────────────────────────────────────────── */
+
+.users-dlx-plus-avatar__form { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+.users-dlx-plus-avatar__ahora { flex: 0 0 auto; line-height: 0; }
+.users-dlx-plus-avatar__ahora img { border-radius: 50%; }
+.users-dlx-plus-avatar__acciones { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+/* El input de archivo es feo en todos los navegadores y distinto en cada uno:
+   se lo esconde adentro de la etiqueta, que ya es un botón del sistema. */
+.users-dlx-plus-avatar__acciones input[type="file"] {
+	position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+	overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.users-dlx-plus-avatar__acciones label { cursor: pointer; }
+.users-dlx-plus-avatar .users-dlx-plus-note { flex: 1 1 100%; }
+
+/* ── El nombre público ──────────────────────────────────────────────── */
+
+.users-dlx-plus-handle .users-dlx-plus-form { max-width: 28rem; }
+
+/* El formulario nativo de WordPress, para que no desentone con el resto. */
+.users-dlx-plus .login-username,
+.users-dlx-plus .login-password { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+.users-dlx-plus .login-username label,
+.users-dlx-plus .login-password label { font-weight: 600; }
+.users-dlx-plus .login-username input,
+.users-dlx-plus .login-password input {
+	width: 100%;
+	min-height: var(--users-dlx-plus-control-h);
+	padding: 0 14px;
+	border: 1px solid var(--users-dlx-plus-border);
+	border-radius: var(--users-dlx-plus-radius-sm);
+	background: var(--users-dlx-plus-surface);
+	color: var(--users-dlx-plus-text);
+	font: inherit;
+}
+.users-dlx-plus .login-remember { margin-bottom: 14px; color: var(--users-dlx-plus-muted); }
+.users-dlx-plus .login-submit input {
+	min-height: var(--users-dlx-plus-control-h);
+	padding: 0 22px;
+	border: 0;
+	border-radius: var(--users-dlx-plus-radius-sm);
+	background: var(--users-dlx-plus-accent-bg);
+	color: var(--users-dlx-plus-accent-ink);
+	font: inherit;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+/* ── Segundo factor ─────────────────────────────────────────────────── */
+
+.users-dlx-plus-totp { display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start; }
+.users-dlx-plus-totp__qr {
+	flex: 0 0 auto;
+	padding: 10px;
+	background: #fff;
+	border: 1px solid var(--users-dlx-plus-border);
+	border-radius: var(--users-dlx-plus-radius-sm);
+	line-height: 0;
+}
+.users-dlx-plus-totp__manual { flex: 1 1 260px; min-width: 0; }
+.users-dlx-plus-totp__clave {
+	display: inline-block;
+	padding: 8px 12px;
+	background: var(--users-dlx-plus-surface-alt);
+	border-radius: var(--users-dlx-plus-radius-sm);
+	font-size: 1.05em;
+	letter-spacing: .08em;
+	word-break: break-all;
+}
+
+/* Los códigos de respaldo se muestran una sola vez: se los ve como lo que
+   son, algo para copiar o imprimir, no como texto corrido. */
+.users-dlx-plus-respaldo__lista {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+	gap: 8px;
+	margin: 14px 0 0;
+	padding: 0;
+	list-style: none;
+}
+.users-dlx-plus-respaldo__lista code {
+	display: block;
+	padding: 10px 12px;
+	background: var(--users-dlx-plus-surface-alt);
+	border-radius: var(--users-dlx-plus-radius-sm);
+	text-align: center;
+	letter-spacing: .06em;
+}
+
+.users-dlx-plus-login--2fa { max-width: 34rem; }
+.users-dlx-plus-login--2fa #users-dlx-plus-2fa-code { font-size: 1.4em; letter-spacing: .3em; text-align: center; }
+
+/* ── Privacidad ─────────────────────────────────────────────────────── */
+
+/* El bloque que borra la cuenta se distingue del que descarga: son dos cosas
+   muy distintas y no pueden verse igual. */
+.users-dlx-plus-panel--peligro { border-color: color-mix( in srgb, var(--users-dlx-plus-danger) 35%, var(--users-dlx-plus-border) ); }
+.users-dlx-plus-panel--peligro h3 { color: var(--users-dlx-plus-danger); }
+
+.users-dlx-plus-lista { margin: 10px 0 14px; padding-left: 20px; }
+.users-dlx-plus-lista li { margin-bottom: 6px; }
+
+.users-dlx-plus-pedidos { margin-top: 16px; }
+.users-dlx-plus-pedidos__accion { text-align: right; white-space: nowrap; }
+.users-dlx-plus-pedidos .users-dlx-plus-button { min-height: 36px; padding: 0 16px; font-size: .92em; }
+
+.users-dlx-plus-pill {
+	display: inline-block;
+	padding: 4px 12px;
+	border-radius: 999px;
+	background: var(--users-dlx-plus-surface-alt);
+	color: var(--users-dlx-plus-muted);
+	font-size: .88em;
+	font-weight: 600;
+}
+.users-dlx-plus-pill--ok { background: color-mix( in srgb, var(--users-dlx-plus-ok) 14%, transparent ); color: var(--users-dlx-plus-ok); }
+.users-dlx-plus-pill--pending { background: color-mix( in srgb, var(--users-dlx-plus-accent) 12%, transparent ); color: var(--users-dlx-plus-accent); }
+.users-dlx-plus-pill--off { background: color-mix( in srgb, var(--users-dlx-plus-danger) 12%, transparent ); color: var(--users-dlx-plus-danger); }
+
+.users-dlx-plus-handle-campo { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+/* El aire entre las piezas lo da el `gap`. Los márgenes de párrafo que trae
+   cualquier theme se sumarían a eso y dejarían huecos de dos renglones. */
+.users-dlx-plus-handle-campo > p { margin-block: 0; }
+.users-dlx-plus-handle-campo > input { max-width: 26rem; }
+/* Lo que es y lo que no es va antes del campo: después de escribirlo ya no
+   sirve de nada. */
+.users-dlx-plus-handle__que { margin: 0; font-size: 0.9em; line-height: 1.55; color: var(--users-dlx-plus-muted); }
+.users-dlx-plus-handle__vista,
+.users-dlx-plus-handle__estado { margin: 0; font-size: 0.9em; }
+.users-dlx-plus-handle__vista { color: var(--users-dlx-plus-muted); }
+.users-dlx-plus-handle__vista a { word-break: break-all; }
+.users-dlx-plus-handle__estado { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; }
+.users-dlx-plus-handle__aviso { font-weight: 600; }
+.users-dlx-plus-handle__aviso.is-libre { color: var(--users-dlx-plus-ok); }
+.users-dlx-plus-handle__aviso.is-ocupado { color: var(--users-dlx-plus-danger); }
+.users-dlx-plus-handle__aviso.is-esperando { color: var(--users-dlx-plus-muted); font-weight: 400; }

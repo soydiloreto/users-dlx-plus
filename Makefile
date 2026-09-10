@@ -1,4 +1,4 @@
-# users-plus — developer task runner.
+# users-dlx-plus — developer task runner.
 #
 # All PHP-based commands run inside the official `composer:2` Docker
 # image by default. That keeps the host clean of plugin-specific PHP
@@ -91,11 +91,11 @@ psalm: ## Psalm taint analysis (XSS / SQLi / RCE).
 	$(PSALM_CMD) --taint-analysis --no-cache --no-progress
 
 .PHONY: i18n
-i18n: ## Generate users-plus.pot via WP-CLI.
+i18n: ## Generate users-dlx-plus.pot via WP-CLI.
 	mkdir -p build
-	$(WP_CLI) i18n make-pot . build/users-plus.pot \
-	    --slug=users-plus \
-	    --domain=users-plus \
+	$(WP_CLI) i18n make-pot . build/users-dlx-plus.pot \
+	    --slug=users-dlx-plus \
+	    --domain=users-dlx-plus \
 	    --exclude=tests,vendor,node_modules,.wordpress-org,assets,docs,build
 
 # -- Tests -------------------------------------------------------------
@@ -135,7 +135,7 @@ env-clean: ## Destroy the local wp-env Docker stack and its volumes.
 # ships, so no vendor/, no tests, no tooling — and leaves the site's own
 # files alone. Override SITE= to try it somewhere else.
 SITE ?= $(HOME)/repos/cst-website
-SITE_PLUGIN := $(SITE)/wp-content/plugins/users-plus
+SITE_PLUGIN := $(SITE)/wp-content/plugins/users-dlx-plus
 
 .PHONY: deploy-test
 deploy-test: ## Copy the working tree into a real site for manual smoke-testing.
@@ -153,7 +153,7 @@ deploy-test: ## Copy the working tree into a real site for manual smoke-testing.
 .PHONY: release
 release: check ## Pre-release validation: full quality gate + version-alignment dry-run.
 	@echo "── version alignment check ─────────────────────────────"
-	@PHP_VERSION=$$(grep -E '^[[:space:]]*\*[[:space:]]*Version:' users-plus.php | head -1 | sed -E 's/.*Version:[[:space:]]*//'); \
+	@PHP_VERSION=$$(grep -E '^[[:space:]]*\*[[:space:]]*Version:' users-dlx-plus.php | head -1 | sed -E 's/.*Version:[[:space:]]*//'); \
 	 STABLE_TAG=$$(grep -E '^Stable tag:' readme.txt | sed -E 's/Stable tag:[[:space:]]*//'); \
 	 PHP_BASE=$$(echo $$PHP_VERSION | sed -E 's/-(dev|alpha|beta|rc).*$$//'); \
 	 echo "  PHP header Version : $$PHP_VERSION"; \

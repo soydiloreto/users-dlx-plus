@@ -1,31 +1,31 @@
 /* ============================================================================
    Botones de las redes sociales.
-   El color de cada marca llega como --users-plus-brand en el propio botón, así que
+   El color de cada marca llega como --users-dlx-plus-brand en el propio botón, así que
    una red nueva no necesita una regla nueva acá.
    ========================================================================= */
 
-.users-plus-socials {
+.users-dlx-plus-socials {
 	display: grid;
 	gap: 10px;
 	margin: 0 0 20px;
 }
 
-.users-plus-socials--cols-1 { grid-template-columns: minmax(0, 1fr); }
-.users-plus-socials--cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.users-plus-socials--cols-0 { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+.users-dlx-plus-socials--cols-1 { grid-template-columns: minmax(0, 1fr); }
+.users-dlx-plus-socials--cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.users-dlx-plus-socials--cols-0 { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
 
 /* Sólo logo: los botones dejan de ser barras y pasan a ser cuadraditos que se
    acomodan solos, sin importar cuántas columnas pida el ajuste. */
-.users-plus-socials--icon { grid-template-columns: repeat(auto-fit, 52px); }
+.users-dlx-plus-socials--icon { grid-template-columns: repeat(auto-fit, 52px); }
 
 /* Un solo botón no se queda a media caja mirando un hueco. */
-.users-plus-socials--cols-2 > .users-plus-social:only-child { grid-column: 1 / -1; }
+.users-dlx-plus-socials--cols-2 > .users-dlx-plus-social:only-child { grid-column: 1 / -1; }
 
 @media (max-width: 480px) {
-	.users-plus-socials--cols-2 { grid-template-columns: minmax(0, 1fr); }
+	.users-dlx-plus-socials--cols-2 { grid-template-columns: minmax(0, 1fr); }
 }
 
-.users-plus-social {
+.users-dlx-plus-social {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -40,48 +40,48 @@
 	transition: filter .15s ease, background-color .15s ease, border-color .15s ease;
 }
 
-.users-plus-social:focus-visible { outline: 2px solid var(--users-plus-brand); outline-offset: 2px; }
+.users-dlx-plus-social:focus-visible { outline: 2px solid var(--users-dlx-plus-brand); outline-offset: 2px; }
 
-.users-plus-social__logo { flex: 0 0 auto; }
+.users-dlx-plus-social__logo { flex: 0 0 auto; }
 
 /* ── Acabados ───────────────────────────────────────────────────────────── */
 
-.users-plus-socials--brand .users-plus-social { background: var(--users-plus-brand); color: #fff; }
-.users-plus-socials--brand .users-plus-social:hover { filter: brightness(0.92); color: #fff; }
+.users-dlx-plus-socials--brand .users-dlx-plus-social { background: var(--users-dlx-plus-brand); color: #fff; }
+.users-dlx-plus-socials--brand .users-dlx-plus-social:hover { filter: brightness(0.92); color: #fff; }
 /* Google pide que su botón vaya blanco con el logo a color: es la única marca
    cuya guía lo exige, y el logo multicolor sobre rojo además no se lee. */
-.users-plus-socials--brand .users-plus-social--google,
-.users-plus-socials--brand .users-plus-social--microsoft {
+.users-dlx-plus-socials--brand .users-dlx-plus-social--google,
+.users-dlx-plus-socials--brand .users-dlx-plus-social--microsoft {
 	background: #fff;
 	border-color: #dadce0;
 	color: #3c4043;
 }
-.users-plus-socials--brand .users-plus-social--google:hover,
-.users-plus-socials--brand .users-plus-social--microsoft:hover { background: #f7f8f8; color: #3c4043; }
+.users-dlx-plus-socials--brand .users-dlx-plus-social--google:hover,
+.users-dlx-plus-socials--brand .users-dlx-plus-social--microsoft:hover { background: #f7f8f8; color: #3c4043; }
 
-.users-plus-socials--light .users-plus-social {
+.users-dlx-plus-socials--light .users-dlx-plus-social {
 	background: #fff;
 	border-color: #d8dae0;
 	color: #1d2129;
 }
-.users-plus-socials--light .users-plus-social:hover { border-color: var(--users-plus-brand); color: #1d2129; }
+.users-dlx-plus-socials--light .users-dlx-plus-social:hover { border-color: var(--users-dlx-plus-brand); color: #1d2129; }
 
-.users-plus-socials--dark .users-plus-social {
+.users-dlx-plus-socials--dark .users-dlx-plus-social {
 	background: #16181d;
 	border-color: #2b2f38;
 	color: #fff;
 }
-.users-plus-socials--dark .users-plus-social:hover { background: #1f2229; color: #fff; }
+.users-dlx-plus-socials--dark .users-dlx-plus-social:hover { background: #1f2229; color: #fff; }
 
 /* ── Formas ─────────────────────────────────────────────────────────────── */
 
-.users-plus-socials--pill .users-plus-social { border-radius: 999px; }
-.users-plus-socials--square .users-plus-social { border-radius: 0; }
+.users-dlx-plus-socials--pill .users-dlx-plus-social { border-radius: 999px; }
+.users-dlx-plus-socials--square .users-dlx-plus-social { border-radius: 0; }
 
 /* ── Sólo logo ──────────────────────────────────────────────────────────── */
 
-.users-plus-socials--icon .users-plus-social { width: 52px; min-height: 52px; padding: 0; }
-.users-plus-socials--icon .users-plus-social__text {
+.users-dlx-plus-socials--icon .users-dlx-plus-social { width: 52px; min-height: 52px; padding: 0; }
+.users-dlx-plus-socials--icon .users-dlx-plus-social__text {
 	position: absolute;
 	width: 1px;
 	height: 1px;

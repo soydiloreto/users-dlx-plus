@@ -27,8 +27,8 @@ class SmokeTest extends TestCase {
 
 	public function test_constants_defined(): void {
 		$this->assertTrue(defined('ABSPATH'));
-		$this->assertTrue(defined('USERS_PLUS_DIR'));
-		$this->assertTrue(defined('USERS_PLUS_VERSION'));
+		$this->assertTrue(defined('USERS_DLX_PLUS_DIR'));
+		$this->assertTrue(defined('USERS_DLX_PLUS_VERSION'));
 	}
 
 	public function test_sanitize_text_field_stub(): void {

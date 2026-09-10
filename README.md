@@ -1,4 +1,4 @@
-# Users Plus for WordPress
+# Users+
 
 Todo lo que tiene que ver con las personas que usan un sitio de WordPress:
 qué datos se les piden, cómo entran, qué ven de lo suyo y qué pueden hacer

@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name:       Users Plus
+ * Plugin Name:       Users+
  * Plugin URI:        https://pablodiloreto.com
  * Description:       Campos de usuario, área de cuenta en el frente, acceso sin contraseña, login social, verificación en dos pasos, passkeys y control de sesiones. Con shortcodes y plantillas sobrescribibles para que entre en cualquier diseño.
  * Version:           0.2.1
@@ -8,12 +8,12 @@
  * Author URI:        https://pablodiloreto.com
  * License:           GPLv2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain:       users-plus
+ * Text Domain:       users-dlx-plus
  * Domain Path:       /languages
  * Requires at least: 6.0
  * Requires PHP:      8.0
  *
- * @package UsersPlus
+ * @package UsersDlxPlus
  *
  * ---------------------------------------------------------------------------
  * Por qué existe
@@ -28,18 +28,18 @@
  *
  * Lo que todavía no: suscripciones pagas. Eso arrastra pasarela, cobro
  * recurrente, reintentos y facturación, y va a entrar como complemento aparte
- * (`users-plus-subscriptions`) para que un sitio gratuito no cargue con código de
- * cobro que no usa. El prefijo `users_plus_` ya es el de la familia, así que las
+ * (`users-dlx-plus-subscriptions`) para que un sitio gratuito no cargue con código de
+ * cobro que no usa. El prefijo `users_dlx_plus_` ya es el de la familia, así que las
  * claves de metadatos no se van a mover cuando llegue.
  * ---------------------------------------------------------------------------
  */
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'USERS_PLUS_VERSION', '0.2.1' );
-define( 'USERS_PLUS_DIR', plugin_dir_path( __FILE__ ) );
-define( 'USERS_PLUS_URL', plugin_dir_url( __FILE__ ) );
-define( 'USERS_PLUS_FILE', __FILE__ );
+define( 'USERS_DLX_PLUS_VERSION', '0.2.1' );
+define( 'USERS_DLX_PLUS_DIR', plugin_dir_path( __FILE__ ) );
+define( 'USERS_DLX_PLUS_URL', plugin_dir_url( __FILE__ ) );
+define( 'USERS_DLX_PLUS_FILE', __FILE__ );
 
 /**
  * Las traducciones.
@@ -48,22 +48,22 @@ define( 'USERS_PLUS_FILE', __FILE__ );
  * plugin, en languages/. WordPress carga solo las de wordpress.org, que acá no
  * existen todavía.
  */
-function users_plus_load_textdomain(): void {
+function users_dlx_plus_load_textdomain(): void {
 	load_plugin_textdomain(
-		'users-plus',
+		'users-dlx-plus',
 		false,
-		dirname( plugin_basename( USERS_PLUS_FILE ) ) . '/languages'
+		dirname( plugin_basename( USERS_DLX_PLUS_FILE ) ) . '/languages'
 	);
 }
-add_action( 'init', 'users_plus_load_textdomain' );
+add_action( 'init', 'users_dlx_plus_load_textdomain' );
 
 /**
  * Cada archivo de includes/ es independiente y sólo registra hooks. Se cargan
  * por orden alfabético a propósito: si alguno necesitara a otro para arrancar,
  * eso sería un acoplamiento que hay que resolver con un hook, no con el orden.
  */
-foreach ( (array) glob( USERS_PLUS_DIR . 'includes/*.php' ) as $users_plus_archivo ) {
-	require_once (string) $users_plus_archivo;
+foreach ( (array) glob( USERS_DLX_PLUS_DIR . 'includes/*.php' ) as $users_dlx_plus_archivo ) {
+	require_once (string) $users_dlx_plus_archivo;
 }
 
 
@@ -74,4 +74,4 @@ foreach ( (array) glob( USERS_PLUS_DIR . 'includes/*.php' ) as $users_plus_archi
  * falta también cuando nace un sitio nuevo —donde este hook no corre— y no
  * conviene tener dos copias de la misma decisión.
  */
-register_activation_hook( __FILE__, 'users_plus_seed_fields' );
+register_activation_hook( __FILE__, 'users_dlx_plus_seed_fields' );

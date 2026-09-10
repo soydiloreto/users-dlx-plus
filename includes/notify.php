@@ -13,7 +13,7 @@
  * seguridad. No hay ninguno que dependa de otro plugin, y los del sitio se
  * suman a éstos con el mismo filtro de siempre.
  *
- * @package UsersPlus
+ * @package UsersDlxPlus
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -28,18 +28,18 @@ defined( 'ABSPATH' ) || exit;
  *
  * @return array<string, array<string, string>>
  */
-function users_plus_default_notifications(): array {
+function users_dlx_plus_default_notifications(): array {
 	$prefs = array();
 
-	$prefs['users_plus_notify_login'] = array(
-		'label'   => __( 'When somebody signs in to my account from a new device', 'users-plus' ),
-		'help'    => __( 'The first time a browser or a phone gets in. From then on, that one is quiet.', 'users-plus' ),
+	$prefs['users_dlx_plus_notify_login'] = array(
+		'label'   => __( 'When somebody signs in to my account from a new device', 'users-dlx-plus' ),
+		'help'    => __( 'The first time a browser or a phone gets in. From then on, that one is quiet.', 'users-dlx-plus' ),
 		'default' => '1',
 	);
 
-	$prefs['users_plus_notify_security'] = array(
-		'label'   => __( 'When something in my security changes', 'users-plus' ),
-		'help'    => __( 'A passkey added or removed, two-step verification turned on or off, a social account linked or unlinked.', 'users-plus' ),
+	$prefs['users_dlx_plus_notify_security'] = array(
+		'label'   => __( 'When something in my security changes', 'users-dlx-plus' ),
+		'help'    => __( 'A passkey added or removed, two-step verification turned on or off, a social account linked or unlinked.', 'users-dlx-plus' ),
 		'default' => '1',
 	);
 
@@ -47,8 +47,8 @@ function users_plus_default_notifications(): array {
 }
 
 /** ¿Esta persona quiere este aviso? */
-function users_plus_wants( int $user_id, string $key ): bool {
-	$prefs = users_plus_notification_prefs();
+function users_dlx_plus_wants( int $user_id, string $key ): bool {
+	$prefs = users_dlx_plus_notification_prefs();
 
 	if ( ! isset( $prefs[ $key ] ) ) {
 		return false;
@@ -65,8 +65,8 @@ function users_plus_wants( int $user_id, string $key ): bool {
  * Devuelve false también cuando no lo quiere: quien llama no tiene que
  * preguntar dos veces ni saber cómo se guarda la preferencia.
  */
-function users_plus_notify( int $user_id, string $key, string $subject, string $body ): bool {
-	if ( ! users_plus_wants( $user_id, $key ) ) {
+function users_dlx_plus_notify( int $user_id, string $key, string $subject, string $body ): bool {
+	if ( ! users_dlx_plus_wants( $user_id, $key ) ) {
 		return false;
 	}
 
@@ -84,7 +84,7 @@ function users_plus_notify( int $user_id, string $key, string $subject, string $
 	 * @param string                               $key
 	 */
 	$mail = (array) apply_filters(
-		'users_plus_notification',
+		'users_dlx_plus_notification',
 		array(
 			'subject' => $subject,
 			'body'    => $body,
@@ -97,7 +97,7 @@ function users_plus_notify( int $user_id, string $key, string $subject, string $
 }
 
 /** El nombre del sitio, sin las entidades HTML que guarda WordPress. */
-function users_plus_site_name(): string {
+function users_dlx_plus_site_name(): string {
 	return wp_specialchars_decode( (string) get_bloginfo( 'name' ), ENT_QUOTES );
 }
 
@@ -111,7 +111,7 @@ function users_plus_site_name(): string {
  * cincuenta veces desde el mismo navegador. La IP queda afuera a propósito:
  * cambia sola, y con ella cada entrada desde el mismo teléfono sería «nueva».
  */
-function users_plus_device_id(): string {
+function users_dlx_plus_device_id(): string {
 	$ua = isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '';
 
 	return substr( hash( 'sha256', $ua ), 0, 16 );
@@ -120,13 +120,13 @@ function users_plus_device_id(): string {
 /**
  * Avisa cuando alguien entra desde un aparato que no se había visto.
  *
- * Se cuelga de `users_plus_logged_in`, que es por donde pasan todas las formas de
+ * Se cuelga de `users_dlx_plus_logged_in`, que es por donde pasan todas las formas de
  * entrar que maneja el plugin: el enlace, la contraseña, una red social y una
  * passkey. Una sola vez por aparato.
  */
-function users_plus_notify_new_device( int $user_id, string $via ): void {
-	$id        = users_plus_device_id();
-	$conocidos = (array) get_user_meta( $user_id, 'users_plus_devices', true );
+function users_dlx_plus_notify_new_device( int $user_id, string $via ): void {
+	$id        = users_dlx_plus_device_id();
+	$conocidos = (array) get_user_meta( $user_id, 'users_dlx_plus_devices', true );
 	$conocidos = array_filter( array_map( 'strval', $conocidos ) );
 
 	if ( in_array( $id, $conocidos, true ) ) {
@@ -136,7 +136,7 @@ function users_plus_notify_new_device( int $user_id, string $via ): void {
 	// Se anota antes de mandar: si el correo falla, el aviso no queda
 	// repitiéndose en cada entrada desde el mismo navegador.
 	$conocidos[] = $id;
-	update_user_meta( $user_id, 'users_plus_devices', array_slice( $conocidos, -20 ) );
+	update_user_meta( $user_id, 'users_dlx_plus_devices', array_slice( $conocidos, -20 ) );
 
 	// La primera vez que se ve un aparato es, para casi todo el mundo, la vez
 	// que se creó la cuenta. Avisarle a alguien que entró él mismo, mientras
@@ -145,37 +145,37 @@ function users_plus_notify_new_device( int $user_id, string $via ): void {
 		return;
 	}
 
-	$agente = users_plus_user_agent( isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '' );
+	$agente = users_dlx_plus_user_agent( isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '' );
 
 	$aparato = trim( sprintf( '%s · %s %s', $agente['device'], $agente['browser'], $agente['os'] ) );
 
-	users_plus_notify(
+	users_dlx_plus_notify(
 		$user_id,
-		'users_plus_notify_login',
+		'users_dlx_plus_notify_login',
 		sprintf(
 			/* translators: %s: nombre del sitio */
-			__( 'New sign-in to your account on %s', 'users-plus' ),
-			users_plus_site_name()
+			__( 'New sign-in to your account on %s', 'users-dlx-plus' ),
+			users_dlx_plus_site_name()
 		),
 		sprintf(
 			/* translators: 1: aparato y navegador, 2: fecha y hora, 3: cómo entró, 4: dirección del área de cuenta */
-			__( "Somebody just signed in to your account.\n\n%1\$s\n%2\$s\nWay in: %3\$s\n\nIf it was you, there is nothing to do. If it was not, close that session and review your security here:\n%4\$s", 'users-plus' ),
+			__( "Somebody just signed in to your account.\n\n%1\$s\n%2\$s\nWay in: %3\$s\n\nIf it was you, there is nothing to do. If it was not, close that session and review your security here:\n%4\$s", 'users-dlx-plus' ),
 			$aparato,
 			wp_date( 'j M Y, H:i' ),
-			users_plus_via_label( $via ),
-			users_plus_account_url( 'security' )
+			users_dlx_plus_via_label( $via ),
+			users_dlx_plus_account_url( 'security' )
 		)
 	);
 }
-add_action( 'users_plus_logged_in', 'users_plus_notify_new_device', 10, 2 );
+add_action( 'users_dlx_plus_logged_in', 'users_dlx_plus_notify_new_device', 10, 2 );
 
 /** Cómo se entró, en castellano. */
-function users_plus_via_label( string $via ): string {
+function users_dlx_plus_via_label( string $via ): string {
 	$labels = array(
-		'link'     => __( 'a link sent to your email', 'users-plus' ),
-		'password' => __( 'your password', 'users-plus' ),
-		'sso'      => __( 'a social account', 'users-plus' ),
-		'passkey'  => __( 'a passkey', 'users-plus' ),
+		'link'     => __( 'a link sent to your email', 'users-dlx-plus' ),
+		'password' => __( 'your password', 'users-dlx-plus' ),
+		'sso'      => __( 'a social account', 'users-dlx-plus' ),
+		'passkey'  => __( 'a passkey', 'users-dlx-plus' ),
 	);
 
 	return $labels[ $via ] ?? $via;
@@ -191,21 +191,21 @@ function users_plus_via_label( string $via ): string {
  * cuando NO fuiste vos: si alguien entró y se agregó una passkey, ése es el
  * momento de enterarse.
  */
-function users_plus_notify_security( int $user_id, string $que ): void {
-	users_plus_notify(
+function users_dlx_plus_notify_security( int $user_id, string $que ): void {
+	users_dlx_plus_notify(
 		$user_id,
-		'users_plus_notify_security',
+		'users_dlx_plus_notify_security',
 		sprintf(
 			/* translators: %s: nombre del sitio */
-			__( 'Your security on %s changed', 'users-plus' ),
-			users_plus_site_name()
+			__( 'Your security on %s changed', 'users-dlx-plus' ),
+			users_dlx_plus_site_name()
 		),
 		sprintf(
 			/* translators: 1: qué cambió, 2: fecha y hora, 3: dirección del área de cuenta */
-			__( "This changed in your account:\n\n%1\$s\n%2\$s\n\nIf it was you, there is nothing to do. If it was not, review your security here:\n%3\$s", 'users-plus' ),
+			__( "This changed in your account:\n\n%1\$s\n%2\$s\n\nIf it was you, there is nothing to do. If it was not, review your security here:\n%3\$s", 'users-dlx-plus' ),
 			$que,
 			wp_date( 'j M Y, H:i' ),
-			users_plus_account_url( 'security' )
+			users_dlx_plus_account_url( 'security' )
 		)
 	);
 }

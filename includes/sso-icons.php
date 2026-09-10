@@ -12,7 +12,7 @@
  * pinta de otro color— y los que son una silueta usan `currentColor`, que es
  * como esas mismas guías los admiten sobre fondos de color.
  *
- * @package UsersPlus
+ * @package UsersDlxPlus
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -23,7 +23,7 @@ defined( 'ABSPATH' ) || exit;
  * Los de color no se recolorean nunca: se dibujan igual sobre un botón blanco
  * que sobre uno oscuro. Los de silueta toman el color del texto del botón.
  */
-function users_plus_sso_icon_is_colored( string $id ): bool {
+function users_dlx_plus_sso_icon_is_colored( string $id ): bool {
 	return in_array( $id, array( 'google', 'microsoft' ), true );
 }
 
@@ -33,16 +33,16 @@ function users_plus_sso_icon_is_colored( string $id ): bool {
  * @param string $id Identificador del proveedor.
  * @return string SVG, o cadena vacía si esa red no tiene logo.
  */
-function users_plus_sso_icon( string $id ): string {
-	$paths = users_plus_sso_icon_paths();
+function users_dlx_plus_sso_icon( string $id ): string {
+	$paths = users_dlx_plus_sso_icon_paths();
 
 	if ( ! isset( $paths[ $id ] ) ) {
 		return '';
 	}
 
 	return sprintf(
-		'<svg class="users-plus-social__logo" width="20" height="20" viewBox="0 0 24 24" fill="%1$s" aria-hidden="true" focusable="false">%2$s</svg>',
-		users_plus_sso_icon_is_colored( $id ) ? 'none' : 'currentColor',
+		'<svg class="users-dlx-plus-social__logo" width="20" height="20" viewBox="0 0 24 24" fill="%1$s" aria-hidden="true" focusable="false">%2$s</svg>',
+		users_dlx_plus_sso_icon_is_colored( $id ) ? 'none' : 'currentColor',
 		$paths[ $id ]
 	);
 }
@@ -52,7 +52,7 @@ function users_plus_sso_icon( string $id ): string {
  *
  * @return array<string, string>
  */
-function users_plus_sso_icon_paths(): array {
+function users_dlx_plus_sso_icon_paths(): array {
 	$paths = array(
 
 		'google'    => '<path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47a5.53 5.53 0 0 1-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"/>'
@@ -91,5 +91,5 @@ function users_plus_sso_icon_paths(): array {
 	 *
 	 * @param array<string, string> $paths
 	 */
-	return apply_filters( 'users_plus_sso_icon_paths', $paths );
+	return apply_filters( 'users_dlx_plus_sso_icon_paths', $paths );
 }

@@ -3,29 +3,29 @@
  * PHPStan analysis bootstrap.
  *
  * Defines plugin constants that are normally created at runtime by the
- * main plugin file (users-plus.php). PHPStan analyzes the
+ * main plugin file (users-dlx-plus.php). PHPStan analyzes the
  * codebase statically without executing anything, so it never sees the
  * `define()` calls there. Without these stubs, every reference to
- * `USERS_PLUS_DIR` and friends produces "Constant not found".
+ * `USERS_DLX_PLUS_DIR` and friends produces "Constant not found".
  *
  * This file is referenced from phpstan.neon's `bootstrapFiles:` list.
  * It is excluded from the wp.org deploy via .distignore. It is NOT
  * loaded at plugin runtime — only by PHPStan during analysis.
  *
- * @package UsersPlus
+ * @package UsersDlxPlus
  */
 
-if ( ! defined( 'USERS_PLUS_VERSION' ) ) {
-	define( 'USERS_PLUS_VERSION', '0.0.0-phpstan-stub' );
+if ( ! defined( 'USERS_DLX_PLUS_VERSION' ) ) {
+	define( 'USERS_DLX_PLUS_VERSION', '0.0.0-phpstan-stub' );
 }
-if ( ! defined( 'USERS_PLUS_DIR' ) ) {
-	define( 'USERS_PLUS_DIR', __DIR__ . '/' );
+if ( ! defined( 'USERS_DLX_PLUS_DIR' ) ) {
+	define( 'USERS_DLX_PLUS_DIR', __DIR__ . '/' );
 }
-if ( ! defined( 'USERS_PLUS_URL' ) ) {
-	define( 'USERS_PLUS_URL', 'https://example.test/wp-content/plugins/users-plus/' );
+if ( ! defined( 'USERS_DLX_PLUS_URL' ) ) {
+	define( 'USERS_DLX_PLUS_URL', 'https://example.test/wp-content/plugins/users-dlx-plus/' );
 }
-if ( ! defined( 'USERS_PLUS_FILE' ) ) {
-	define( 'USERS_PLUS_FILE', __DIR__ . '/users-plus.php' );
+if ( ! defined( 'USERS_DLX_PLUS_FILE' ) ) {
+	define( 'USERS_DLX_PLUS_FILE', __DIR__ . '/users-dlx-plus.php' );
 }
 
 // Constantes que WordPress define en tiempo de ejecución y que el análisis

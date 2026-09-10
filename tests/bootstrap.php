@@ -27,16 +27,16 @@ foreach ([
 	}
 }
 
-if (!defined('USERS_PLUS_DIR')) {
-	define('USERS_PLUS_DIR', __DIR__ . '/../');
+if (!defined('USERS_DLX_PLUS_DIR')) {
+	define('USERS_DLX_PLUS_DIR', __DIR__ . '/../');
 }
 
-if (!defined('USERS_PLUS_URL')) {
-	define('USERS_PLUS_URL', 'https://example.test/wp-content/plugins/users-plus/');
+if (!defined('USERS_DLX_PLUS_URL')) {
+	define('USERS_DLX_PLUS_URL', 'https://example.test/wp-content/plugins/users-dlx-plus/');
 }
 
-if (!defined('USERS_PLUS_VERSION')) {
-	define('USERS_PLUS_VERSION', '0.0.0-test');
+if (!defined('USERS_DLX_PLUS_VERSION')) {
+	define('USERS_DLX_PLUS_VERSION', '0.0.0-test');
 }
 
 // Load WordPress function stubs

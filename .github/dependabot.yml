@@ -1,4 +1,4 @@
-# Dependabot configuration for users-plus.
+# Dependabot configuration for users-dlx-plus.
 #
 # Why this exists, even though the published plugin has zero production
 # dependencies: the GitHub Actions used in CI/CD (deploy to wp.org SVN,

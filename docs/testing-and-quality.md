@@ -98,7 +98,7 @@ Configuration: [`.github/workflows/i18n-validate.yml`](../.github/workflows/i18n
 make i18n
 ```
 
-The Makefile target runs `wp i18n make-pot` and writes the result to `build/users-plus.pot`. The CI workflow does the same and additionally fails the build if any `Warning:` / `Error:` line appears in the output (WP-CLI prints them to stderr but exits 0 even when present, so we capture the output and grep ourselves).
+The Makefile target runs `wp i18n make-pot` and writes the result to `build/users-dlx-plus.pot`. The CI workflow does the same and additionally fails the build if any `Warning:` / `Error:` line appears in the output (WP-CLI prints them to stderr but exits 0 even when present, so we capture the output and grep ourselves).
 
 The workflow catches three real classes of bug:
 

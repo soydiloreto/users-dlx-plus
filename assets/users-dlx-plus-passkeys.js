@@ -12,7 +12,7 @@
 ( function () {
 	'use strict';
 
-	var datos = window.usersPlusPasskeys || null;
+	var datos = window.usersDlxPlusPasskeys || null;
 
 	if ( ! datos || ! window.PublicKeyCredential ) {
 		return;
@@ -42,7 +42,7 @@
 	}
 
 	function pedir( cuerpo ) {
-		cuerpo.action = 'users_plus_passkeys';
+		cuerpo.action = 'users_dlx_plus_passkeys';
 		cuerpo.nonce  = datos.nonce;
 
 		return fetch( datos.ajax, {
@@ -60,14 +60,14 @@
 		}
 
 		caja.textContent = texto;
-		caja.className = 'users-plus-notice users-plus-notice--' + ( error ? 'error' : 'ok' );
+		caja.className = 'users-dlx-plus-notice users-dlx-plus-notice--' + ( error ? 'error' : 'ok' );
 		caja.hidden = false;
 	}
 
 	/* ── Alta ─────────────────────────────────────────────────────── */
 
 	function registrar( boton ) {
-		var caja = document.querySelector( '[data-users-plus-passkey-aviso]' );
+		var caja = document.querySelector( '[data-users-dlx-plus-passkey-aviso]' );
 
 		boton.disabled = true;
 
@@ -115,7 +115,7 @@
 
 			// El nombre que escribió la persona. Si lo dejó vacío el
 			// servidor propone el dispositivo, así que acá no se inventa nada.
-			var nombre = document.querySelector( '[data-users-plus-passkey-label]' );
+			var nombre = document.querySelector( '[data-users-dlx-plus-passkey-label]' );
 
 			return pedir( {
 				step: 'register',
@@ -140,7 +140,7 @@
 	/* ── Ingreso ──────────────────────────────────────────────────── */
 
 	function entrar( boton ) {
-		var caja = document.querySelector( '[data-users-plus-passkey-aviso]' );
+		var caja = document.querySelector( '[data-users-dlx-plus-passkey-aviso]' );
 
 		boton.disabled = true;
 
@@ -178,7 +178,7 @@
 	}
 
 	document.addEventListener( 'click', function ( evento ) {
-		var alta = evento.target.closest( '[data-users-plus-passkey="register"]' );
+		var alta = evento.target.closest( '[data-users-dlx-plus-passkey="register"]' );
 
 		if ( alta ) {
 			evento.preventDefault();
@@ -186,7 +186,7 @@
 			return;
 		}
 
-		var ingreso = evento.target.closest( '[data-users-plus-passkey="login"]' );
+		var ingreso = evento.target.closest( '[data-users-dlx-plus-passkey="login"]' );
 
 		if ( ingreso ) {
 			evento.preventDefault();

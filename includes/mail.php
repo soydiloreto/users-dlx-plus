@@ -15,15 +15,15 @@
  * Así que no se adivina: se anota lo que pasó de verdad la última vez que
  * WordPress intentó mandar algo, y se ofrece un botón para probarlo.
  *
- * @package UsersPlus
+ * @package UsersDlxPlus
  */
 
 defined( 'ABSPATH' ) || exit;
 
 /** Anota que un envío salió bien. */
-function users_plus_mail_ok(): void {
+function users_dlx_plus_mail_ok(): void {
 	update_option(
-		'users_plus_mail_last',
+		'users_dlx_plus_mail_last',
 		array(
 			'ok'    => 1,
 			'time'  => time(),
@@ -31,16 +31,16 @@ function users_plus_mail_ok(): void {
 		)
 	);
 }
-add_action( 'wp_mail_succeeded', 'users_plus_mail_ok' );
+add_action( 'wp_mail_succeeded', 'users_dlx_plus_mail_ok' );
 
 /**
  * Anota que un envío falló, con el motivo.
  *
  * @param WP_Error $error
  */
-function users_plus_mail_failed( $error ): void {
+function users_dlx_plus_mail_failed( $error ): void {
 	update_option(
-		'users_plus_mail_last',
+		'users_dlx_plus_mail_last',
 		array(
 			'ok'    => 0,
 			'time'  => time(),
@@ -48,7 +48,7 @@ function users_plus_mail_failed( $error ): void {
 		)
 	);
 }
-add_action( 'wp_mail_failed', 'users_plus_mail_failed' );
+add_action( 'wp_mail_failed', 'users_dlx_plus_mail_failed' );
 
 /**
  * Lo que se sabe del correo saliente.
@@ -56,8 +56,8 @@ add_action( 'wp_mail_failed', 'users_plus_mail_failed' );
  * @return array{state: string, time: int, error: string}
  *         state: 'ok', 'fail' o 'unknown'.
  */
-function users_plus_mail_status(): array {
-	$last = get_option( 'users_plus_mail_last', false );
+function users_dlx_plus_mail_status(): array {
+	$last = get_option( 'users_dlx_plus_mail_last', false );
 
 	if ( ! is_array( $last ) ) {
 		return array(
@@ -80,17 +80,17 @@ function users_plus_mail_status(): array {
  * «Todavía no se probó» cuenta como que sí: no hay motivo para asustar a
  * nadie con una sospecha, y el primer envío real va a decir la verdad.
  */
-function users_plus_mail_works(): bool {
-	return 'fail' !== users_plus_mail_status()['state'];
+function users_dlx_plus_mail_works(): bool {
+	return 'fail' !== users_dlx_plus_mail_status()['state'];
 }
 
 /** Manda un correo de prueba a quien lo pidió, desde el admin. */
-function users_plus_mail_test(): void {
+function users_dlx_plus_mail_test(): void {
 	if ( ! current_user_can( 'manage_options' ) ) {
-		wp_die( esc_html__( 'You are not allowed to do this.', 'users-plus' ) );
+		wp_die( esc_html__( 'You are not allowed to do this.', 'users-dlx-plus' ) );
 	}
 
-	check_admin_referer( 'users_plus_mail_test' );
+	check_admin_referer( 'users_dlx_plus_mail_test' );
 
 	$user = wp_get_current_user();
 
@@ -98,19 +98,19 @@ function users_plus_mail_test(): void {
 		$user->user_email,
 		sprintf(
 			/* translators: %s: nombre del sitio */
-			__( 'Test from %s', 'users-plus' ),
+			__( 'Test from %s', 'users-dlx-plus' ),
 			wp_specialchars_decode( (string) get_bloginfo( 'name' ), ENT_QUOTES )
 		),
-		__( 'If this arrived, the site can send the sign-in links, the second-step codes and the data requests. If it did not, none of those work either.', 'users-plus' )
+		__( 'If this arrived, the site can send the sign-in links, the second-step codes and the data requests. If it did not, none of those work either.', 'users-dlx-plus' )
 	);
 
 	// wp_mail() sólo devuelve si lo entregó al servidor; el hook de arriba ya
 	// anotó lo que pasó de verdad. Igual se guarda por si nada disparó.
-	if ( ! $ok && 'fail' !== users_plus_mail_status()['state'] ) {
-		users_plus_mail_failed( new WP_Error( 'users_plus_mail', __( 'wp_mail() returned false and said nothing else.', 'users-plus' ) ) );
+	if ( ! $ok && 'fail' !== users_dlx_plus_mail_status()['state'] ) {
+		users_dlx_plus_mail_failed( new WP_Error( 'users_dlx_plus_mail', __( 'wp_mail() returned false and said nothing else.', 'users-dlx-plus' ) ) );
 	}
 
-	wp_safe_redirect( users_plus_admin_url( 'users-plus', array( 'users_plus_mail' => $ok ? 'sent' : 'failed' ) ) );
+	wp_safe_redirect( users_dlx_plus_admin_url( 'users-dlx-plus', array( 'users_dlx_plus_mail' => $ok ? 'sent' : 'failed' ) ) );
 	exit;
 }
-add_action( 'admin_post_users_plus_mail_test', 'users_plus_mail_test' );
+add_action( 'admin_post_users_dlx_plus_mail_test', 'users_dlx_plus_mail_test' );

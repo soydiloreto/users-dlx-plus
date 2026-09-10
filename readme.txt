@@ -1,4 +1,4 @@
-=== Users Plus ===
+=== Users+ ===
 Contributors: soydiloreto
 Tags: users, login, passwordless, two-factor, passkeys
 Requires at least: 6.0
@@ -53,14 +53,14 @@ deletion allowed there is no "Privacy" section.
 1. Upload the plugin folder to `/wp-content/plugins/`.
 2. Activate it from the Plugins screen.
 3. Go to **Users+ → Account area** and pick the page that holds the
-   `[users_plus_account]` shortcode.
+   `[users_dlx_plus_account]` shortcode.
 
 == Frequently Asked Questions ==
 
 = Does it work with any theme? =
 
 Yes. It ships its own styles, its templates can be overridden from the theme
-at `wp-content/themes/<theme>/users-plus/`, and its colours come
+at `wp-content/themes/<theme>/users-dlx-plus/`, and its colours come
 from CSS custom properties a site can redefine without copying a stylesheet.
 
 = Does it work on multisite? =

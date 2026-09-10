@@ -7,75 +7,75 @@
  * arreglos de ancho de lectura.
  */
 
-.users-plus-admin__intro { max-width: 72ch; }
-.users-plus-admin__acciones { margin: 16px 0; }
+.users-dlx-plus-admin__intro { max-width: 72ch; }
+.users-dlx-plus-admin__acciones { margin: 16px 0; }
 
 /* ── Pastillas de estado ──────────────────────────────────────────── */
-.users-plus-pill {
+.users-dlx-plus-pill {
 	display: inline-block; padding: 2px 10px; border-radius: 100px;
 	font-size: 12px; font-weight: 600; line-height: 1.8;
 }
-.users-plus-pill--on    { background: #d6f2e4; color: #0a5c3e; }
-.users-plus-pill--off   { background: #f0f0f1; color: #50575e; }
-.users-plus-pill--blank { background: #fdf0d5; color: #7a5200; }
+.users-dlx-plus-pill--on    { background: #d6f2e4; color: #0a5c3e; }
+.users-dlx-plus-pill--off   { background: #f0f0f1; color: #50575e; }
+.users-dlx-plus-pill--blank { background: #fdf0d5; color: #7a5200; }
 
 /* ── Listas ───────────────────────────────────────────────────────── */
-.users-plus-list__name code { font-size: 11px; color: #646970; }
-.users-plus-list__name .users-plus-list__mail { display: block; color: #646970; font-size: 12px; }
-.users-plus-list__order { width: 130px; text-align: right; }
-.users-plus-list__order form { display: inline; }
-.users-plus-list__num { width: 90px; text-align: right; }
-.users-plus-danger { color: #b32d2e; }
+.users-dlx-plus-list__name code { font-size: 11px; color: #646970; }
+.users-dlx-plus-list__name .users-dlx-plus-list__mail { display: block; color: #646970; font-size: 12px; }
+.users-dlx-plus-list__order { width: 130px; text-align: right; }
+.users-dlx-plus-list__order form { display: inline; }
+.users-dlx-plus-list__num { width: 90px; text-align: right; }
+.users-dlx-plus-danger { color: #b32d2e; }
 
-.users-plus-buscador { margin: 16px 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.users-plus-buscador input[type="search"] { min-width: 42ch; flex: 0 1 460px; }
-.users-plus-buscador__por { color: #646970; margin-left: 8px; }
-.users-plus-buscador__refrescar { display: inline-flex; align-items: center; gap: 4px; }
-.users-plus-buscador__refrescar .dashicons { font-size: 16px; width: 16px; height: 16px; line-height: 1; }
-.users-plus-buscador__cuenta { margin-left: auto; color: #646970; }
+.users-dlx-plus-buscador { margin: 16px 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.users-dlx-plus-buscador input[type="search"] { min-width: 42ch; flex: 0 1 460px; }
+.users-dlx-plus-buscador__por { color: #646970; margin-left: 8px; }
+.users-dlx-plus-buscador__refrescar { display: inline-flex; align-items: center; gap: 4px; }
+.users-dlx-plus-buscador__refrescar .dashicons { font-size: 16px; width: 16px; height: 16px; line-height: 1; }
+.users-dlx-plus-buscador__cuenta { margin-left: auto; color: #646970; }
 
-.users-plus-shortcodes { max-width: 860px; }
-.users-plus-shortcodes td:first-child { width: 260px; }
-.users-plus-detalle { max-width: 860px; }
-.users-plus-detalle th { width: 220px; text-align: left; }
+.users-dlx-plus-shortcodes { max-width: 860px; }
+.users-dlx-plus-shortcodes td:first-child { width: 260px; }
+.users-dlx-plus-detalle { max-width: 860px; }
+.users-dlx-plus-detalle th { width: 220px; text-align: left; }
 
 /* ── Grilla de proveedores ────────────────────────────────────────── */
-.users-plus-cards {
+.users-dlx-plus-cards {
 	display: grid; gap: 16px; margin: 20px 0 32px;
 	grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
 }
-.users-plus-card {
+.users-dlx-plus-card {
 	background: #fff; border: 1px solid #dcdcde; border-radius: 4px; overflow: hidden;
 	display: flex; flex-direction: column;
 }
-.users-plus-card__top {
+.users-dlx-plus-card__top {
 	display: flex; align-items: center; gap: 12px;
 	padding: 26px 20px; color: #fff;
 }
-.users-plus-card__mark {
+.users-dlx-plus-card__mark {
 	display: flex; align-items: center; justify-content: center;
 	width: 38px; height: 38px; flex-shrink: 0;
 	border-radius: 50%; background: rgba(255, 255, 255, 0.22);
 	font-size: 20px; font-weight: 700; line-height: 1;
 }
-.users-plus-card__name { font-size: 17px; font-weight: 600; }
-.users-plus-card__foot {
+.users-dlx-plus-card__name { font-size: 17px; font-weight: 600; }
+.users-dlx-plus-card__foot {
 	display: flex; align-items: center; justify-content: space-between; gap: 10px;
 	padding: 12px 14px; border-top: 1px solid #dcdcde; margin-top: auto;
 }
-.users-plus-card__acciones { display: flex; gap: 6px; }
+.users-dlx-plus-card__acciones { display: flex; gap: 6px; }
 
 /* ── Cómo empezar ─────────────────────────────────────────────────── */
-.users-plus-pasos { max-width: 80ch; margin: 20px 0 32px; padding-left: 20px; }
-.users-plus-pasos li { margin-bottom: 22px; }
-.users-plus-pasos strong { display: block; font-size: 14px; margin-bottom: 4px; }
-.users-plus-pasos p { margin: 4px 0; }
+.users-dlx-plus-pasos { max-width: 80ch; margin: 20px 0 32px; padding-left: 20px; }
+.users-dlx-plus-pasos li { margin-bottom: 22px; }
+.users-dlx-plus-pasos strong { display: block; font-size: 14px; margin-bottom: 4px; }
+.users-dlx-plus-pasos p { margin: 4px 0; }
 
 /* El paso a paso de alta en cada consola: se lee como una receta, un renglón
    por clic, así que los pasos van más juntos que en la lista de arriba. */
-.users-plus-pasos--numeros li { margin-bottom: 12px; line-height: 1.6; }
+.users-dlx-plus-pasos--numeros li { margin-bottom: 12px; line-height: 1.6; }
 
-.users-plus-url-retorno {
+.users-dlx-plus-url-retorno {
 	max-width: 80ch;
 	margin: 20px 0 28px;
 	padding: 16px 20px;
@@ -83,13 +83,13 @@
 	border: 1px solid #dcdcde;
 	border-left: 4px solid #2271b1;
 }
-.users-plus-url-retorno h3 { margin-top: 0; }
-.users-plus-url-retorno p { margin: 6px 0; }
-/* El guión bajo de users_plus_sso queda pegado al borde inferior del input y a
+.users-dlx-plus-url-retorno h3 { margin-top: 0; }
+.users-dlx-plus-url-retorno p { margin: 6px 0; }
+/* El guión bajo de users_dlx_plus_sso queda pegado al borde inferior del input y a
    simple vista parece un espacio. Con aire abajo se lee lo que se copia. */
-.users-plus-url-retorno input { padding: 8px 10px; line-height: 1.6; }
+.users-dlx-plus-url-retorno input { padding: 8px 10px; line-height: 1.6; }
 
-.users-plus-ojo {
+.users-dlx-plus-ojo {
 	max-width: 80ch;
 	margin: 0 0 28px;
 	padding: 12px 16px;
@@ -98,74 +98,74 @@
 	line-height: 1.6;
 }
 
-/* La ficha de un campo esconde lo que ese tipo no usa (ver users-plus-admin.js). */
-.users-plus-si-tipo[hidden] { display: none !important; }
-.users-plus-multi { min-width: 26ch; }
+/* La ficha de un campo esconde lo que ese tipo no usa (ver users-dlx-plus-admin.js). */
+.users-dlx-plus-si-tipo[hidden] { display: none !important; }
+.users-dlx-plus-multi { min-width: 26ch; }
 
 /* ── Home ─────────────────────────────────────────────────────────── */
-.users-plus-tiles {
+.users-dlx-plus-tiles {
 	display: grid; gap: 16px; margin: 20px 0 28px;
 	grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
 }
-.users-plus-tile {
+.users-dlx-plus-tile {
 	background: #fff; border: 1px solid #dcdcde; border-radius: 4px;
 	padding: 18px 20px;
 }
-.users-plus-tile b {
+.users-dlx-plus-tile b {
 	display: block; font-size: 30px; line-height: 1.1; font-weight: 600;
 	font-variant-numeric: tabular-nums; color: #1d2327;
 }
-.users-plus-tile span { display: block; margin-top: 4px; color: #646970; }
-.users-plus-tile a { display: inline-block; margin-top: 10px; }
+.users-dlx-plus-tile span { display: block; margin-top: 4px; color: #646970; }
+.users-dlx-plus-tile a { display: inline-block; margin-top: 10px; }
 
-.users-plus-estado { max-width: 900px; }
-.users-plus-estado th { width: 280px; text-align: left; }
-.users-plus-donde {
+.users-dlx-plus-estado { max-width: 900px; }
+.users-dlx-plus-estado th { width: 280px; text-align: left; }
+.users-dlx-plus-donde {
 	max-width: 100ch; margin: 20px 0; padding: 14px 20px;
 	background: #f6f7f7; border-left: 4px solid #2271b1;
 	line-height: 1.7;
 }
-.users-plus-donde p { margin: 0 0 8px; }
-.users-plus-donde p:last-child { margin-bottom: 0; }
-.users-plus-estado-caja { max-width: 900px; margin: 18px 0 24px; padding: 6px 14px; }
+.users-dlx-plus-donde p { margin: 0 0 8px; }
+.users-dlx-plus-donde p:last-child { margin-bottom: 0; }
+.users-dlx-plus-estado-caja { max-width: 900px; margin: 18px 0 24px; padding: 6px 14px; }
 
 /* La lista de roles del login social: en columna, no en un renglón corrido. */
-.users-plus-roles__item { display: block; margin-bottom: 4px; }
+.users-dlx-plus-roles__item { display: block; margin-bottom: 4px; }
 
 /* ── La pantalla de botones ──────────────────────────────────────────────
    Ajustes a la izquierda, vista previa a la derecha y siempre a la vista: si
    la previa se va abajo de todo hay que hacer scroll para ver lo que uno
    acaba de elegir, y entonces no es una previa.
    El corte es el mismo que usa WordPress para pasar a una columna. */
-.users-plus-botones {
+.users-dlx-plus-botones {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) minmax(300px, 400px);
 	gap: 28px;
 	align-items: start;
 	margin-top: 8px;
 }
-.users-plus-botones__campos { min-width: 0; }
-.users-plus-botones__campos .form-table th { width: 160px; }
+.users-dlx-plus-botones__campos { min-width: 0; }
+.users-dlx-plus-botones__campos .form-table th { width: 160px; }
 
-.users-plus-botones__vista { position: sticky; top: 46px; min-width: 0; }
-.users-plus-botones__vista h2 { margin: 0 0 10px; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: #646970; }
+.users-dlx-plus-botones__vista { position: sticky; top: 46px; min-width: 0; }
+.users-dlx-plus-botones__vista h2 { margin: 0 0 10px; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: #646970; }
 
 /* El lienzo imita la caja de ingreso del sitio, que es donde estos botones
    van a vivir: sobre un fondo cualquiera no se juzga igual. */
-.users-plus-botones__lienzo {
+.users-dlx-plus-botones__lienzo {
 	padding: 24px;
 	background: #fff;
 	border: 1px solid #dcdcde;
 	border-radius: 10px;
 	box-shadow: 0 1px 2px rgba(0, 0, 0, .06), 0 8px 24px rgba(0, 0, 0, .04);
 }
-.users-plus-botones__lienzo .users-plus-social { cursor: default; }
-.users-plus-botones__lienzo .users-plus-socials { margin-bottom: 0; }
+.users-dlx-plus-botones__lienzo .users-dlx-plus-social { cursor: default; }
+.users-dlx-plus-botones__lienzo .users-dlx-plus-socials { margin-bottom: 0; }
 
 /* Los botones se juzgan sobre los dos fondos: el acabado oscuro desaparece
    sobre blanco y el claro desaparece sobre oscuro. */
-.users-plus-botones__fondos { display: flex; gap: 6px; margin: 0 0 10px; }
-.users-plus-botones__fondo {
+.users-dlx-plus-botones__fondos { display: flex; gap: 6px; margin: 0 0 10px; }
+.users-dlx-plus-botones__fondo {
 	flex: 1 1 auto;
 	padding: 5px 10px;
 	border: 1px solid #dcdcde;
@@ -174,24 +174,24 @@
 	font-size: 12px;
 	cursor: pointer;
 }
-.users-plus-botones__fondo[aria-pressed="true"] { background: #2271b1; border-color: #2271b1; color: #fff; }
+.users-dlx-plus-botones__fondo[aria-pressed="true"] { background: #2271b1; border-color: #2271b1; color: #fff; }
 
-.users-plus-botones__lienzo--oscuro { background: #0B1020; border-color: #0B1020; }
+.users-dlx-plus-botones__lienzo--oscuro { background: #0B1020; border-color: #0B1020; }
 
 @media (max-width: 782px) {
-	.users-plus-botones { grid-template-columns: minmax(0, 1fr); }
-	.users-plus-botones__vista { position: static; }
+	.users-dlx-plus-botones { grid-template-columns: minmax(0, 1fr); }
+	.users-dlx-plus-botones__vista { position: static; }
 }
 
 /* La caja que explica de dónde sale cada sección: es documentación, no un
    ajuste, así que se distingue de las tablas de arriba. */
-.users-plus-explica { max-width: 80ch; margin: 28px 0; padding: 4px 20px 16px; background: #fff; border: 1px solid #dcdcde; border-radius: 6px; }
-.users-plus-explica ul { margin: 10px 0 14px; padding-left: 18px; list-style: disc; }
-.users-plus-explica li { margin-bottom: 10px; line-height: 1.6; }
+.users-dlx-plus-explica { max-width: 80ch; margin: 28px 0; padding: 4px 20px 16px; background: #fff; border: 1px solid #dcdcde; border-radius: 6px; }
+.users-dlx-plus-explica ul { margin: 10px 0 14px; padding-left: 18px; list-style: disc; }
+.users-dlx-plus-explica li { margin-bottom: 10px; line-height: 1.6; }
 
 /* Un ajuste que el sitio fija desde código: el control se ve, y se dice que
    no manda. Es mejor que esconderlo —quien lo busca tiene que encontrarlo—. */
-.users-plus-forzado {
+.users-dlx-plus-forzado {
 	max-width: 60ch; margin: 0 0 10px; padding: 8px 12px;
 	background: #fcf9e8; border-left: 3px solid #dba617;
 }
@@ -201,13 +201,13 @@
 /* Dos paneles y no una tabla: el orden se ve de un vistazo y se arrastra, y
    lo que una sección es son ocho campos y un editor. Los ocho campos adentro
    de una fila deformaban la tabla y escondían el orden. */
-.users-plus-endpoints {
+.users-dlx-plus-endpoints {
 	margin-top: 16px;
 	border: 1px solid #dcdcde;
 	border-radius: 6px;
 	background: #fff;
 }
-.users-plus-endpoints__cabeza {
+.users-dlx-plus-endpoints__cabeza {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
@@ -215,19 +215,19 @@
 	padding: 16px 20px;
 	border-bottom: 1px solid #dcdcde;
 }
-.users-plus-endpoints__cabeza h2 { margin: 0; font-size: 16px; }
+.users-dlx-plus-endpoints__cabeza h2 { margin: 0; font-size: 16px; }
 
-.users-plus-endpoints__cuerpo { display: flex; align-items: stretch; }
-.users-plus-endpoints__orden {
+.users-dlx-plus-endpoints__cuerpo { display: flex; align-items: stretch; }
+.users-dlx-plus-endpoints__orden {
 	flex: 0 0 260px;
 	padding: 16px;
 	border-right: 1px solid #dcdcde;
 	background: #f6f7f7;
 }
-.users-plus-endpoints__lista { margin: 0; padding: 0; list-style: none; }
-.users-plus-endpoints__guardar-orden { margin: 16px 0 0; }
+.users-dlx-plus-endpoints__lista { margin: 0; padding: 0; list-style: none; }
+.users-dlx-plus-endpoints__guardar-orden { margin: 16px 0 0; }
 
-.users-plus-endpoint {
+.users-dlx-plus-endpoint {
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -236,12 +236,12 @@
 	background: #e5e7ee;
 	cursor: grab;
 }
-.users-plus-endpoint.is-current { background: #2f4bd8; }
-.users-plus-endpoint.is-current .users-plus-endpoint__nombre { color: #fff; }
-.users-plus-endpoint.is-off .users-plus-endpoint__nombre { opacity: .55; text-decoration: line-through; }
-.users-plus-endpoint.is-dragging { opacity: .4; }
+.users-dlx-plus-endpoint.is-current { background: #2f4bd8; }
+.users-dlx-plus-endpoint.is-current .users-dlx-plus-endpoint__nombre { color: #fff; }
+.users-dlx-plus-endpoint.is-off .users-dlx-plus-endpoint__nombre { opacity: .55; text-decoration: line-through; }
+.users-dlx-plus-endpoint.is-dragging { opacity: .4; }
 
-.users-plus-endpoint__nombre {
+.users-dlx-plus-endpoint__nombre {
 	flex: 1 1 auto;
 	min-width: 0;
 	padding: 10px 4px 10px 14px;
@@ -249,11 +249,11 @@
 	text-decoration: none;
 	font-weight: 500;
 }
-.users-plus-endpoint__nombre:focus { box-shadow: none; outline: 2px solid #2271b1; outline-offset: -2px; }
+.users-dlx-plus-endpoint__nombre:focus { box-shadow: none; outline: 2px solid #2271b1; outline-offset: -2px; }
 
 /* Los seis puntos del agarre, dibujados: un carácter suelto se ve distinto en
    cada sistema y a veces no se ve. */
-.users-plus-endpoint__agarre {
+.users-dlx-plus-endpoint__agarre {
 	flex: 0 0 auto;
 	width: 22px;
 	height: 22px;
@@ -264,21 +264,21 @@
 	background-repeat: repeat;
 	opacity: .45;
 }
-.users-plus-endpoint.is-current .users-plus-endpoint__agarre { color: #fff; opacity: .8; }
+.users-dlx-plus-endpoint.is-current .users-dlx-plus-endpoint__agarre { color: #fff; opacity: .8; }
 
-.users-plus-endpoints__detalle { flex: 1 1 auto; min-width: 0; padding: 4px 24px 24px; }
-.users-plus-endpoint-form__cabeza {
+.users-dlx-plus-endpoints__detalle { flex: 1 1 auto; min-width: 0; padding: 4px 24px 24px; }
+.users-dlx-plus-endpoint-form__cabeza {
 	display: flex;
 	align-items: center;
 	gap: 12px;
 	padding: 16px 0 14px;
 	border-bottom: 1px solid #dcdcde;
 }
-.users-plus-endpoint-form__cabeza h3 { flex: 1 1 auto; margin: 0; font-size: 17px; }
-.users-plus-endpoint-form .form-table th { width: 190px; }
+.users-dlx-plus-endpoint-form__cabeza h3 { flex: 1 1 auto; margin: 0; font-size: 17px; }
+.users-dlx-plus-endpoint-form .form-table th { width: 190px; }
 
 /* El interruptor: es un enlace, porque prender y apagar recarga y guarda. */
-.users-plus-toggle {
+.users-dlx-plus-toggle {
 	display: inline-flex;
 	align-items: center;
 	gap: 8px;
@@ -286,7 +286,7 @@
 	text-decoration: none;
 	font-weight: 600;
 }
-.users-plus-toggle__perilla {
+.users-dlx-plus-toggle__perilla {
 	display: inline-block;
 	position: relative;
 	width: 38px;
@@ -295,7 +295,7 @@
 	background: #c3c4c7;
 	transition: background-color .15s ease;
 }
-.users-plus-toggle__perilla::before {
+.users-dlx-plus-toggle__perilla::before {
 	content: '';
 	position: absolute;
 	top: 3px;
@@ -306,15 +306,15 @@
 	background: #fff;
 	transition: transform .15s ease;
 }
-.users-plus-toggle.is-on { color: #0f7b4f; }
-.users-plus-toggle.is-on .users-plus-toggle__perilla { background: #0f7b4f; }
-.users-plus-toggle.is-on .users-plus-toggle__perilla::before { transform: translateX(16px); }
+.users-dlx-plus-toggle.is-on { color: #0f7b4f; }
+.users-dlx-plus-toggle.is-on .users-dlx-plus-toggle__perilla { background: #0f7b4f; }
+.users-dlx-plus-toggle.is-on .users-dlx-plus-toggle__perilla::before { transform: translateX(16px); }
 
 @media (max-width: 960px) {
-	.users-plus-endpoints__cuerpo { flex-direction: column; }
-	.users-plus-endpoints__orden { flex: 1 1 auto; border-right: 0; border-bottom: 1px solid #dcdcde; }
+	.users-dlx-plus-endpoints__cuerpo { flex-direction: column; }
+	.users-dlx-plus-endpoints__orden { flex: 1 1 auto; border-right: 0; border-bottom: 1px solid #dcdcde; }
 }
 
-.users-plus-forzado p { margin: 0 0 6px; }
-.users-plus-forzado > :last-child { margin-bottom: 0; }
-.users-plus-forzado ul { margin: 0; padding-left: 20px; list-style: disc; }
+.users-dlx-plus-forzado p { margin: 0 0 6px; }
+.users-dlx-plus-forzado > :last-child { margin-bottom: 0; }
+.users-dlx-plus-forzado ul { margin: 0; padding-left: 20px; list-style: disc; }

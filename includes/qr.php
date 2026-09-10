@@ -16,7 +16,7 @@
  *
  * Todo lo que sigue es ISO/IEC 18004. Las tablas son del estándar.
  *
- * @package UsersPlus
+ * @package UsersDlxPlus
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -25,7 +25,7 @@ defined( 'ABSPATH' ) || exit;
 /**
  * @return array<int, int>
  */
-function users_plus_qr_capacity(): array {
+function users_dlx_plus_qr_capacity(): array {
 	return array(
 		1  => 17,
 		2  => 32,
@@ -47,7 +47,7 @@ function users_plus_qr_capacity(): array {
  *
  * @return array<int, array<int, int>>
  */
-function users_plus_qr_blocks(): array {
+function users_dlx_plus_qr_blocks(): array {
 	return array(
 		1  => array( 7, 1, 19, 0, 0 ),
 		2  => array( 10, 1, 34, 0, 0 ),
@@ -66,7 +66,7 @@ function users_plus_qr_blocks(): array {
 /**
  * @return array<int, array<int, int>>
  */
-function users_plus_qr_alignment(): array {
+function users_dlx_plus_qr_alignment(): array {
 	return array(
 		1  => array(),
 		2  => array( 6, 18 ),
@@ -89,7 +89,7 @@ function users_plus_qr_alignment(): array {
  *
  * @return array<int, string>
  */
-function users_plus_qr_version_info(): array {
+function users_dlx_plus_qr_version_info(): array {
 	return array(
 		7  => '000111110010010100',
 		8  => '001000010110111100',
@@ -103,7 +103,7 @@ function users_plus_qr_version_info(): array {
  *
  * Uno solo, porque el nivel y la máscara son fijos. También sale del estándar.
  */
-const USERS_PLUS_QR_FORMAT = '111011111000100';
+const USERS_DLX_PLUS_QR_FORMAT = '111011111000100';
 
 /* ── Reed-Solomon sobre GF(256) ────────────────────────────────────── */
 
@@ -111,7 +111,7 @@ const USERS_PLUS_QR_FORMAT = '111011111000100';
 /**
  * @return array<int, array<int, int>>
  */
-function users_plus_qr_gf(): array {
+function users_dlx_plus_qr_gf(): array {
 	static $tables = null;
 
 	if ( null !== $tables ) {
@@ -146,8 +146,8 @@ function users_plus_qr_gf(): array {
 /**
  * @return array<int, int>
  */
-function users_plus_qr_generator( int $n ): array {
-	[ $exp, $log ] = users_plus_qr_gf();
+function users_dlx_plus_qr_generator( int $n ): array {
+	[ $exp, $log ] = users_dlx_plus_qr_gf();
 
 	$poly = array( 1 );
 
@@ -178,10 +178,10 @@ function users_plus_qr_generator( int $n ): array {
  * @param array<int, float|int> $data
  * @return array<int, float|int>
  */
-function users_plus_qr_ec( array $data, int $n ): array {
-	[ $exp, $log ] = users_plus_qr_gf();
+function users_dlx_plus_qr_ec( array $data, int $n ): array {
+	[ $exp, $log ] = users_dlx_plus_qr_gf();
 
-	$gen  = users_plus_qr_generator( $n );
+	$gen  = users_dlx_plus_qr_generator( $n );
 	$rest = array_merge( $data, array_fill( 0, $n, 0 ) );
 
 	$largo = count( $data );
@@ -210,13 +210,13 @@ function users_plus_qr_ec( array $data, int $n ): array {
  *
  * @return array<int, array<int, bool>>
  */
-function users_plus_qr_matrix( string $text ): ?array {
+function users_dlx_plus_qr_matrix( string $text ): ?array {
 	$bytes  = array_map( 'ord', str_split( $text ) );
 	$length = count( $bytes );
 
 	$version = 0;
 
-	foreach ( users_plus_qr_capacity() as $v => $max ) {
+	foreach ( users_dlx_plus_qr_capacity() as $v => $max ) {
 		if ( $length <= $max ) {
 			$version = $v;
 			break;
@@ -227,7 +227,7 @@ function users_plus_qr_matrix( string $text ): ?array {
 		return null;
 	}
 
-	[ $ec_per_block, $g1_blocks, $g1_words, $g2_blocks, $g2_words ] = users_plus_qr_blocks()[ $version ];
+	[ $ec_per_block, $g1_blocks, $g1_words, $g2_blocks, $g2_words ] = users_dlx_plus_qr_blocks()[ $version ];
 
 	$total_data = $g1_blocks * $g1_words + $g2_blocks * $g2_words;
 
@@ -270,7 +270,7 @@ function users_plus_qr_matrix( string $text ): ?array {
 			$block         = array_slice( $codewords, $offset, $words );
 			$offset       += $words;
 			$data_blocks[] = $block;
-			$ec_blocks[]   = users_plus_qr_ec( $block, $ec_per_block );
+			$ec_blocks[]   = users_dlx_plus_qr_ec( $block, $ec_per_block );
 		}
 	}
 
@@ -300,14 +300,14 @@ function users_plus_qr_matrix( string $text ): ?array {
 		$final .= str_pad( decbin( (int) $codeword ), 8, '0', STR_PAD_LEFT );
 	}
 
-	return users_plus_qr_place( (int) $version, $final );
+	return users_dlx_plus_qr_place( (int) $version, $final );
 }
 
 /** Dibuja la matriz: patrones fijos, datos y máscara. */
 /**
  * @return array<int, array<int, bool>>
  */
-function users_plus_qr_place( int $version, string $bits ): array {
+function users_dlx_plus_qr_place( int $version, string $bits ): array {
 	$size = 17 + 4 * $version;
 
 	$matrix   = array_fill( 0, $size, array_fill( 0, $size, false ) );
@@ -339,7 +339,7 @@ function users_plus_qr_place( int $version, string $bits ): array {
 	}
 
 	// Los patrones de alineación, salvo donde chocan con los de las esquinas.
-	$centres = users_plus_qr_alignment()[ $version ];
+	$centres = users_dlx_plus_qr_alignment()[ $version ];
 
 	foreach ( $centres as $row ) {
 		foreach ( $centres as $col ) {
@@ -369,7 +369,7 @@ function users_plus_qr_place( int $version, string $bits ): array {
 	// significativo, y cada copia lo reparte distinto: una baja por la columna
 	// 8 y la otra corre por la fila 8. Las dos posiciones salen del estándar y
 	// no se pueden deducir; están escritas tal cual.
-	$format = USERS_PLUS_QR_FORMAT;
+	$format = USERS_DLX_PLUS_QR_FORMAT;
 
 	for ( $i = 0; $i < 15; $i++ ) {
 		$bit = '1' === $format[ 14 - $i ];
@@ -399,7 +399,7 @@ function users_plus_qr_place( int $version, string $bits ): array {
 
 	// La información de versión, de la 7 en adelante.
 	if ( $version >= 7 ) {
-		$info = users_plus_qr_version_info()[ $version ];
+		$info = users_dlx_plus_qr_version_info()[ $version ];
 
 		for ( $i = 0; $i < 18; $i++ ) {
 			$bit = '1' === $info[ 17 - $i ];
@@ -449,8 +449,8 @@ function users_plus_qr_place( int $version, string $bits ): array {
  *
  * @param int $size Lado en píxeles.
  */
-function users_plus_qr_svg( string $text, int $size = 220 ): string {
-	$matrix = users_plus_qr_matrix( $text );
+function users_dlx_plus_qr_svg( string $text, int $size = 220 ): string {
+	$matrix = users_dlx_plus_qr_matrix( $text );
 
 	if ( null === $matrix ) {
 		return '';

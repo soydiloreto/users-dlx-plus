@@ -1,7 +1,7 @@
 {
-  "name": "users-plus",
+  "name": "users-dlx-plus",
   "private": true,
-  "description": "Development tooling for the Users Plus for WordPress plugin. Not shipped.",
+  "description": "Development tooling for the Users+ plugin. Not shipped.",
   "license": "GPL-2.0-or-later",
   "engines": {
     "node": ">=18"

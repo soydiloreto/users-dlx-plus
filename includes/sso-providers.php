@@ -18,7 +18,7 @@
  *
  * Un botón que no anda es peor que no tener el botón.
  *
- * @package UsersPlus
+ * @package UsersDlxPlus
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -41,7 +41,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @return array<string, array<string, mixed>>
  */
-function users_plus_sso_providers(): array {
+function users_dlx_plus_sso_providers(): array {
 	$providers = array(
 		'google'    => array(
 			'name'      => 'Google',
@@ -52,7 +52,7 @@ function users_plus_sso_providers(): array {
 			'scope'     => 'openid email profile',
 			'extra'     => array( 'prompt' => 'select_account' ),
 			'pkce'      => false,
-			'map'       => 'users_plus_sso_map_oidc',
+			'map'       => 'users_dlx_plus_sso_map_oidc',
 			'console'   => 'https://console.cloud.google.com/apis/credentials',
 			'guide'     => 'https://developers.google.com/identity/openid-connect/openid-connect',
 		),
@@ -65,7 +65,7 @@ function users_plus_sso_providers(): array {
 			'scope'     => 'openid email profile',
 			'extra'     => array(),
 			'pkce'      => false,
-			'map'       => 'users_plus_sso_map_oidc',
+			'map'       => 'users_dlx_plus_sso_map_oidc',
 			'console'   => 'https://entra.microsoft.com/',
 			'guide'     => 'https://learn.microsoft.com/entra/identity-platform/v2-protocols-oidc',
 		),
@@ -78,7 +78,7 @@ function users_plus_sso_providers(): array {
 			'scope'     => 'openid profile email',
 			'extra'     => array(),
 			'pkce'      => false,
-			'map'       => 'users_plus_sso_map_oidc',
+			'map'       => 'users_dlx_plus_sso_map_oidc',
 			'console'   => 'https://www.linkedin.com/developers/apps',
 			'guide'     => 'https://learn.microsoft.com/linkedin/consumer/integrations/self-serve/sign-in-with-linkedin-v2',
 		),
@@ -93,7 +93,7 @@ function users_plus_sso_providers(): array {
 			// X exige PKCE y no devuelve el correo: la cuenta se crea con un
 			// correo derivado del usuario, o se vincula desde el perfil.
 			'pkce'      => true,
-			'map'       => 'users_plus_sso_map_twitter',
+			'map'       => 'users_dlx_plus_sso_map_twitter',
 			'console'   => 'https://developer.twitter.com/en/portal/dashboard',
 			'guide'     => 'https://docs.x.com/resources/fundamentals/authentication/oauth-2-0/authorization-code',
 		),
@@ -106,7 +106,7 @@ function users_plus_sso_providers(): array {
 			'scope'     => 'email',
 			'extra'     => array(),
 			'pkce'      => false,
-			'map'       => 'users_plus_sso_map_facebook',
+			'map'       => 'users_dlx_plus_sso_map_facebook',
 			'console'   => 'https://developers.facebook.com/apps/',
 			'guide'     => 'https://developers.facebook.com/docs/facebook-login/guides/advanced/manual-flow',
 		),
@@ -119,7 +119,7 @@ function users_plus_sso_providers(): array {
 			'scope'     => 'read:user user:email',
 			'extra'     => array(),
 			'pkce'      => false,
-			'map'       => 'users_plus_sso_map_github',
+			'map'       => 'users_dlx_plus_sso_map_github',
 			'console'   => 'https://github.com/settings/developers',
 			'guide'     => 'https://docs.github.com/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps',
 		),
@@ -132,7 +132,7 @@ function users_plus_sso_providers(): array {
 			'scope'     => 'auth',
 			'extra'     => array(),
 			'pkce'      => false,
-			'map'       => 'users_plus_sso_map_wordpress',
+			'map'       => 'users_dlx_plus_sso_map_wordpress',
 			'console'   => 'https://developer.wordpress.com/apps/',
 			'guide'     => 'https://developer.wordpress.com/docs/oauth2/',
 		),
@@ -145,7 +145,7 @@ function users_plus_sso_providers(): array {
 			'scope'     => 'openid email profile',
 			'extra'     => array(),
 			'pkce'      => false,
-			'map'       => 'users_plus_sso_map_oidc',
+			'map'       => 'users_dlx_plus_sso_map_oidc',
 			'console'   => 'https://developer.yahoo.com/apps/',
 			'guide'     => 'https://developer.yahoo.com/oauth2/guide/openid_connect/',
 		),
@@ -160,7 +160,7 @@ function users_plus_sso_providers(): array {
 			'scope'     => 'openid user:read:email',
 			'extra'     => array( 'claims' => '{"userinfo":{"email":null,"preferred_username":null}}' ),
 			'pkce'      => false,
-			'map'       => 'users_plus_sso_map_oidc',
+			'map'       => 'users_dlx_plus_sso_map_oidc',
 			'console'   => 'https://dev.twitch.tv/console/apps',
 			'guide'     => 'https://dev.twitch.tv/docs/authentication/getting-tokens-oidc/',
 		),
@@ -173,7 +173,7 @@ function users_plus_sso_providers(): array {
 			'scope'     => 'identify email',
 			'extra'     => array(),
 			'pkce'      => false,
-			'map'       => 'users_plus_sso_map_discord',
+			'map'       => 'users_dlx_plus_sso_map_discord',
 			'console'   => 'https://discord.com/developers/applications',
 			'guide'     => 'https://discord.com/developers/docs/topics/oauth2',
 		),
@@ -186,7 +186,7 @@ function users_plus_sso_providers(): array {
 			'scope'     => 'openid email profile',
 			'extra'     => array(),
 			'pkce'      => false,
-			'map'       => 'users_plus_sso_map_oidc',
+			'map'       => 'users_dlx_plus_sso_map_oidc',
 			'console'   => 'https://gitlab.com/-/profile/applications',
 			'guide'     => 'https://docs.gitlab.com/ee/integration/openid_connect_provider.html',
 		),
@@ -199,7 +199,7 @@ function users_plus_sso_providers(): array {
 			'scope'     => 'profile',
 			'extra'     => array(),
 			'pkce'      => false,
-			'map'       => 'users_plus_sso_map_amazon',
+			'map'       => 'users_dlx_plus_sso_map_amazon',
 			'console'   => 'https://developer.amazon.com/loginwithamazon/console/site/lwa/overview.html',
 			'guide'     => 'https://developer.amazon.com/docs/login-with-amazon/web-docs.html',
 		),
@@ -210,5 +210,5 @@ function users_plus_sso_providers(): array {
 	 *
 	 * @param array<string, array<string, mixed>> $providers
 	 */
-	return apply_filters( 'users_plus_sso_providers', $providers );
+	return apply_filters( 'users_dlx_plus_sso_providers', $providers );
 }

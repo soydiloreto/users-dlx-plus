@@ -11,7 +11,7 @@
  * decoración del plugin, son la opción que quien administra acaba de elegir.
  * El sitio la puede pisar; apagarla en silencio sería otra cosa.
  *
- * @package UsersPlus
+ * @package UsersDlxPlus
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -20,11 +20,11 @@ defined( 'ABSPATH' ) || exit;
 /**
  * @return array<string, mixed>
  */
-function users_plus_sso_button_skins(): array {
+function users_dlx_plus_sso_button_skins(): array {
 	return array(
-		'brand' => __( 'Each brand’s colour', 'users-plus' ),
-		'light' => __( 'White with a border', 'users-plus' ),
-		'dark'  => __( 'Dark', 'users-plus' ),
+		'brand' => __( 'Each brand’s colour', 'users-dlx-plus' ),
+		'light' => __( 'White with a border', 'users-dlx-plus' ),
+		'dark'  => __( 'Dark', 'users-dlx-plus' ),
 	);
 }
 
@@ -32,11 +32,11 @@ function users_plus_sso_button_skins(): array {
 /**
  * @return array<string, mixed>
  */
-function users_plus_sso_button_shapes(): array {
+function users_dlx_plus_sso_button_shapes(): array {
 	return array(
-		'rounded' => __( 'Rounded corners', 'users-plus' ),
-		'pill'    => __( 'Pill', 'users-plus' ),
-		'square'  => __( 'Square corners', 'users-plus' ),
+		'rounded' => __( 'Rounded corners', 'users-dlx-plus' ),
+		'pill'    => __( 'Pill', 'users-dlx-plus' ),
+		'square'  => __( 'Square corners', 'users-dlx-plus' ),
 	);
 }
 
@@ -44,10 +44,10 @@ function users_plus_sso_button_shapes(): array {
 /**
  * @return array<string, mixed>
  */
-function users_plus_sso_button_contents(): array {
+function users_dlx_plus_sso_button_contents(): array {
 	return array(
-		'icon-text' => __( 'Logo and text', 'users-plus' ),
-		'icon'      => __( 'Logo only', 'users-plus' ),
+		'icon-text' => __( 'Logo and text', 'users-dlx-plus' ),
+		'icon'      => __( 'Logo only', 'users-dlx-plus' ),
 	);
 }
 
@@ -55,11 +55,11 @@ function users_plus_sso_button_contents(): array {
 /**
  * @return array<int, string>
  */
-function users_plus_sso_button_columns(): array {
+function users_dlx_plus_sso_button_columns(): array {
 	return array(
-		1 => __( 'One per row', 'users-plus' ),
-		2 => __( 'Two per row', 'users-plus' ),
-		0 => __( 'As many as fit', 'users-plus' ),
+		1 => __( 'One per row', 'users-dlx-plus' ),
+		2 => __( 'Two per row', 'users-dlx-plus' ),
+		0 => __( 'As many as fit', 'users-dlx-plus' ),
 	);
 }
 
@@ -67,12 +67,12 @@ function users_plus_sso_button_columns(): array {
 /**
  * @param array<string, mixed> $provider
  */
-function users_plus_sso_button_text( array $provider ): string {
-	$template = trim( (string) users_plus_option( 'users_plus_sso_button_text' ) );
+function users_dlx_plus_sso_button_text( array $provider ): string {
+	$template = trim( (string) users_dlx_plus_option( 'users_dlx_plus_sso_button_text' ) );
 
 	if ( '' === $template ) {
 		/* translators: %s: nombre de la red social */
-		$template = __( 'Continue with %s', 'users-plus' );
+		$template = __( 'Continue with %s', 'users-dlx-plus' );
 	}
 
 	return false === strpos( $template, '%s' )
@@ -81,14 +81,14 @@ function users_plus_sso_button_text( array $provider ): string {
 }
 
 /** Las clases del contenedor, según los ajustes. */
-function users_plus_sso_buttons_class(): string {
-	$columns = (int) users_plus_option( 'users_plus_sso_button_columns' );
+function users_dlx_plus_sso_buttons_class(): string {
+	$columns = (int) users_dlx_plus_option( 'users_dlx_plus_sso_button_columns' );
 
 	return sprintf(
-		'users-plus-socials users-plus-socials--%1$s users-plus-socials--%2$s users-plus-socials--%3$s users-plus-socials--cols-%4$d',
-		sanitize_html_class( (string) users_plus_option( 'users_plus_sso_button_skin' ) ),
-		sanitize_html_class( (string) users_plus_option( 'users_plus_sso_button_shape' ) ),
-		sanitize_html_class( (string) users_plus_option( 'users_plus_sso_button_show' ) ),
+		'users-dlx-plus-socials users-dlx-plus-socials--%1$s users-dlx-plus-socials--%2$s users-dlx-plus-socials--%3$s users-dlx-plus-socials--cols-%4$d',
+		sanitize_html_class( (string) users_dlx_plus_option( 'users_dlx_plus_sso_button_skin' ) ),
+		sanitize_html_class( (string) users_dlx_plus_option( 'users_dlx_plus_sso_button_shape' ) ),
+		sanitize_html_class( (string) users_dlx_plus_option( 'users_dlx_plus_sso_button_show' ) ),
 		in_array( $columns, array( 0, 1, 2 ), true ) ? $columns : 2
 	);
 }
@@ -104,12 +104,12 @@ function users_plus_sso_buttons_class(): string {
  * @param array<string, mixed> $provider Su fila de la tabla.
  * @param string               $url      Adónde va. Vacío para la vista previa.
  */
-function users_plus_sso_button( string $id, array $provider, string $url = '' ): string {
-	$text = users_plus_sso_button_text( $provider );
-	$icon = users_plus_sso_icon( $id );
+function users_dlx_plus_sso_button( string $id, array $provider, string $url = '' ): string {
+	$text = users_dlx_plus_sso_button_text( $provider );
+	$icon = users_dlx_plus_sso_icon( $id );
 
 	return sprintf(
-		'<a class="users-plus-social users-plus-social--%1$s" style="--users-plus-brand: %2$s" href="%3$s"%4$s>%5$s<span class="users-plus-social__text">%6$s</span></a>',
+		'<a class="users-dlx-plus-social users-dlx-plus-social--%1$s" style="--users-dlx-plus-brand: %2$s" href="%3$s"%4$s>%5$s<span class="users-dlx-plus-social__text">%6$s</span></a>',
 		esc_attr( $id ),
 		esc_attr( $provider['color'] ),
 		'' === $url ? '#' : esc_url( $url ),
@@ -126,29 +126,29 @@ function users_plus_sso_button( string $id, array $provider, string $url = '' ):
  *        previa del admin; si no se pasa, los que están prendidos.
  * @param bool                                     $live      Si los enlaces entran de verdad.
  */
-function users_plus_sso_buttons( ?array $providers = null, bool $live = true ): string {
-	$providers = null === $providers ? users_plus_sso_available() : $providers;
+function users_dlx_plus_sso_buttons( ?array $providers = null, bool $live = true ): string {
+	$providers = null === $providers ? users_dlx_plus_sso_available() : $providers;
 
 	if ( array() === $providers ) {
 		return '';
 	}
 
-	users_plus_sso_enqueue_button_styles();
+	users_dlx_plus_sso_enqueue_button_styles();
 
 	$html = '';
 
 	foreach ( $providers as $id => $provider ) {
-		$html .= users_plus_sso_button( $id, $provider, $live ? users_plus_sso_login_url( $id ) : '' );
+		$html .= users_dlx_plus_sso_button( $id, $provider, $live ? users_dlx_plus_sso_login_url( $id ) : '' );
 	}
 
-	return sprintf( '<div class="%1$s">%2$s</div>', esc_attr( users_plus_sso_buttons_class() ), $html );
+	return sprintf( '<div class="%1$s">%2$s</div>', esc_attr( users_dlx_plus_sso_buttons_class() ), $html );
 }
 
 /** La hoja de los botones. Se encola una sola vez, y tarde: puede pintarse desde un shortcode. */
-function users_plus_sso_enqueue_button_styles(): void {
-	if ( wp_style_is( 'users-plus-social', 'enqueued' ) ) {
+function users_dlx_plus_sso_enqueue_button_styles(): void {
+	if ( wp_style_is( 'users-dlx-plus-social', 'enqueued' ) ) {
 		return;
 	}
 
-	wp_enqueue_style( 'users-plus-social', USERS_PLUS_URL . 'assets/users-plus-social.css', array(), users_plus_asset_version( 'assets/users-plus-social.css' ) );
+	wp_enqueue_style( 'users-dlx-plus-social', USERS_DLX_PLUS_URL . 'assets/users-dlx-plus-social.css', array(), users_dlx_plus_asset_version( 'assets/users-dlx-plus-social.css' ) );
 }

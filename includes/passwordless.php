@@ -9,12 +9,12 @@
  * `/wp-login.php` sigue abierto con su formulario y con el registro nativo.
  * Con cualquiera de las otras dos, acá no pasa nada.
  *
- * Queda una salida de emergencia deliberada: `/wp-login.php?users-plus-admin=1`
+ * Queda una salida de emergencia deliberada: `/wp-login.php?users-dlx-plus-admin=1`
  * muestra el formulario nativo. No es un secreto —la seguridad la sigue dando
  * la contraseña— pero evita quedarse afuera del sitio si el correo o el
  * proveedor social fallan.
  *
- * @package UsersPlus
+ * @package UsersDlxPlus
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -27,7 +27,7 @@ defined( 'ABSPATH' ) || exit;
  * `confirmaction` es el que confirma las solicitudes de datos personales del
  * RGPD, que WordPress manda por correo y no tiene otra URL.
  */
-const USERS_PLUS_LOGIN_ALLOWED = array( 'logout', 'postpass', 'rp', 'resetpass', 'confirmaction' );
+const USERS_DLX_PLUS_LOGIN_ALLOWED = array( 'logout', 'postpass', 'rp', 'resetpass', 'confirmaction' );
 
 /**
  * ¿Hay que sacar este request de wp-login.php?
@@ -38,9 +38,9 @@ const USERS_PLUS_LOGIN_ALLOWED = array( 'logout', 'postpass', 'rp', 'resetpass',
  * @param string               $accion Valor de `action` (cadena vacía = login).
  * @param array<string, mixed> $query  Equivalente a $_GET.
  */
-function users_plus_should_redirect( string $accion, array $query = array() ): bool {
+function users_dlx_plus_should_redirect( string $accion, array $query = array() ): bool {
 	// Salida de emergencia para administradores.
-	if ( isset( $query['users-plus-admin'] ) ) {
+	if ( isset( $query['users-dlx-plus-admin'] ) ) {
 		return false;
 	}
 
@@ -52,7 +52,7 @@ function users_plus_should_redirect( string $accion, array $query = array() ): b
 
 	$accion = '' === $accion ? 'login' : $accion;
 
-	if ( in_array( $accion, USERS_PLUS_LOGIN_ALLOWED, true ) ) {
+	if ( in_array( $accion, USERS_DLX_PLUS_LOGIN_ALLOWED, true ) ) {
 		return false;
 	}
 
@@ -62,15 +62,15 @@ function users_plus_should_redirect( string $accion, array $query = array() ): b
 }
 
 /** Manda wp-login.php a la página de acceso. */
-function users_plus_block_wp_login(): void {
-	if ( ! users_plus_login_only_link() ) {
+function users_dlx_plus_block_wp_login(): void {
+	if ( ! users_dlx_plus_login_only_link() ) {
 		return;
 	}
 
 	// Sin otra puerta, wp-login.php es la única que hay: cerrarla dejaría el
 	// sitio sin entrada. Se compara contra la URL resuelta y no contra el
 	// ajuste, porque un sitio puede darla por filtro en vez de por opción.
-	if ( users_plus_login_url() === wp_login_url() ) {
+	if ( users_dlx_plus_login_url() === wp_login_url() ) {
 		return;
 	}
 
@@ -78,23 +78,23 @@ function users_plus_block_wp_login(): void {
 	$accion = isset( $_GET['action'] ) ? sanitize_key( wp_unslash( $_GET['action'] ) ) : '';
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	if ( ! users_plus_should_redirect( $accion, $_GET ) ) {
+	if ( ! users_dlx_plus_should_redirect( $accion, $_GET ) ) {
 		return;
 	}
 
 	// POST al formulario nativo: no redirigir en silencio, cortar.
 	if ( 'POST' === sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ) ) {
 		wp_die(
-			esc_html__( 'This site signs you in without a password: with your email or with a social account.', 'users-plus' ),
-			esc_html__( 'Sign in', 'users-plus' ),
+			esc_html__( 'This site signs you in without a password: with your email or with a social account.', 'users-dlx-plus' ),
+			esc_html__( 'Sign in', 'users-dlx-plus' ),
 			array( 'response' => 403 )
 		);
 	}
 
-	wp_safe_redirect( users_plus_login_url() );
+	wp_safe_redirect( users_dlx_plus_login_url() );
 	exit;
 }
-add_action( 'login_init', 'users_plus_block_wp_login' );
+add_action( 'login_init', 'users_dlx_plus_block_wp_login' );
 
 /**
  * Apaga el registro nativo de WordPress mientras dure el modo "sólo correo".
@@ -105,8 +105,8 @@ add_action( 'login_init', 'users_plus_block_wp_login' );
  * @param mixed $value Lo que venía de la option.
  * @return mixed
  */
-function users_plus_block_registration( $value ) {
-	$forced = (string) users_plus_option( 'users_plus_wp_registration' );
+function users_dlx_plus_block_registration( $value ) {
+	$forced = (string) users_dlx_plus_option( 'users_dlx_plus_wp_registration' );
 
 	if ( 'on' === $forced ) {
 		return 1;
@@ -118,9 +118,9 @@ function users_plus_block_registration( $value ) {
 
 	// Sin nada forzado, el modo «sólo enlace» igual lo apaga: dejarlo prendido
 	// daría de alta gente con contraseña por una puerta que el sitio cerró.
-	return users_plus_login_only_link() ? 0 : $value;
+	return users_dlx_plus_login_only_link() ? 0 : $value;
 }
-add_filter( 'option_users_can_register', 'users_plus_block_registration' );
+add_filter( 'option_users_can_register', 'users_dlx_plus_block_registration' );
 
 /* ── El perfil del escritorio ──────────────────────────────────────── */
 
@@ -137,8 +137,8 @@ add_filter( 'option_users_can_register', 'users_plus_block_registration' );
  * poder arreglar lo que se rompió, y el perfil del escritorio es donde se
  * arregla.
  */
-function users_plus_wp_profile_guard(): void {
-	$modo = (string) users_plus_option( 'users_plus_wp_profile' );
+function users_dlx_plus_wp_profile_guard(): void {
+	$modo = (string) users_dlx_plus_option( 'users_dlx_plus_wp_profile' );
 
 	if ( 'allow' === $modo || current_user_can( 'edit_users' ) ) {
 		return;
@@ -151,19 +151,19 @@ function users_plus_wp_profile_guard(): void {
 	}
 
 	if ( 'redirect' === $modo ) {
-		$destino = users_plus_account_url( 'details' );
+		$destino = users_dlx_plus_account_url( 'details' );
 
 		wp_safe_redirect( '' !== $destino ? $destino : home_url( '/' ) );
 		exit;
 	}
 
 	wp_die(
-		esc_html__( 'Your details are edited from your account on the site, not from here.', 'users-plus' ),
-		esc_html__( 'Not from here', 'users-plus' ),
+		esc_html__( 'Your details are edited from your account on the site, not from here.', 'users-dlx-plus' ),
+		esc_html__( 'Not from here', 'users-dlx-plus' ),
 		array(
 			'response'  => 403,
 			'back_link' => true,
 		)
 	);
 }
-add_action( 'admin_init', 'users_plus_wp_profile_guard' );
+add_action( 'admin_init', 'users_dlx_plus_wp_profile_guard' );

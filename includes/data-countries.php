@@ -10,7 +10,7 @@
  * dato no se rompe si mañana cambia la traducción, y se puede filtrar por país
  * sin comparar cadenas.
  *
- * @package UsersPlus
+ * @package UsersDlxPlus
  */
 
 defined( 'ABSPATH' ) || exit;
@@ -20,7 +20,7 @@ defined( 'ABSPATH' ) || exit;
  *
  * @return array<string, array{0: string, 1: string}> ISO => [nombre, prefijo].
  */
-function users_plus_countries(): array {
+function users_dlx_plus_countries(): array {
 	static $countries = null;
 
 	if ( null === $countries ) {
@@ -281,22 +281,22 @@ function users_plus_countries(): array {
 		 *
 		 * @param array<string, array{0: string, 1: string}> $countries
 		 */
-		$countries = apply_filters( 'users_plus_countries', $countries );
+		$countries = apply_filters( 'users_dlx_plus_countries', $countries );
 	}
 
 	return $countries;
 }
 
 /** El nombre de un país por su código ISO. */
-function users_plus_country_name( string $iso ): string {
-	$countries = users_plus_countries();
+function users_dlx_plus_country_name( string $iso ): string {
+	$countries = users_dlx_plus_countries();
 
 	return (string) ( $countries[ strtoupper( $iso ) ][0] ?? '' );
 }
 
 /** El prefijo telefónico de un país, sin el "+". */
-function users_plus_country_dial( string $iso ): string {
-	$countries = users_plus_countries();
+function users_dlx_plus_country_dial( string $iso ): string {
+	$countries = users_dlx_plus_countries();
 
 	return (string) ( $countries[ strtoupper( $iso ) ][1] ?? '' );
 }
@@ -310,8 +310,8 @@ function users_plus_country_dial( string $iso ): string {
  * @param array<int, string> $first Códigos ISO que van primero.
  * @return array<string, string> ISO => nombre.
  */
-function users_plus_countries_sorted( array $first = array() ): array {
-	$countries = users_plus_countries();
+function users_dlx_plus_countries_sorted( array $first = array() ): array {
+	$countries = users_dlx_plus_countries();
 	$names     = array();
 
 	foreach ( $countries as $iso => $data ) {

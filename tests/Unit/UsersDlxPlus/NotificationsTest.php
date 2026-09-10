@@ -7,7 +7,7 @@
  * garantía de que eso no vuelva a pasar.
  */
 
-namespace Tests\Unit\UsersPlus;
+namespace Tests\Unit\UsersDlxPlus;
 
 use Brain\Monkey;
 use PHPUnit\Framework\TestCase;
@@ -20,9 +20,9 @@ class NotificationsTest extends TestCase {
 		parent::setUp();
 		Monkey\setUp();
 
-		require_once USERS_PLUS_DIR . 'includes/options.php';
-		require_once USERS_PLUS_DIR . 'includes/notify.php';
-		require_once USERS_PLUS_DIR . 'includes/account-sections.php';
+		require_once USERS_DLX_PLUS_DIR . 'includes/options.php';
+		require_once USERS_DLX_PLUS_DIR . 'includes/notify.php';
+		require_once USERS_DLX_PLUS_DIR . 'includes/account-sections.php';
 
 		$GLOBALS['cst_test_user_meta'] = array();
 		$GLOBALS['_test_wp_options']   = array();
@@ -34,41 +34,41 @@ class NotificationsTest extends TestCase {
 	}
 
 	public function test_el_plugin_trae_sus_propios_avisos(): void {
-		$propios = users_plus_default_notifications();
+		$propios = users_dlx_plus_default_notifications();
 
-		$this->assertArrayHasKey( 'users_plus_notify_login', $propios );
-		$this->assertArrayHasKey( 'users_plus_notify_security', $propios );
+		$this->assertArrayHasKey( 'users_dlx_plus_notify_login', $propios );
+		$this->assertArrayHasKey( 'users_dlx_plus_notify_security', $propios );
 	}
 
 	public function test_los_avisos_propios_vienen_prendidos(): void {
 		// Un aviso de seguridad que hay que ir a prender no lo prende nadie, y
 		// el que lo necesita es justamente quien no entró a mirar.
-		foreach ( users_plus_default_notifications() as $pref ) {
+		foreach ( users_dlx_plus_default_notifications() as $pref ) {
 			$this->assertSame( '1', $pref['default'] );
 		}
 	}
 
 	public function test_sin_haber_elegido_nada_se_toma_el_valor_por_defecto(): void {
-		$this->assertTrue( users_plus_wants( self::USUARIO, 'users_plus_notify_login' ) );
+		$this->assertTrue( users_dlx_plus_wants( self::USUARIO, 'users_dlx_plus_notify_login' ) );
 	}
 
 	public function test_quien_lo_apago_deja_de_recibirlo(): void {
-		update_user_meta( self::USUARIO, 'users_plus_notify_login', '0' );
+		update_user_meta( self::USUARIO, 'users_dlx_plus_notify_login', '0' );
 
-		$this->assertFalse( users_plus_wants( self::USUARIO, 'users_plus_notify_login' ) );
+		$this->assertFalse( users_dlx_plus_wants( self::USUARIO, 'users_dlx_plus_notify_login' ) );
 	}
 
 	public function test_un_aviso_que_nadie_registro_no_se_manda(): void {
-		$this->assertFalse( users_plus_wants( self::USUARIO, 'users_plus_notify_inventado' ) );
+		$this->assertFalse( users_dlx_plus_wants( self::USUARIO, 'users_dlx_plus_notify_inventado' ) );
 	}
 
 	public function test_el_mismo_navegador_da_el_mismo_identificador(): void {
 		$_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 (Macintosh) Chrome/140';
-		$uno = users_plus_device_id();
+		$uno = users_dlx_plus_device_id();
 
-		$this->assertSame( $uno, users_plus_device_id() );
+		$this->assertSame( $uno, users_dlx_plus_device_id() );
 
 		$_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 (iPhone) Safari/605';
-		$this->assertNotSame( $uno, users_plus_device_id() );
+		$this->assertNotSame( $uno, users_dlx_plus_device_id() );
 	}
 }

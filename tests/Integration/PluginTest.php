@@ -13,21 +13,21 @@ namespace Tests\Integration;
 class PluginTest extends IntegrationTestCase {
 
 	public function test_el_plugin_esta_cargado(): void {
-		$this->assertTrue( defined( 'USERS_PLUS_VERSION' ) );
-		$this->assertTrue( function_exists( 'users_plus_option' ) );
+		$this->assertTrue( defined( 'USERS_DLX_PLUS_VERSION' ) );
+		$this->assertTrue( function_exists( 'users_dlx_plus_option' ) );
 	}
 
 	public function test_las_opciones_tienen_valor_por_defecto(): void {
 		// Sin nada guardado, cada ajuste tiene que contestar algo razonable:
 		// un plugin recién instalado no puede depender de que alguien pase
 		// por todas sus pantallas antes de que el sitio funcione.
-		$this->assertSame( 'both', users_plus_option( 'users_plus_login_method' ) );
-		$this->assertSame( 'optional', users_plus_option( 'users_plus_2fa_mode' ) );
-		$this->assertSame( 1, (int) users_plus_option( 'users_plus_privacy_export' ) );
+		$this->assertSame( 'both', users_dlx_plus_option( 'users_dlx_plus_login_method' ) );
+		$this->assertSame( 'optional', users_dlx_plus_option( 'users_dlx_plus_2fa_mode' ) );
+		$this->assertSame( 1, (int) users_dlx_plus_option( 'users_dlx_plus_privacy_export' ) );
 	}
 
 	public function test_el_area_de_cuenta_trae_sus_secciones(): void {
-		$secciones = users_plus_sections( true );
+		$secciones = users_dlx_plus_sections( true );
 
 		foreach ( array( 'home', 'details', 'accounts', 'security', 'privacy', 'notifications' ) as $id ) {
 			$this->assertArrayHasKey( $id, $secciones, "falta la sección $id" );
@@ -39,20 +39,20 @@ class PluginTest extends IntegrationTestCase {
 		// configurado no aparece, sin que haya que apagar nada a mano.
 		wp_set_current_user( $this->alguien() );
 
-		$this->assertArrayNotHasKey( 'accounts', users_plus_sections() );
+		$this->assertArrayNotHasKey( 'accounts', users_dlx_plus_sections() );
 	}
 
 	public function test_los_campos_de_wordpress_estan_entre_los_campos(): void {
-		users_plus_seed_fields();
+		users_dlx_plus_seed_fields();
 
-		$claves = wp_list_pluck( users_plus_fields(), 'key' );
+		$claves = wp_list_pluck( users_dlx_plus_fields(), 'key' );
 
 		$this->assertContains( 'first_name', $claves );
 		$this->assertContains( 'last_name', $claves );
 	}
 
 	public function test_el_plugin_trae_sus_propias_notificaciones(): void {
-		$this->assertArrayHasKey( 'users_plus_notify_login', users_plus_notification_prefs() );
-		$this->assertArrayHasKey( 'users_plus_notify_security', users_plus_notification_prefs() );
+		$this->assertArrayHasKey( 'users_dlx_plus_notify_login', users_dlx_plus_notification_prefs() );
+		$this->assertArrayHasKey( 'users_dlx_plus_notify_security', users_dlx_plus_notification_prefs() );
 	}
 }

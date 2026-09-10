@@ -6,7 +6,7 @@
 
 Instead, report the issue privately using **GitHub Security Advisories**:
 
-🔗 **[Open a private security advisory](https://github.com/soydiloreto/users-plus/security/advisories/new)**
+🔗 **[Open a private security advisory](https://github.com/soydiloreto/users-dlx-plus/security/advisories/new)**
 
 This creates a confidential workspace inside the repository where the maintainers and you can discuss the issue, coordinate a fix, and agree on a disclosure timeline. Nothing is public until we both decide it's ready.
 
@@ -50,4 +50,4 @@ The following are **not** considered security vulnerabilities for the purposes o
 - Vulnerabilities in third-party services (the OAuth providers, the mail transport, etc.) — please report those to the respective vendor.
 - Best-practice deviations without a concrete attack path.
 
-Thanks for helping keep Users Plus for WordPress and its users safe.
+Thanks for helping keep Users+ and its users safe.
