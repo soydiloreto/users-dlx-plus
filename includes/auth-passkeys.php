@@ -331,12 +331,15 @@ function upfw_passkeys_ajax(): void {
 	switch ( $step ) {
 		case 'register-options':
 			wp_send_json_success( upfw_passkeys_register_options() );
+			// wp_send_json_* contesta y corta: no hay caída al siguiente caso.
 
 		case 'register':
 			wp_send_json( upfw_passkeys_register( wp_unslash( $_POST ) ) );
+			// wp_send_json_* contesta y corta: no hay caída al siguiente caso.
 
 		case 'login-options':
 			wp_send_json_success( upfw_passkeys_login_options() );
+			// wp_send_json_* contesta y corta: no hay caída al siguiente caso.
 
 		case 'login':
 			wp_send_json( upfw_passkeys_login( wp_unslash( $_POST ) ) );

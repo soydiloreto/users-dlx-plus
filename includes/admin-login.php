@@ -7,6 +7,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
+/** La pantalla de registro y acceso, con sus solapas. */
 function upfw_screen_login(): void {
 	$tabs = array(
 		'registration' => __( 'Registration', 'users-plus-for-wordpress' ),
@@ -66,8 +67,8 @@ function upfw_screen_login_save( string $tab ): void {
 	if ( 'email' === $tab ) {
 		upfw_save_options(
 			array(
-				'upfw_login_subject' => wp_unslash( $_POST['upfw_login_subject'] ?? '' ),
-				'upfw_login_body'    => wp_unslash( $_POST['upfw_login_body'] ?? '' ),
+				'upfw_login_subject' => sanitize_text_field( wp_unslash( $_POST['upfw_login_subject'] ?? '' ) ),
+				'upfw_login_body'    => sanitize_textarea_field( wp_unslash( $_POST['upfw_login_body'] ?? '' ) ),
 			)
 		);
 
@@ -90,10 +91,10 @@ function upfw_screen_login_save( string $tab ): void {
 		upfw_save_options(
 			array(
 				'upfw_2fa_mode'          => sanitize_key( wp_unslash( $_POST['upfw_2fa_mode'] ?? 'optional' ) ),
-				'upfw_2fa_methods'       => (array) ( $_POST['upfw_2fa_methods'] ?? array() ),
-				'upfw_2fa_roles'         => (array) ( $_POST['upfw_2fa_roles'] ?? array() ),
+				'upfw_2fa_methods'       => array_map( 'sanitize_key', (array) wp_unslash( $_POST['upfw_2fa_methods'] ?? array() ) ),
+				'upfw_2fa_roles'         => array_map( 'sanitize_key', (array) wp_unslash( $_POST['upfw_2fa_roles'] ?? array() ) ),
 				'upfw_2fa_link'          => sanitize_key( wp_unslash( $_POST['upfw_2fa_link'] ?? 'auto' ) ),
-				'upfw_2fa_remember_days' => (int) ( $_POST['upfw_2fa_remember_days'] ?? 30 ),
+				'upfw_2fa_remember_days' => absint( wp_unslash( $_POST['upfw_2fa_remember_days'] ?? 30 ) ),
 			)
 		);
 
@@ -105,12 +106,12 @@ function upfw_screen_login_save( string $tab ): void {
 			array(
 				'upfw_handle_enabled'  => isset( $_POST['upfw_handle_enabled'] ) ? 1 : 0,
 				'upfw_handle_login'    => isset( $_POST['upfw_handle_login'] ) ? 1 : 0,
-				'upfw_handle_min'      => (int) ( $_POST['upfw_handle_min'] ?? 3 ),
-				'upfw_handle_max'      => (int) ( $_POST['upfw_handle_max'] ?? 30 ),
+				'upfw_handle_min'      => absint( wp_unslash( $_POST['upfw_handle_min'] ?? 3 ) ),
+				'upfw_handle_max'      => absint( wp_unslash( $_POST['upfw_handle_max'] ?? 30 ) ),
 				'upfw_handle_charset'  => sanitize_key( wp_unslash( $_POST['upfw_handle_charset'] ?? 'strict' ) ),
 				'upfw_handle_spaces'   => sanitize_key( wp_unslash( $_POST['upfw_handle_spaces'] ?? 'dash' ) ),
-				'upfw_handle_cooldown' => (int) ( $_POST['upfw_handle_cooldown'] ?? 30 ),
-				'upfw_handle_reserved' => wp_unslash( $_POST['upfw_handle_reserved'] ?? '' ),
+				'upfw_handle_cooldown' => absint( wp_unslash( $_POST['upfw_handle_cooldown'] ?? 30 ) ),
+				'upfw_handle_reserved' => sanitize_textarea_field( wp_unslash( $_POST['upfw_handle_reserved'] ?? '' ) ),
 			)
 		);
 
@@ -133,14 +134,15 @@ function upfw_screen_login_save( string $tab ): void {
 	upfw_save_options(
 		array(
 			'upfw_login_method'   => sanitize_key( wp_unslash( $_POST['upfw_login_method'] ?? 'both' ) ),
-			'upfw_login_page'     => (int) ( $_POST['upfw_login_page'] ?? 0 ),
-			'upfw_login_expiry'   => (int) ( $_POST['upfw_login_expiry'] ?? 15 ),
-			'upfw_login_throttle' => (int) ( $_POST['upfw_login_throttle'] ?? 60 ),
+			'upfw_login_page'     => absint( wp_unslash( $_POST['upfw_login_page'] ?? 0 ) ),
+			'upfw_login_expiry'   => absint( wp_unslash( $_POST['upfw_login_expiry'] ?? 15 ) ),
+			'upfw_login_throttle' => absint( wp_unslash( $_POST['upfw_login_throttle'] ?? 60 ) ),
 		)
 	);
 	// phpcs:enable
 }
 
+/** Cómo entra la gente: la puerta, la página y los tiempos. */
 function upfw_screen_login_link(): void {
 	upfw_intro( __( 'The person types their email and gets a single-use link. There is no password to choose, to remember or to steal. Put the [upfw_login] shortcode on the page you pick below.', 'users-plus-for-wordpress' ) );
 	?>
@@ -157,6 +159,7 @@ function upfw_screen_login_link(): void {
 					'option_none_value' => 0,
 				);
 
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_dropdown_pages() escapa lo suyo y pinta él.
 				wp_dropdown_pages( $upfw_dropdown );
 				?>
 				<p class="description"><?php esc_html_e( 'The page holding the form. Without it, passwordless mode is not applied: it would leave the site with no way in.', 'users-plus-for-wordpress' ); ?></p>
@@ -213,6 +216,7 @@ function upfw_screen_login_link(): void {
 	<?php
 }
 
+/** El texto del correo con el enlace de acceso. */
 function upfw_screen_login_email(): void {
 	upfw_intro( __( 'This is what lands in the inbox. Leave it empty to use the text the plugin ships with.', 'users-plus-for-wordpress' ) );
 	?>

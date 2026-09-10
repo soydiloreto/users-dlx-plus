@@ -126,7 +126,7 @@ function upfw_tab( array $tabs ): string {
  * Las solapas de una pantalla.
  *
  * @param array<string, string> $tabs
- * @param array<string, mixed> $extra
+ * @param array<string, mixed>  $extra
  */
 function upfw_tabs( string $screen, array $tabs, string $current, array $extra = array() ): void {
 	if ( count( $tabs ) < 2 ) {
