@@ -4,11 +4,11 @@ Tags: users, login, passwordless, two-factor, passkeys
 Requires at least: 6.0
 Tested up to: 7.1
 Requires PHP: 8.0
-Stable tag: 0.2.1
+Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-User fields, a front-end account area, passwordless sign-in, social login, two-step verification, passkeys and session control.
+Users Plus for WordPress: user fields, an account area, passwordless sign-in, social login, two-step verification, passkeys and session control.
 
 == Description ==
 
@@ -70,5 +70,20 @@ grants access joins the person to the current site.
 
 == Changelog ==
 
-= 0.2.1 =
-* First public release.
+= 1.0.0 =
+First public release.
+
+* User fields with their own admin screen: text, email, phone, date, select, checkbox and country, plus WordPress's own first and last name.
+* Per-field edit policy — read only, editable, or editable a fixed number of times — and a switch to allow or block access to WordPress's own profile screen.
+* Front-end account area with default sections out of the box, in a horizontal or vertical layout, driven entirely by what is enabled in the admin.
+* Overridable templates and CSS custom properties, so a theme can restyle it without touching the plugin.
+* Passwordless sign-in by e-mail link, optionally alongside or instead of the password form.
+* Social login for twelve providers, with path-based callback URLs that every provider accepts.
+* Two-step verification by e-mail code or authenticator app, with its own policy per sign-in method.
+* Passkeys with friendly names, which need no second step of their own.
+* Session control: see where an account is signed in and close any session.
+* Public names, with a live availability check against the same validation used on save.
+* Avatars: uploaded photo, Gravatar or generated initials, each one switchable.
+* Data export and account deletion from the front end, each one switchable.
+* Multisite aware.
+* Spanish translation included.

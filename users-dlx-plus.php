@@ -2,8 +2,8 @@
 /**
  * Plugin Name:       Users+
  * Plugin URI:        https://pablodiloreto.com
- * Description:       Campos de usuario, área de cuenta en el frente, acceso sin contraseña, login social, verificación en dos pasos, passkeys y control de sesiones. Con shortcodes y plantillas sobrescribibles para que entre en cualquier diseño.
- * Version:           0.2.1
+ * Description:       Users Plus for WordPress: user fields, a front-end account area, passwordless sign-in, social login, two-step verification, passkeys and session control. Shortcodes and overridable templates so it fits any design.
+ * Version:           1.0.0
  * Author:            Pablo Ariel Di Loreto
  * Author URI:        https://pablodiloreto.com
  * License:           GPLv2 or later
@@ -36,7 +36,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'USERS_DLX_PLUS_VERSION', '0.2.1' );
+define( 'USERS_DLX_PLUS_VERSION', '1.0.0' );
 define( 'USERS_DLX_PLUS_DIR', plugin_dir_path( __FILE__ ) );
 define( 'USERS_DLX_PLUS_URL', plugin_dir_url( __FILE__ ) );
 define( 'USERS_DLX_PLUS_FILE', __FILE__ );

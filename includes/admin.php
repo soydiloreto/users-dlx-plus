@@ -71,6 +71,8 @@ function users_dlx_plus_screens(): array {
 		'users-dlx-plus-social'     => __( 'Social login', 'users-dlx-plus' ),
 		'users-dlx-plus-sessions'   => __( 'User sessions', 'users-dlx-plus' ),
 		'users-dlx-plus-appearance' => __( 'Appearance', 'users-dlx-plus' ),
+		'users-dlx-plus-status'     => __( 'Status', 'users-dlx-plus' ),
+		'users-dlx-plus-tools'      => __( 'Tools', 'users-dlx-plus' ),
 	);
 }
 
@@ -94,6 +96,8 @@ function users_dlx_plus_menu(): void {
 		'users-dlx-plus-social'     => 'users_dlx_plus_screen_social',
 		'users-dlx-plus-sessions'   => 'users_dlx_plus_screen_sessions',
 		'users-dlx-plus-appearance' => 'users_dlx_plus_screen_appearance',
+		'users-dlx-plus-status'     => 'users_dlx_plus_screen_status',
+		'users-dlx-plus-tools'      => 'users_dlx_plus_screen_tools',
 	);
 
 	foreach ( users_dlx_plus_screens() as $slug => $title ) {
