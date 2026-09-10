@@ -70,6 +70,7 @@ scripts
 .vscode
 
 # Build artifacts and logs
+phpcs.json
 *.zip
 *.log
 *.tar
