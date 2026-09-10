@@ -61,7 +61,7 @@ jobs:
 
       - name: Activate plugin in tests environment
         # wp-env mounts but does not auto-activate. Activate explicitly so
-        # bootstrap-integration.php finds DILUX_CS_PLUGIN_DIR defined.
+        # bootstrap-integration.php finds UPFW_DIR defined.
         run: npx wp-env run tests-cli wp plugin activate users-plus-for-wordpress
 
       - name: Run integration tests

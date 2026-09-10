@@ -72,7 +72,7 @@ make stan
 
 We run **level 8 (max strictness) with no baseline.** Every type error must be fixed in code, not suppressed. The `szepeviktor/phpstan-wordpress` extension teaches PHPStan about the WordPress API surface so e.g. `wp_remote_get()` returns `array|WP_Error` and `$wpdb->update()` returns `int|false`.
 
-A few constants are declared `dynamicConstantNames` (`DILUX_DEV_MODE`, `DILUX_VERBOSE_LOGGING`, `DILUX_API_URL`, `WP_DEBUG`) so PHPStan does not collapse `if ( DILUX_DEV_MODE )` into "always false" on the bootstrap stub default. Their runtime values are user-controlled (typically from `wp-config.php`).
+A couple of constants are declared `dynamicConstantNames` (`WP_DEBUG`, `COOKIEHASH`) so PHPStan does not collapse `if ( WP_DEBUG )` into "always false" on the bootstrap stub default. Their runtime values come from `wp-config.php` and change per install.
 
 If you find a real type error PHPStan can't see (e.g. PHP extension stubs are missing in CI), use `// @phpstan-ignore-next-line <identifier>` with a comment explaining why. Don't add to a baseline — the project deliberately doesn't have one.
 

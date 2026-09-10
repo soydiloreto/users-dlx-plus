@@ -16,9 +16,9 @@ Repository-only changes (CI, dev tooling, this `docs/` directory, …) **do not*
 
 ## The `-dev` suffix
 
-The PHP `Version:` header in `users-plus-for-wordpress.php` and the `DILUX_CS_VERSION` constant carry a `-dev` suffix on `main` between releases. The `Stable tag:` in `readme.txt` does **not** — it always holds the last published release, or before any release the next intended one.
+The PHP `Version:` header in `users-plus-for-wordpress.php` and the `UPFW_VERSION` constant carry a `-dev` suffix on `main` between releases. The `Stable tag:` in `readme.txt` does **not** — it always holds the last published release, or before any release the next intended one.
 
-| State | PHP `Version:` | `DILUX_CS_VERSION` | readme `Stable tag:` |
+| State | PHP `Version:` | `UPFW_VERSION` | readme `Stable tag:` |
 | --- | --- | --- | --- |
 | `main` between releases | `1.2.0-dev` | `1.2.0-dev` | `1.1.0` (last released) |
 | Release-prep PR open | `1.2.0` | `1.2.0` | `1.2.0` |
@@ -44,7 +44,7 @@ Once the work for the next version is merged into `main` and CI is green:
    `make release` will fail if PHP `Version:` (after stripping `-dev`) and readme `Stable tag:` don't match. Don't push the tag if it complains.
 
 2. **Open a release-prep PR.** Branch name: `chore/release-X.Y.Z`. The PR does three things:
-   - Drops the `-dev` suffix in `users-plus-for-wordpress.php` (the `Version:` header **and** the `DILUX_CS_VERSION` constant).
+   - Drops the `-dev` suffix in `users-plus-for-wordpress.php` (the `Version:` header **and** the `UPFW_VERSION` constant).
    - Updates `readme.txt`: `Stable tag:` to the new version, and adds a `= X.Y.Z =` block under `== Changelog ==` summarising user-visible changes.
    - That's it. No code changes — anything that needed code change went in earlier PRs.
 
@@ -62,14 +62,14 @@ Once the work for the next version is merged into `main` and CI is green:
 
 6. **The deploy workflow takes it from there.** [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml) fires on tag push; it does:
    - Strict tag-format validation (`^[0-9]+\.[0-9]+\.[0-9]+$`).
-   - Strict version-alignment of all three markers — PHP `Version:`, `DILUX_CS_VERSION`, readme `Stable tag:` — against the git tag.
+   - Strict version-alignment of all three markers — PHP `Version:`, `UPFW_VERSION`, readme `Stable tag:` — against the git tag.
    - [`10up/action-wordpress-plugin-deploy@stable`](https://github.com/10up/action-wordpress-plugin-deploy) to push `/trunk` and tag `/tags/X.Y.Z` on the wp.org SVN, and to upload `.wordpress-org/` assets to the SVN `/assets/` directory.
    - Generate the GitHub release with the changelog excerpt as the body.
 
 7. **Verify on wp.org** within ~10 minutes. The new version should appear at `https://wordpress.org/plugins/users-plus-for-wordpress/`. wp.org does not run automated rollouts — sites with auto-update enabled pick it up over the next ~12 hours via the WordPress core update check.
 
 8. **Bump back to dev.** Open a follow-up PR `chore/bump-(X.Y.Z+1)-dev` that:
-   - Sets PHP `Version:` and `DILUX_CS_VERSION` to `(next intended version)-dev`.
+   - Sets PHP `Version:` and `UPFW_VERSION` to `(next intended version)-dev`.
    - Leaves `Stable tag:` alone (it stays at the just-released `X.Y.Z`).
 
    Merge it. Now `main` is signposted "in development towards (next)" again.
