@@ -15,6 +15,16 @@
  * en la activación porque una actualización por FTP o por git no dispara la
  * activación.
  *
+ * Todo el archivo habla con la base directamente y sin caché, y tiene que ser
+ * así: es una migración que corre una sola vez, sin entrada de nadie, y suelta
+ * del caché de objetos lo suyo al terminar. Las anotaciones van acá arriba y no
+ * repartidas por las funciones porque un `phpcs:enable` adentro de un `return`
+ * temprano vale desde esa línea en adelante —PHPCS lee el archivo de arriba a
+ * abajo, no sigue el flujo— y deja sin tapar todo lo que viene después.
+ *
+ * phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery
+ * phpcs:disable WordPress.DB.DirectDatabaseQuery.NoCaching
+ *
  * @package UsersDlxPlus
  */
 
@@ -85,8 +95,6 @@ function users_dlx_plus_migrate_prefix( string $viejo ): void {
 	// veces y un largo hardcodeado sobrevive callado a la siguiente.
 	$desde_nuevo = strlen( USERS_DLX_PLUS_PREFIJO ) + 1;
 
-	// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- es una migración: una vez, sin entrada de nadie, y suelta del caché sólo lo suyo al final.
-
 	// Las options tienen la clave única. Si el plugin ya sembró la suya —al
 	// activarse, que pasa antes de esto— el UPDATE choca con esa fila y falla
 	// ENTERO: no migra ninguna, y el sitio arranca vacío sin decir por qué.
@@ -97,7 +105,6 @@ function users_dlx_plus_migrate_prefix( string $viejo ): void {
 	);
 
 	if ( array() === (array) $viejas ) {
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return;
 	}
 
@@ -150,8 +157,6 @@ function users_dlx_plus_migrate_prefix( string $viejo ): void {
 		)
 	);
 
-	// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-
 	users_dlx_plus_migration_forget_cache( (array) $viejas, (array) $afectados, $viejo );
 
 	// Las claves de los campos viajan además adentro de la definición, y son
@@ -182,13 +187,11 @@ function users_dlx_plus_migrate_prefix( string $viejo ): void {
 function users_dlx_plus_migrate_shortcodes( string $viejo ): void {
 	global $wpdb;
 
-	// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- ídem.
 	$ids = $wpdb->get_col(
 		$wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE post_content LIKE %s", '%[' . $wpdb->esc_like( $viejo ) . '%' )
 	);
 
 	if ( array() === (array) $ids ) {
-		// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		return;
 	}
 
@@ -202,7 +205,6 @@ function users_dlx_plus_migrate_shortcodes( string $viejo ): void {
 			'%[' . $wpdb->esc_like( $viejo ) . '%'
 		)
 	);
-	// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 	// Sin esto WordPress sigue sirviendo el contenido viejo desde el caché de
 	// objetos, y la página muestra el shortcode escrito en vez de la cuenta.
