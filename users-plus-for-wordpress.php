@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name:       Users Plus for WordPress
+ * Plugin Name:       Users Plus
  * Plugin URI:        https://pablodiloreto.com
  * Description:       Campos de usuario, área de cuenta en el frente, acceso sin contraseña, login social, verificación en dos pasos, passkeys y control de sesiones. Con shortcodes y plantillas sobrescribibles para que entre en cualquier diseño.
  * Version:           0.2.1
