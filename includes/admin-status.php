@@ -104,7 +104,9 @@ function users_dlx_plus_checks(): array {
 		$checks[] = users_dlx_plus_check(
 			__( 'Outgoing mail', 'users-dlx-plus' ),
 			'fail',
-			$mail['error'] !== '' ? $mail['error'] : __( 'The last message could not be sent.', 'users-dlx-plus' )
+			'' !== $mail['error']
+				? wp_strip_all_tags( $mail['error'] )
+				: __( 'The last message could not be sent.', 'users-dlx-plus' )
 		);
 	} elseif ( 'ok' === $mail['state'] ) {
 		$checks[] = users_dlx_plus_check(
@@ -125,9 +127,14 @@ function users_dlx_plus_checks(): array {
 	}
 
 	// HTTPS. Las passkeys son WebAuthn, y WebAuthn no existe fuera de HTTPS.
+	//
+	// Se mira wp_is_using_https() y no is_ssl(): is_ssl() dice si *este* pedido
+	// entró por TLS, que es falso en WP-CLI y puede serlo detrás de un proxy
+	// que termina el TLS antes. Lo que decide si el navegador habla HTTPS —y
+	// por lo tanto si WebAuthn existe— es el esquema de home_url().
 	$passkeys = (int) users_dlx_plus_option( 'users_dlx_plus_passkey_enabled' );
 
-	if ( is_ssl() ) {
+	if ( wp_is_using_https() ) {
 		$checks[] = users_dlx_plus_check( 'HTTPS', 'ok', __( 'The site is served over HTTPS.', 'users-dlx-plus' ) );
 	} else {
 		$checks[] = users_dlx_plus_check(
