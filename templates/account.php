@@ -2,7 +2,11 @@
 /**
  * El área de cuenta.
  *
- * Variables: $user, $sections, $current, $layout, $header.
+ * @var string                              $current
+ * @var bool                                $header
+ * @var string                              $layout
+ * @var array<string, array<string, mixed>> $sections
+ * @var WP_User                             $user
  *
  * @package UPFW
  */

@@ -37,24 +37,24 @@ if ( array() === $fields ) {
 		<input type="hidden" name="upfw_group" value="<?php echo esc_attr( $group ); ?>">
 		<?php wp_nonce_field( 'upfw_fields_save' ); ?>
 
-		<?php foreach ( $fields as $field ) : ?>
-			<div class="upfw-field upfw-field--<?php echo esc_attr( $field['type'] ); ?>">
-				<?php if ( 'checkbox' !== $field['type'] ) : ?>
-					<label for="<?php echo esc_attr( $field['key'] ); ?>">
-						<?php echo esc_html( $field['label'] ); ?>
-						<?php if ( $field['required'] ) : ?>
+		<?php foreach ( $fields as $upfw_field ) : ?>
+			<div class="upfw-field upfw-field--<?php echo esc_attr( $upfw_field['type'] ); ?>">
+				<?php if ( 'checkbox' !== $upfw_field['type'] ) : ?>
+					<label for="<?php echo esc_attr( $upfw_field['key'] ); ?>">
+						<?php echo esc_html( $upfw_field['label'] ); ?>
+						<?php if ( $upfw_field['required'] ) : ?>
 							<span class="upfw-field__required" aria-hidden="true">*</span>
 						<?php endif; ?>
 					</label>
 				<?php endif; ?>
 
-				<?php upfw_field_input( $field, upfw_value( $user_id, $field['key'] ) ); ?>
+				<?php upfw_field_input( $upfw_field, upfw_value( $user_id, $upfw_field['key'] ) ); ?>
 
-				<?php if ( '' !== $field['help'] ) : ?>
-					<p class="upfw-field__help"><?php echo esc_html( $field['help'] ); ?></p>
+				<?php if ( '' !== $upfw_field['help'] ) : ?>
+					<p class="upfw-field__help"><?php echo esc_html( $upfw_field['help'] ); ?></p>
 				<?php endif; ?>
 
-				<?php $upfw_nota = upfw_field_edit_note( $field, $user_id ); ?>
+				<?php $upfw_nota = upfw_field_edit_note( $upfw_field, $user_id ); ?>
 				<?php if ( '' !== $upfw_nota ) : ?>
 					<p class="upfw-field__help upfw-field__limite"><?php echo esc_html( $upfw_nota ); ?></p>
 				<?php endif; ?>

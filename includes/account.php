@@ -72,6 +72,9 @@ function upfw_register_section( string $id, array $args ): void {
 }
 
 /** Lo que guardó quien administra para una sección. */
+/**
+ * @return array<string, mixed>
+ */
 function upfw_section_config( string $id ): array {
 	$all = (array) upfw_option( 'upfw_account_sections' );
 
@@ -346,6 +349,13 @@ function upfw_account_rule(): void {
 add_action( 'init', 'upfw_account_rule' );
 
 /** Sin esto WordPress descarta el valor que capturó la regla. */
+/**
+ * @return array<string, mixed>
+ */
+/**
+ * @param array<int, string> $vars
+ * @return array<int, string>
+ */
 function upfw_account_query_var( array $vars ): array {
 	$vars[] = UPFW_ACCOUNT_VAR;
 
@@ -378,6 +388,8 @@ add_action( 'wp_loaded', 'upfw_account_flush_rules' );
  * tipografía y otro tamaño que las de al lado, y eso ya pasó. El texto es el
  * rótulo de la sección —el mismo que se lee en el menú, y el que se cambia
  * desde el admin— y lo que quiera decir otra cosa lo dice por el filtro.
+ *
+ * @param array<string, mixed> $section
  */
 function upfw_account_heading( array $section, string $id, WP_User $user ): string {
 	/**
@@ -393,6 +405,9 @@ function upfw_account_heading( array $section, string $id, WP_User $user ): stri
 }
 
 /** El título, ya listo para imprimir. Vacío si la sección no lleva. */
+/**
+ * @param array<string, mixed> $section
+ */
 function upfw_account_heading_html( array $section, string $id, WP_User $user ): string {
 	$heading = upfw_account_heading( $section, $id, $user );
 

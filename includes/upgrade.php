@@ -38,6 +38,7 @@ function upfw_migrate_from_usmw(): void {
 	// SUBSTRING desde el 6 y no REPLACE: REPLACE cambiaría también un `usmw_`
 	// que apareciera en el medio de la clave, y acá lo que se muda es el
 	// prefijo, no todas las apariciones.
+	// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- es una migración: una vez, sin entrada de nadie, y con wp_cache_flush() al final.
 	$wpdb->query(
 		"UPDATE {$wpdb->options}
 		    SET option_name = CONCAT( 'upfw_', SUBSTRING( option_name, 6 ) )
@@ -53,6 +54,8 @@ function upfw_migrate_from_usmw(): void {
 	// Las claves de los campos viajan además adentro de la definición, y son
 	// las mismas con las que se guardó el valor de cada persona: si no se
 	// mudan las dos, los campos quedan mirando a una meta que ya no existe.
+	// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+
 	$fields = get_option( 'upfw_fields', false );
 
 	if ( is_array( $fields ) ) {

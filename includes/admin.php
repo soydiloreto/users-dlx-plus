@@ -59,6 +59,9 @@ function upfw_admin_title( string $admin_title, string $title ): string {
 add_filter( 'admin_title', 'upfw_admin_title', 10, 2 );
 
 /** Las pantallas del menú, en orden. */
+/**
+ * @return array<string, mixed>
+ */
 function upfw_screens(): array {
 	return array(
 		'upfw'            => __( 'Overview', 'users-plus-for-wordpress' ),
@@ -71,6 +74,7 @@ function upfw_screens(): array {
 	);
 }
 
+/** Menu. */
 function upfw_menu(): void {
 	add_menu_page(
 		upfw_plugin_name(),
@@ -99,6 +103,9 @@ function upfw_menu(): void {
 add_action( 'admin_menu', 'upfw_menu' );
 
 /** La URL de una pantalla del plugin, con los argumentos que haga falta. */
+/**
+ * @param array<string, mixed> $args
+ */
 function upfw_admin_url( string $screen, array $args = array() ): string {
 	return add_query_arg( array_merge( array( 'page' => $screen ), $args ), admin_url( 'admin.php' ) );
 }
@@ -119,6 +126,7 @@ function upfw_tab( array $tabs ): string {
  * Las solapas de una pantalla.
  *
  * @param array<string, string> $tabs
+ * @param array<string, mixed> $extra
  */
 function upfw_tabs( string $screen, array $tabs, string $current, array $extra = array() ): void {
 	if ( count( $tabs ) < 2 ) {
@@ -140,6 +148,13 @@ function upfw_tabs( string $screen, array $tabs, string $current, array $extra =
 }
 
 /** La cabecera común: título y, si hay, solapas. */
+/**
+ * @param array<string, mixed> $tabs
+ */
+/**
+ * @param array<string, mixed> $extra
+ * @param array<string, mixed> $tabs
+ */
 function upfw_screen_open( string $title, string $screen = '', array $tabs = array(), string $current = '', array $extra = array() ): void {
 	echo '<div class="wrap upfw-admin">';
 	printf( '<h1>%s</h1>', esc_html( upfw_screen_title( $title ) ) );
@@ -149,6 +164,7 @@ function upfw_screen_open( string $title, string $screen = '', array $tabs = arr
 	}
 }
 
+/** Screen close. */
 function upfw_screen_close(): void {
 	echo '</div>';
 }

@@ -279,6 +279,9 @@ function upfw_login_url(): string {
 }
 
 /** Guarda los ajustes que llegan de una pantalla del admin. */
+/**
+ * @param array<string, mixed> $input
+ */
 function upfw_save_options( array $input ): void {
 	$defaults = upfw_option_defaults();
 

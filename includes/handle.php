@@ -19,6 +19,9 @@
 defined( 'ABSPATH' ) || exit;
 
 /** Nombres que no se pueden pedir: se confunden con partes del sitio. */
+/**
+ * @return array<int, string>
+ */
 function upfw_handle_reserved(): array {
 	$base = array(
 		'admin', 'administrator', 'administrador', 'root', 'sistema', 'system',
@@ -58,7 +61,7 @@ function upfw_handle_changed( int $user_id ): int {
 
 /** ¿Puede cambiarlo hoy, o todavía está esperando? */
 function upfw_handle_can_change( int $user_id ): bool {
-	$dias = (int) upfw_option( 'upfw_handle_cooldown' );
+	$dias   = (int) upfw_option( 'upfw_handle_cooldown' );
 	$ultimo = upfw_handle_changed( $user_id );
 
 	return $dias <= 0 || 0 === $ultimo || ( time() - $ultimo ) >= $dias * DAY_IN_SECONDS;
@@ -148,12 +151,15 @@ function upfw_handle_validate( string $handle, int $user_id ) {
 function upfw_handle_taken( string $handle, int $user_id ): bool {
 	global $wpdb;
 
-	$found = $wpdb->get_var( $wpdb->prepare(
-		"SELECT ID FROM {$wpdb->users} WHERE ( user_nicename = %s OR user_login = %s ) AND ID <> %d LIMIT 1",
-		$handle,
-		$handle,
-		$user_id
-	) );
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- no hay API para buscar contra dos columnas de wp_users, y una respuesta cacheada acá diría que un nombre está libre cuando ya no lo está.
+	$found = $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT ID FROM {$wpdb->users} WHERE ( user_nicename = %s OR user_login = %s ) AND ID <> %d LIMIT 1",
+			$handle,
+			$handle,
+			$user_id
+		)
+	);
 
 	return null !== $found;
 }
@@ -185,7 +191,13 @@ function upfw_handle_save( int $user_id, string $handle ) {
 		return $clean;
 	}
 
-	$updated = wp_update_user( array( 'ID' => $user_id, 'user_nicename' => $clean, 'nickname' => $clean ) );
+	$updated = wp_update_user(
+		array(
+			'ID'            => $user_id,
+			'user_nicename' => $clean,
+			'nickname'      => $clean,
+		)
+	);
 
 	if ( is_wp_error( $updated ) ) {
 		return $updated;
@@ -207,11 +219,14 @@ function upfw_handle_user( string $handle ): int {
 		return 0;
 	}
 
-	return (int) $wpdb->get_var( $wpdb->prepare(
-		"SELECT ID FROM {$wpdb->users} WHERE user_nicename = %s OR user_login = %s LIMIT 1",
-		$clean,
-		$clean
-	) );
+	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- ídem: dos columnas, y es la consulta que decide a quién sale un enlace de acceso.
+	return (int) $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT ID FROM {$wpdb->users} WHERE user_nicename = %s OR user_login = %s LIMIT 1",
+			$clean,
+			$clean
+		)
+	);
 }
 
 /* ── El formulario ─────────────────────────────────────────────────── */
@@ -234,11 +249,14 @@ function upfw_handle_field( ?int $user_id = null ): string {
 
 	$user = get_userdata( $user_id );
 
-	return upfw_render( 'account/handle-field', array(
-		'handle' => '' !== upfw_handle( $user_id ) ? upfw_handle( $user_id ) : ( $user instanceof WP_User ? $user->user_nicename : '' ),
-		'can'    => upfw_handle_can_change( $user_id ),
-		'next'   => upfw_handle_next_change( $user_id ),
-	) );
+	return upfw_render(
+		'account/handle-field',
+		array(
+			'handle' => '' !== upfw_handle( $user_id ) ? upfw_handle( $user_id ) : ( $user instanceof WP_User ? $user->user_nicename : '' ),
+			'can'    => upfw_handle_can_change( $user_id ),
+			'next'   => upfw_handle_next_change( $user_id ),
+		)
+	);
 }
 
 /** El campo del nombre público. Shortcode: [upfw_handle] */
@@ -251,14 +269,17 @@ function upfw_shortcode_handle(): string {
 
 	upfw_handle_enqueue();
 
-	return upfw_render( 'account/handle', array(
-		'user'    => $user,
-		'handle'  => '' !== upfw_handle( $user->ID ) ? upfw_handle( $user->ID ) : $user->user_nicename,
-		'can'     => upfw_handle_can_change( $user->ID ),
-		'next'    => upfw_handle_next_change( $user->ID ),
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- sólo elige el mensaje.
-		'error'   => isset( $_GET['upfw_handle'] ) ? sanitize_text_field( wp_unslash( $_GET['upfw_handle'] ) ) : '',
-	) );
+	return upfw_render(
+		'account/handle',
+		array(
+			'user'   => $user,
+			'handle' => '' !== upfw_handle( $user->ID ) ? upfw_handle( $user->ID ) : $user->user_nicename,
+			'can'    => upfw_handle_can_change( $user->ID ),
+			'next'   => upfw_handle_next_change( $user->ID ),
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- sólo elige el mensaje.
+			'error'  => isset( $_GET['upfw_handle'] ) ? sanitize_text_field( wp_unslash( $_GET['upfw_handle'] ) ) : '',
+		)
+	);
 }
 add_shortcode( 'upfw_handle', 'upfw_shortcode_handle' );
 
@@ -273,7 +294,7 @@ function upfw_handle_submit(): void {
 
 	$destino = upfw_account_url( 'details' );
 	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verificado arriba.
-	$result  = upfw_handle_save( get_current_user_id(), sanitize_text_field( wp_unslash( $_POST['upfw_handle'] ?? '' ) ) );
+	$result = upfw_handle_save( get_current_user_id(), sanitize_text_field( wp_unslash( $_POST['upfw_handle'] ?? '' ) ) );
 
 	if ( is_wp_error( $result ) ) {
 		wp_safe_redirect( add_query_arg( 'upfw_handle', rawurlencode( $result->get_error_message() ), $destino ) );
@@ -306,19 +327,23 @@ function upfw_handle_check(): void {
 	$clean = upfw_handle_validate( sanitize_text_field( wp_unslash( $_POST['handle'] ?? '' ) ), $user_id );
 
 	if ( is_wp_error( $clean ) ) {
-		wp_send_json_success( array(
-			'free'   => false,
-			'motivo' => $clean->get_error_message(),
-		) );
+		wp_send_json_success(
+			array(
+				'free'   => false,
+				'motivo' => $clean->get_error_message(),
+			)
+		);
 	}
 
-	wp_send_json_success( array(
-		'free'   => true,
-		'url'    => upfw_handle_base_url() . $clean . '/',
-		'motivo' => upfw_handle( $user_id ) === $clean
-			? __( 'This is the one you have now.', 'users-plus-for-wordpress' )
-			: __( 'Nobody is using it: it is yours when you save.', 'users-plus-for-wordpress' ),
-	) );
+	wp_send_json_success(
+		array(
+			'free'   => true,
+			'url'    => upfw_handle_base_url() . $clean . '/',
+			'motivo' => upfw_handle( $user_id ) === $clean
+				? __( 'This is the one you have now.', 'users-plus-for-wordpress' )
+				: __( 'Nobody is using it: it is yours when you save.', 'users-plus-for-wordpress' ),
+		)
+	);
 }
 add_action( 'wp_ajax_upfw_handle_check', 'upfw_handle_check' );
 
@@ -359,14 +384,18 @@ function upfw_handle_enqueue(): void {
 
 	wp_enqueue_script( 'upfw-handle', UPFW_URL . 'assets/upfw-handle.js', array(), upfw_asset_version( 'assets/upfw-handle.js' ), true );
 
-	wp_localize_script( 'upfw-handle', 'upfwHandle', array(
-		'base'      => upfw_handle_base_url(),
-		'unicode'   => (bool) ( 'unicode' === upfw_option( 'upfw_handle_charset' ) ),
-		'ajax'      => admin_url( 'admin-ajax.php' ),
-		'nonce'     => wp_create_nonce( 'upfw_handle_check' ),
-		'checking'  => __( 'Checking…', 'users-plus-for-wordpress' ),
-		'error'     => __( 'We could not check it right now.', 'users-plus-for-wordpress' ),
-	) );
+	wp_localize_script(
+		'upfw-handle',
+		'upfwHandle',
+		array(
+			'base'     => upfw_handle_base_url(),
+			'unicode'  => (bool) ( 'unicode' === upfw_option( 'upfw_handle_charset' ) ),
+			'ajax'     => admin_url( 'admin-ajax.php' ),
+			'nonce'    => wp_create_nonce( 'upfw_handle_check' ),
+			'checking' => __( 'Checking…', 'users-plus-for-wordpress' ),
+			'error'    => __( 'We could not check it right now.', 'users-plus-for-wordpress' ),
+		)
+	);
 }
 
 /**

@@ -2,7 +2,11 @@
 /**
  * El segundo paso del ingreso.
  *
- * Variables: $user_id, $key, $method, $methods, $state.
+ * @var string                              $key
+ * @var string                              $method
+ * @var array<string, array<string, mixed>> $methods
+ * @var string                              $state
+ * @var int                                 $user_id
  *
  * @package UPFW
  */

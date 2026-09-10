@@ -15,6 +15,9 @@
 defined( 'ABSPATH' ) || exit;
 
 /** Las credenciales guardadas de un proveedor. */
+/**
+ * @return array<string, mixed>
+ */
 function upfw_sso_credentials( string $id ): array {
 	$all = (array) get_option( 'upfw_sso', array() );
 
@@ -26,6 +29,9 @@ function upfw_sso_credentials( string $id ): array {
 }
 
 /** Guarda las credenciales de un proveedor sin tocar las de los demás. */
+/**
+ * @param array<string, mixed> $values
+ */
 function upfw_sso_save_credentials( string $id, array $values ): void {
 	$all      = (array) get_option( 'upfw_sso', array() );
 	$previous = upfw_sso_credentials( $id );
@@ -104,6 +110,9 @@ function upfw_sso_ready( string $id ): bool {
 }
 
 /** Los proveedores que se pueden mostrar hoy. */
+/**
+ * @return array<string, mixed>
+ */
 function upfw_sso_available(): array {
 	return array_filter(
 		upfw_sso_providers(),
@@ -173,6 +182,13 @@ function upfw_sso_rule(): void {
 add_action( 'init', 'upfw_sso_rule' );
 
 /** Sin esto WordPress descarta el valor que capturó la regla. */
+/**
+ * @return array<string, mixed>
+ */
+/**
+ * @param array<int, string> $vars
+ * @return array<int, string>
+ */
 function upfw_sso_query_var( array $vars ): array {
 	$vars[] = 'upfw_sso';
 
@@ -199,6 +215,13 @@ function upfw_sso_map_oidc( array $data, string $token ): array {
 }
 
 /** Facebook usa first_name / last_name. */
+/**
+ * @return array<string, mixed>
+ */
+/**
+ * @param array<string, mixed> $data
+ * @return array<string, mixed>
+ */
 function upfw_sso_map_facebook( array $data, string $token ): array {
 	return array(
 		'id'        => (string) ( $data['id'] ?? '' ),
@@ -211,6 +234,9 @@ function upfw_sso_map_facebook( array $data, string $token ): array {
 /**
  * GitHub manda un solo campo `name` y esconde el correo si es privado: hay que
  * pedirlo aparte y quedarse con el primario verificado.
+ *
+ * @param array<string, mixed> $data
+ * @return array<string, mixed>
  */
 function upfw_sso_map_github( array $data, string $token ): array {
 	$email = (string) ( $data['email'] ?? '' );
@@ -234,6 +260,13 @@ function upfw_sso_map_github( array $data, string $token ): array {
 }
 
 /** WordPress.com devuelve el perfil bajo claves propias. */
+/**
+ * @return array<string, mixed>
+ */
+/**
+ * @param array<string, mixed> $data
+ * @return array<string, mixed>
+ */
 function upfw_sso_map_wordpress( array $data, string $token ): array {
 	return array_merge(
 		upfw_sso_split_name( (string) ( $data['display_name'] ?? '' ) ),
@@ -245,6 +278,13 @@ function upfw_sso_map_wordpress( array $data, string $token ): array {
 }
 
 /** Discord: el correo viene sólo si se pidió el scope `email`. */
+/**
+ * @return array<string, mixed>
+ */
+/**
+ * @param array<string, mixed> $data
+ * @return array<string, mixed>
+ */
 function upfw_sso_map_discord( array $data, string $token ): array {
 	return array_merge(
 		upfw_sso_split_name( (string) ( $data['global_name'] ?? $data['username'] ?? '' ) ),
@@ -256,6 +296,13 @@ function upfw_sso_map_discord( array $data, string $token ): array {
 }
 
 /** Amazon: name / email / user_id. */
+/**
+ * @return array<string, mixed>
+ */
+/**
+ * @param array<string, mixed> $data
+ * @return array<string, mixed>
+ */
 function upfw_sso_map_amazon( array $data, string $token ): array {
 	return array_merge(
 		upfw_sso_split_name( (string) ( $data['name'] ?? '' ) ),
@@ -272,6 +319,9 @@ function upfw_sso_map_amazon( array $data, string $token ): array {
  * Se deja vacío a propósito: el flujo de arriba sabe qué hacer con eso —
  * vincular a una cuenta que ya está adentro sí se puede, crear una cuenta
  * nueva no, porque el correo es la identidad del sitio.
+ *
+ * @param array<string, mixed> $data
+ * @return array<string, mixed>
  */
 function upfw_sso_map_twitter( array $data, string $token ): array {
 	$user = (array) ( $data['data'] ?? array() );
@@ -291,7 +341,8 @@ function upfw_sso_map_twitter( array $data, string $token ): array {
  * @return array{name: string, last_name: string}
  */
 function upfw_sso_split_name( string $full ): array {
-	$parts = preg_split( '/\s+/u', trim( $full ) ) ?: array();
+	$parts = preg_split( '/\s+/u', trim( $full ) );
+	$parts = is_array( $parts ) ? $parts : array();
 
 	return array(
 		'name'      => (string) ( $parts[0] ?? '' ),
@@ -328,6 +379,9 @@ function upfw_sso_get( string $url, string $token ): array {
 }
 
 /** Manda a la pantalla del proveedor. */
+/**
+ * @param array<string, mixed> $provider
+ */
 function upfw_sso_authorize( string $id, array $provider, bool $test = false ): void {
 	$credentials = upfw_sso_credentials( $id );
 	$state       = wp_generate_password( 24, false, false );
@@ -340,8 +394,9 @@ function upfw_sso_authorize( string $id, array $provider, bool $test = false ): 
 	// PKCE: en vez del secreto, se manda el hash de un valor al azar y en el
 	// canje se manda el valor. Así el código robado en el camino de vuelta no
 	// le sirve a nadie más. X lo exige; al resto no le molesta.
-	if ( ! empty( $provider['pkce'] ) ) {
-		$verifier             = wp_generate_password( 64, false, false );
+	$verifier = empty( $provider['pkce'] ) ? '' : wp_generate_password( 64, false, false );
+
+	if ( '' !== $verifier ) {
 		$guardado['verifier'] = $verifier;
 	}
 
@@ -360,16 +415,20 @@ function upfw_sso_authorize( string $id, array $provider, bool $test = false ): 
 		$provider['extra']
 	);
 
-	if ( ! empty( $provider['pkce'] ) ) {
+	if ( '' !== $verifier ) {
 		$args['code_challenge']        = rtrim( strtr( base64_encode( hash( 'sha256', $verifier, true ) ), '+/', '-_' ), '=' );
 		$args['code_challenge_method'] = 'S256';
 	}
 
+	// phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- va al proveedor, que es justamente otro dominio: wp_safe_redirect() lo frenaría.
 	wp_redirect( add_query_arg( $args, $provider['authorize'] ) );
 	exit;
 }
 
 /** Cambia el código por un token de acceso. */
+/**
+ * @param array<string, mixed> $provider
+ */
 function upfw_sso_token( string $id, array $provider, string $code, string $verifier = '' ): string {
 	$credentials = upfw_sso_credentials( $id );
 
@@ -417,6 +476,8 @@ function upfw_sso_token( string $id, array $provider, string $code, string $veri
  * La vinculación es por correo, igual que el ajuste "Link accounts by email"
  * de Nextend: si ya hay una cuenta con ese correo, es de la misma persona.
  * Vale porque el correo lo verificó el proveedor, no nosotros.
+ *
+ * @param array<string, mixed> $identity
  */
 function upfw_sso_user( string $id, array $identity ): int {
 	$meta = 'upfw_sso_' . $id;
@@ -523,7 +584,12 @@ function upfw_sso_query(): array {
 
 	return $query;
 }
-add_action( 'init', 'upfw_sso_query', 0 );
+
+/** La copia del pedido, tomada temprano. El valor lo lee upfw_sso_param(). */
+function upfw_sso_query_snapshot(): void {
+	upfw_sso_query();
+}
+add_action( 'init', 'upfw_sso_query_snapshot', 0 );
 
 /** Un parámetro del pedido, ya limpio de barras. */
 function upfw_sso_param( string $key ): string {
@@ -539,6 +605,8 @@ function upfw_sso_has( string $key ): bool {
 
 /**
  * El único punto de entrada: dispara la ida y atiende la vuelta.
+ *
+ * @param WP|null $wp El objeto que pasa `parse_request`, con la ruta ya resuelta.
  */
 function upfw_sso_handle( $wp = null ): void {
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended -- el `state` cumple ese papel.
@@ -679,9 +747,11 @@ function upfw_sso_handle( $wp = null ): void {
 	// es también el que sabe si falta un segundo factor.
 	upfw_complete_login( $user_id, 'sso', true, $redirect );
 }
+
 /*
-Va en `parse_request` y no en `init` porque es ahí donde WordPress ya
-	resolvió la ruta: antes de eso /sso/google/ todavía no es nada. */
+ * Va en `parse_request` y no en `init` porque es ahí donde WordPress ya
+ * resolvió la ruta: antes de eso /sso/google/ todavía no es nada.
+ */
 add_action( 'parse_request', 'upfw_sso_handle' );
 
 /** Vuelve a la pantalla de acceso con el aviso de que no se pudo. */
@@ -716,6 +786,9 @@ function upfw_sso_unlink(): void {
 add_action( 'admin_post_upfw_sso_unlink', 'upfw_sso_unlink' );
 
 /** ¿Qué redes tiene vinculadas esta persona? */
+/**
+ * @return array<int<0, max>, string>
+ */
 function upfw_sso_linked( int $user_id ): array {
 	$linked = array();
 

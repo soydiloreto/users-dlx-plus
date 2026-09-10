@@ -32,8 +32,7 @@ defined( 'ABSPATH' ) || exit;
 			}
 			?>
 		</p>
-		<?php return; ?>
-	<?php endif; ?>
+	<?php else : ?>
 
 	<ul class="upfw-linked">
 		<?php
@@ -42,9 +41,10 @@ defined( 'ABSPATH' ) || exit;
 			?>
 			<?php
 			/*
-			Un logo con color propio —el de Google, el de Microsoft— no se
-					pinta encima: se deja sobre fondo claro, que es lo que piden
-					sus guías y lo único donde se lee. */
+			 * Un logo con color propio —el de Google, el de Microsoft— no se
+			 * pinta encima: se deja sobre fondo claro, que es lo que piden
+			 * sus guías y lo único donde se lee.
+			 */
 			?>
 			<li class="upfw-linked__item <?php echo $upfw_is_linked ? 'is-linked' : ''; ?> <?php echo upfw_sso_icon_is_colored( $upfw_id ) ? 'has-color' : ''; ?>" style="--upfw-brand: <?php echo esc_attr( $upfw_provider['color'] ); ?>">
 				<span class="upfw-linked__logo"><?php echo upfw_sso_icon( $upfw_id ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- SVG propio. ?></span>
@@ -75,4 +75,5 @@ defined( 'ABSPATH' ) || exit;
 			</li>
 		<?php endforeach; ?>
 	</ul>
+	<?php endif; ?>
 </div>

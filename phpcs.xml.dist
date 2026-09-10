@@ -43,6 +43,44 @@
         </properties>
     </rule>
 
+    <!-- Documentación de parámetros: la da el tipado nativo, no el docblock.
+
+         WPCS pide un @param por cada parámetro. La regla viene de cuando PHP
+         no tenía tipos: el docblock era el único lugar donde decir que algo
+         era un `int`. Este plugin declara PHP 8.0 como mínimo y tipa las
+         firmas de verdad —`function upfw_field_editable( array $field, int
+         $user_id ): bool`— así que el @param repetiría lo que el intérprete
+         ya verifica, y con la desventaja de que un docblock puede quedar
+         desactualizado y un tipo nativo no.
+
+         Lo que sí se exige sigue exigiéndose: los docblocks están, explican
+         POR QUÉ existe cada función, y las que devuelven una forma que el
+         tipo nativo no alcanza a describir —un array con claves— llevan su
+         @return. Eso no lo reemplaza ningún tipo. -->
+    <rule ref="Squiz.Commenting.FunctionComment.MissingParamTag">
+        <severity>0</severity>
+    </rule>
+    <rule ref="Squiz.Commenting.FunctionComment.ParamNameNoMatch">
+        <severity>0</severity>
+    </rule>
+    <rule ref="Squiz.Commenting.FunctionComment.IncorrectTypeHint">
+        <severity>0</severity>
+    </rule>
+
+    <!-- Un ítem por línea en un array de una sola dimensión.
+
+         La regla existe para que un array de configuración se lea de arriba
+         abajo, y para eso está bien. Pero también alcanza a las listas de
+         palabras —los nombres de usuario reservados, los prefijos de un user
+         agent— donde partir veintisiete palabras en veintisiete renglones no
+         hace más legible nada: hace una columna que no se lee.
+
+         Los arrays con claves siguen exigiendo un renglón por ítem, que es el
+         caso en el que la regla ayuda de verdad. -->
+    <rule ref="WordPress.Arrays.ArrayDeclarationSpacing.ArrayItemNoNewLine">
+        <severity>0</severity>
+    </rule>
+
     <!-- Text domain check -->
     <rule ref="WordPress.WP.I18n">
         <properties>

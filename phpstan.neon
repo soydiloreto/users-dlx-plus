@@ -11,6 +11,12 @@ parameters:
   bootstrapFiles:
     - phpstan-bootstrap.php
 
+  # WP-CLI no está cargado cuando corre el sitio, así que el comando del
+  # plugin vive detrás de un `defined( 'WP_CLI' )`. Los stubs le dan al
+  # análisis la clase que en tiempo real trae WP-CLI.
+  scanFiles:
+    - vendor/php-stubs/wp-cli-stubs/wp-cli-stubs.php
+
   paths:
     - users-plus-for-wordpress.php
     - includes
@@ -24,17 +30,13 @@ parameters:
       - .wordpress-org/*
       - assets/*
 
-  # Modern PHP-7.4 minimum. testVersion in PHPCS handles the
-  # cross-version compatibility checks; PHPStan focuses on correctness.
-  phpVersion: 70400
+  # El plugin declara PHP 8.0 como mínimo, igual que su cabecera.
+  phpVersion: 80000
 
-  # These constants are stubbed in phpstan-bootstrap.php so the file-level
-  # `define()`s become visible to static analysis, but their *runtime* values
-  # are user-controlled (typically from wp-config.php) and may flip on a
-  # per-deployment basis. Mark them dynamic so PHPStan does not collapse
-  # `if ( DILUX_DEV_MODE )` into "always false" based on the stub.
+  # Se stubean en phpstan-bootstrap.php para que el análisis las vea, pero su
+  # valor real sale de wp-config.php y cambia por instalación. Marcarlas
+  # dinámicas evita que PHPStan resuelva un `if ( WP_DEBUG )` como si siempre
+  # fuera falso por el valor del stub.
   dynamicConstantNames:
-    - DILUX_DEV_MODE
-    - DILUX_VERBOSE_LOGGING
-    - DILUX_API_URL
     - WP_DEBUG
+    - COOKIEHASH

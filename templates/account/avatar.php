@@ -2,7 +2,9 @@
 /**
  * La foto de perfil.
  *
- * Variables: $user, $has, $error.
+ * @var string  $error
+ * @var bool    $has
+ * @var WP_User $user
  *
  * @package UPFW
  */

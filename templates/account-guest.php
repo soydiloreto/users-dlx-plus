@@ -2,7 +2,7 @@
 /**
  * Lo que ve alguien sin sesión en la página de cuenta.
  *
- * Variables: $url.
+ * @var string $url
  *
  * @package UPFW
  */

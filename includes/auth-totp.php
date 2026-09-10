@@ -36,7 +36,7 @@ const UPFW_TOTP_DRIFT = 1;
 /** Un secreto nuevo, en base32 y del largo que recomienda el RFC. */
 function upfw_totp_secret_new( int $length = 32 ): string {
 	$secret = '';
-	$bytes  = random_bytes( $length );
+	$bytes  = random_bytes( max( 1, $length ) );
 
 	for ( $i = 0; $i < $length; $i++ ) {
 		$secret .= UPFW_BASE32[ ord( $bytes[ $i ] ) & 31 ];

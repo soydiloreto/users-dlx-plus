@@ -218,7 +218,16 @@ function upfw_field_input( array $field, string $value, string $id = '' ): void 
 
 /* ── Perfil del escritorio ─────────────────────────────────────────── */
 
+/**
+ * Los campos del plugin, en el perfil del escritorio.
+ *
+ * @param WP_User|string $user La persona, o el string que manda el hook de alta.
+ */
 function upfw_profile_fields( $user ): void {
+	if ( ! $user instanceof WP_User ) {
+		return;
+	}
+
 	$fields = upfw_fields();
 
 	if ( array() === $fields ) {
@@ -236,6 +245,7 @@ function upfw_profile_fields( $user ): void {
 add_action( 'show_user_profile', 'upfw_profile_fields' );
 add_action( 'edit_user_profile', 'upfw_profile_fields' );
 
+/** Profile save. */
 function upfw_profile_save( int $user_id ): void {
 	if ( ! current_user_can( 'edit_user', $user_id ) ) {
 		return;
@@ -249,6 +259,7 @@ add_action( 'edit_user_profile_update', 'upfw_profile_save' );
 
 /* ── Alta desde el escritorio (Usuarios → Añadir) ──────────────────── */
 
+/** Los campos del plugin, en el alta de una persona desde el escritorio. */
 function upfw_new_user_fields( string $type ): void {
 	$fields = upfw_fields();
 
@@ -293,7 +304,10 @@ add_action( 'register_form', 'upfw_register_form_fields' );
 /**
  * Un campo obligatorio vacío no deja completar el registro.
  *
- * @param WP_Error $errores
+ * @param WP_Error $errores Los errores que ya haya juntado WordPress.
+ * @param string   $login   El usuario que se está dando de alta.
+ * @param string   $email   Su correo.
+ * @return WP_Error
  */
 function upfw_register_validate( $errores, $login, $email ) {
 	foreach ( upfw_fields() as $field ) {
@@ -301,7 +315,7 @@ function upfw_register_validate( $errores, $login, $email ) {
 			continue;
 		}
 
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- lo verifica el propio registro de WordPress.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- lo verifica el registro de WordPress; el valor lo sanea upfw_sanitize() según el tipo del campo.
 		$value = upfw_sanitize( $field, (string) wp_unslash( $_POST[ $field['key'] ] ?? '' ) );
 
 		if ( '' === $value ) {
@@ -320,6 +334,7 @@ function upfw_register_validate( $errores, $login, $email ) {
 }
 add_filter( 'registration_errors', 'upfw_register_validate', 10, 3 );
 
+/** Register save. */
 function upfw_register_save( int $user_id ): void {
 	// phpcs:ignore WordPress.Security.NonceVerification.Missing -- lo verifica el propio registro de WordPress.
 	upfw_save( $user_id, $_POST );

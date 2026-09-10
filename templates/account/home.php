@@ -2,7 +2,7 @@
 /**
  * La portada del área de cuenta: el resumen.
  *
- * Variables: $user, $cards.
+ * @var array<int, array<string, string>> $cards
  *
  * @package UPFW
  */

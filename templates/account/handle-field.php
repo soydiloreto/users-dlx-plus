@@ -2,7 +2,9 @@
 /**
  * El campo del nombre público, para meter dentro de otro formulario.
  *
- * Variables: $handle, $can, $next.
+ * @var bool   $can
+ * @var string $handle
+ * @var int    $next
  *
  * @package UPFW
  */

@@ -44,7 +44,7 @@ function upfw_mail_failed( $error ): void {
 		array(
 			'ok'    => 0,
 			'time'  => time(),
-			'error' => is_wp_error( $error ) ? $error->get_error_message() : '',
+			'error' => $error->get_error_message(),
 		)
 	);
 }

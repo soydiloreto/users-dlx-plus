@@ -12,6 +12,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
+/** Screen appearance. */
 function upfw_screen_appearance(): void {
 	$tabs = array(
 		'styles' => __( 'Styles', 'users-plus-for-wordpress' ),
@@ -28,7 +29,7 @@ function upfw_screen_appearance(): void {
 					'upfw_avatar_upload'   => isset( $_POST['upfw_avatar_upload'] ) ? 1 : 0,
 					'upfw_avatar_gravatar' => isset( $_POST['upfw_avatar_gravatar'] ) ? 1 : 0,
 					'upfw_avatar_initials' => isset( $_POST['upfw_avatar_initials'] ) ? 1 : 0,
-					'upfw_avatar_max_kb'   => (int) ( $_POST['upfw_avatar_max_kb'] ?? 2048 ),
+					'upfw_avatar_max_kb'   => absint( wp_unslash( $_POST['upfw_avatar_max_kb'] ?? 2048 ) ),
 				)
 			);
 		} else {

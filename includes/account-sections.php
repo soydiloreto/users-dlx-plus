@@ -154,7 +154,9 @@ function upfw_account_heading_home( string $heading, string $id, WP_User $user )
 }
 add_filter( 'upfw_account_heading', 'upfw_account_heading_home', 10, 3 );
 
+/** Section home. */
 function upfw_section_home( WP_User $user ): void {
+	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- plantilla, ya escapada.
 	echo upfw_render(
 		'account/home',
 		array(
@@ -166,10 +168,15 @@ function upfw_section_home( WP_User $user ): void {
 
 /* ── Datos personales ──────────────────────────────────────────────── */
 
+/** Pinta la sección de datos personales. */
 function upfw_section_details( WP_User $user ): void {
 	echo upfw_render( 'account/details', array( 'user' => $user ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- plantilla, ya escapada.
 }
 
+/** Summary details. */
+/**
+ * @return array<string, mixed>
+ */
 function upfw_summary_details(): array {
 	$user   = wp_get_current_user();
 	$total  = 0;
@@ -196,10 +203,15 @@ function upfw_summary_details(): array {
 
 /* ── Cuentas vinculadas ────────────────────────────────────────────── */
 
+/** Pinta la sección de cuentas vinculadas. */
 function upfw_section_accounts( WP_User $user ): void {
 	echo upfw_render( 'account/accounts', array( 'user' => $user ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- plantilla, ya escapada.
 }
 
+/** Summary accounts. */
+/**
+ * @return array<string, mixed>
+ */
 function upfw_summary_accounts(): array {
 	if ( array() === upfw_sso_available() ) {
 		return array();
@@ -216,10 +228,15 @@ function upfw_summary_accounts(): array {
 
 /* ── Seguridad ─────────────────────────────────────────────────────── */
 
+/** Pinta la sección de seguridad. */
 function upfw_section_security( WP_User $user ): void {
 	echo upfw_render( 'account/security', array( 'user' => $user ) ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- plantilla, ya escapada.
 }
 
+/** Summary security. */
+/**
+ * @return array<string, mixed>
+ */
 function upfw_summary_security(): array {
 	$open = count( upfw_sessions( get_current_user_id() ) );
 
@@ -256,6 +273,7 @@ function upfw_notification_prefs(): array {
 	return (array) apply_filters( 'upfw_notification_prefs', upfw_default_notifications() );
 }
 
+/** Section notifications. */
 function upfw_section_notifications( WP_User $user ): void {
 	echo do_shortcode( '[upfw_notifications]' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- shortcode propio.
 }
@@ -337,7 +355,7 @@ function upfw_data_requests( string $email, string $kind = '' ): array {
 		)
 	);
 
-	return is_array( $found ) ? $found : array();
+	return $found;
 }
 
 /**
@@ -378,6 +396,7 @@ function upfw_data_mail_ready(): bool {
 	return upfw_mail_works();
 }
 
+/** Section privacy. */
 function upfw_section_privacy( WP_User $user ): void {
 	// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- plantilla, ya escapada.
 	echo upfw_render(

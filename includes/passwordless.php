@@ -83,7 +83,7 @@ function upfw_block_wp_login(): void {
 	}
 
 	// POST al formulario nativo: no redirigir en silencio, cortar.
-	if ( 'POST' === ( $_SERVER['REQUEST_METHOD'] ?? '' ) ) {
+	if ( 'POST' === sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ?? '' ) ) ) {
 		wp_die(
 			esc_html__( 'This site signs you in without a password: with your email or with a social account.', 'users-plus-for-wordpress' ),
 			esc_html__( 'Sign in', 'users-plus-for-wordpress' ),
@@ -101,6 +101,9 @@ add_action( 'login_init', 'upfw_block_wp_login' );
  *
  * Sin esto, con `users_can_register` activo, `wp-signup.php` seguiría dando de
  * alta gente con contraseña por correo.
+ *
+ * @param mixed $value Lo que venía de la option.
+ * @return mixed
  */
 function upfw_block_registration( $value ) {
 	$forced = (string) upfw_option( 'upfw_wp_registration' );
@@ -141,7 +144,7 @@ function upfw_wp_profile_guard(): void {
 		return;
 	}
 
-	$pantalla = basename( (string) ( $_SERVER['SCRIPT_NAME'] ?? '' ) );
+	$pantalla = basename( sanitize_text_field( wp_unslash( $_SERVER['SCRIPT_NAME'] ?? '' ) ) );
 
 	if ( 'profile.php' !== $pantalla ) {
 		return;

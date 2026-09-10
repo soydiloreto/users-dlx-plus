@@ -17,6 +17,9 @@
 defined( 'ABSPATH' ) || exit;
 
 /** Los tres acabados posibles, con su nombre para la pantalla de ajustes. */
+/**
+ * @return array<string, mixed>
+ */
 function upfw_sso_button_skins(): array {
 	return array(
 		'brand' => __( 'Each brand’s colour', 'users-plus-for-wordpress' ),
@@ -26,6 +29,9 @@ function upfw_sso_button_skins(): array {
 }
 
 /** Las formas posibles. */
+/**
+ * @return array<string, mixed>
+ */
 function upfw_sso_button_shapes(): array {
 	return array(
 		'rounded' => __( 'Rounded corners', 'users-plus-for-wordpress' ),
@@ -35,6 +41,9 @@ function upfw_sso_button_shapes(): array {
 }
 
 /** Qué muestra el botón. */
+/**
+ * @return array<string, mixed>
+ */
 function upfw_sso_button_contents(): array {
 	return array(
 		'icon-text' => __( 'Logo and text', 'users-plus-for-wordpress' ),
@@ -43,6 +52,9 @@ function upfw_sso_button_contents(): array {
 }
 
 /** Cuántos por fila. */
+/**
+ * @return array<int, string>
+ */
 function upfw_sso_button_columns(): array {
 	return array(
 		1 => __( 'One per row', 'users-plus-for-wordpress' ),
@@ -52,6 +64,9 @@ function upfw_sso_button_columns(): array {
 }
 
 /** El texto de un botón, con la plantilla de los ajustes. */
+/**
+ * @param array<string, mixed> $provider
+ */
 function upfw_sso_button_text( array $provider ): string {
 	$template = trim( (string) upfw_option( 'upfw_sso_button_text' ) );
 

@@ -2,7 +2,9 @@
 /**
  * El nombre público.
  *
- * Variables: $user, $handle, $can, $next, $error.
+ * @var bool   $can
+ * @var string $error
+ * @var int    $next
  *
  * @package UPFW
  */

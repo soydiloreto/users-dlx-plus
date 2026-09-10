@@ -11,6 +11,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
+/** Screen social. */
 function upfw_screen_social(): void {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$id        = isset( $_GET['provider'] ) ? sanitize_key( wp_unslash( $_GET['provider'] ) ) : '';
@@ -48,28 +49,32 @@ function upfw_screen_social(): void {
 	$current = upfw_tab( $tabs );
 
 	if ( isset( $_POST['upfw_social_nonce'] ) && wp_verify_nonce( sanitize_key( wp_unslash( $_POST['upfw_social_nonce'] ) ), 'upfw_social' ) ) {
-		upfw_save_options( array(
-			// phpcs:disable WordPress.Security.NonceVerification.Missing -- verificado arriba.
-			'upfw_sso_link_by_email' => isset( $_POST['upfw_sso_link_by_email'] ) ? 1 : 0,
-			'upfw_sso_register'      => isset( $_POST['upfw_sso_register'] ) ? 1 : 0,
-			'upfw_sso_verified_only' => isset( $_POST['upfw_sso_verified_only'] ) ? 1 : 0,
-			'upfw_sso_blocked_roles' => (array) ( $_POST['upfw_sso_blocked_roles'] ?? array() ),
-			// phpcs:enable
-		) );
+		upfw_save_options(
+			array(
+				// phpcs:disable WordPress.Security.NonceVerification.Missing -- verificado arriba.
+				'upfw_sso_link_by_email' => isset( $_POST['upfw_sso_link_by_email'] ) ? 1 : 0,
+				'upfw_sso_register'      => isset( $_POST['upfw_sso_register'] ) ? 1 : 0,
+				'upfw_sso_verified_only' => isset( $_POST['upfw_sso_verified_only'] ) ? 1 : 0,
+				'upfw_sso_blocked_roles' => array_map( 'sanitize_key', (array) wp_unslash( $_POST['upfw_sso_blocked_roles'] ?? array() ) ),
+				// phpcs:enable
+			)
+		);
 
 		upfw_notice( __( 'Settings saved.', 'users-plus-for-wordpress' ) );
 	}
 
 	if ( isset( $_POST['upfw_buttons_nonce'] ) && wp_verify_nonce( sanitize_key( wp_unslash( $_POST['upfw_buttons_nonce'] ) ), 'upfw_buttons' ) ) {
-		upfw_save_options( array(
-			// phpcs:disable WordPress.Security.NonceVerification.Missing -- verificado arriba.
-			'upfw_sso_button_skin'    => sanitize_key( wp_unslash( $_POST['upfw_sso_button_skin'] ?? 'brand' ) ),
-			'upfw_sso_button_shape'   => sanitize_key( wp_unslash( $_POST['upfw_sso_button_shape'] ?? 'rounded' ) ),
-			'upfw_sso_button_show'    => sanitize_key( wp_unslash( $_POST['upfw_sso_button_show'] ?? 'icon-text' ) ),
-			'upfw_sso_button_text'    => wp_unslash( $_POST['upfw_sso_button_text'] ?? '' ),
-			'upfw_sso_button_columns' => (int) ( $_POST['upfw_sso_button_columns'] ?? 2 ),
-			// phpcs:enable
-		) );
+		upfw_save_options(
+			array(
+				// phpcs:disable WordPress.Security.NonceVerification.Missing -- verificado arriba.
+				'upfw_sso_button_skin'    => sanitize_key( wp_unslash( $_POST['upfw_sso_button_skin'] ?? 'brand' ) ),
+				'upfw_sso_button_shape'   => sanitize_key( wp_unslash( $_POST['upfw_sso_button_shape'] ?? 'rounded' ) ),
+				'upfw_sso_button_show'    => sanitize_key( wp_unslash( $_POST['upfw_sso_button_show'] ?? 'icon-text' ) ),
+				'upfw_sso_button_text'    => sanitize_text_field( wp_unslash( $_POST['upfw_sso_button_text'] ?? '' ) ),
+				'upfw_sso_button_columns' => absint( wp_unslash( $_POST['upfw_sso_button_columns'] ?? 2 ) ),
+				// phpcs:enable
+			)
+		);
 
 		upfw_notice( __( 'Buttons saved.', 'users-plus-for-wordpress' ) );
 	}
@@ -91,8 +96,10 @@ function upfw_screen_social(): void {
 	upfw_intro( __( 'One app per network: create it in the provider’s developer console, paste the client ID and the secret, and copy the redirect URL that each card shows. Then run the live test — a provider cannot be enabled until the round trip actually works.', 'users-plus-for-wordpress' ) );
 	?>
 	<div class="upfw-cards">
-		<?php foreach ( $providers as $slug => $provider ) :
-			$state = upfw_sso_state( $slug ); ?>
+		<?php
+		foreach ( $providers as $slug => $provider ) :
+			$state = upfw_sso_state( $slug );
+			?>
 			<div class="upfw-card">
 				<div class="upfw-card__top" style="background: <?php echo esc_attr( $provider['color'] ); ?>">
 					<span class="upfw-card__mark"><?php echo esc_html( mb_substr( $provider['name'], 0, 1 ) ); ?></span>
@@ -104,7 +111,16 @@ function upfw_screen_social(): void {
 					<span class="upfw-card__acciones">
 						<?php if ( 'enabled' === $state || 'disabled' === $state ) : ?>
 							<a class="button button-small"
-								href="<?php echo esc_url( wp_nonce_url( upfw_admin_url( 'upfw-social', array( 'red' => $slug, 'upfw_action' => 'enabled' === $state ? 'off' : 'on' ) ), 'upfw_social_toggle' ) ); ?>">
+								<?php
+								$upfw_toggle = upfw_admin_url(
+									'upfw-social',
+									array(
+										'red'         => $slug,
+										'upfw_action' => 'enabled' === $state ? 'off' : 'on',
+									)
+								);
+								?>
+								href="<?php echo esc_url( wp_nonce_url( $upfw_toggle, 'upfw_social_toggle' ) ); ?>">
 								<?php echo 'enabled' === $state ? esc_html__( 'Disable', 'users-plus-for-wordpress' ) : esc_html__( 'Enable', 'users-plus-for-wordpress' ); ?>
 							</a>
 						<?php endif; ?>
@@ -208,6 +224,7 @@ function upfw_screen_social_buttons( array $providers ): void {
 					<td>
 						<input type="text" class="regular-text" id="upfw_sso_button_text" name="upfw_sso_button_text"
 							value="<?php echo esc_attr( (string) upfw_option( 'upfw_sso_button_text' ) ); ?>"
+							<?php /* translators: %s: nombre de la red social, que pone el navegador al pintar el botón. */ ?>
 							placeholder="<?php echo esc_attr( __( 'Continue with %s', 'users-plus-for-wordpress' ) ); ?>">
 						<p class="description">
 							<?php
@@ -326,6 +343,9 @@ function upfw_screen_social_general(): void {
 }
 
 /** La ficha de un proveedor, con sus propias solapas. */
+/**
+ * @param array<string, mixed> $provider
+ */
 function upfw_screen_provider( string $id, array $provider ): void {
 	$tabs = array(
 		'start'    => __( 'Getting started', 'users-plus-for-wordpress' ),
@@ -337,11 +357,14 @@ function upfw_screen_provider( string $id, array $provider ): void {
 
 	if ( isset( $_POST['upfw_provider_nonce'] ) && wp_verify_nonce( sanitize_key( wp_unslash( $_POST['upfw_provider_nonce'] ) ), 'upfw_provider' ) ) {
 		// phpcs:disable WordPress.Security.NonceVerification.Missing -- verificado arriba.
-		upfw_sso_save_credentials( $id, array(
-			'active' => isset( $_POST['upfw_active'] ) ? 1 : 0,
-			'id'     => wp_unslash( $_POST['upfw_client_id'] ?? '' ),
-			'secret' => wp_unslash( $_POST['upfw_client_secret'] ?? '' ),
-		) );
+		upfw_sso_save_credentials(
+			$id,
+			array(
+				'active' => isset( $_POST['upfw_active'] ) ? 1 : 0,
+				'id'     => sanitize_text_field( wp_unslash( $_POST['upfw_client_id'] ?? '' ) ),
+				'secret' => sanitize_text_field( wp_unslash( $_POST['upfw_client_secret'] ?? '' ) ),
+			)
+		);
 		// phpcs:enable
 
 		upfw_notice( __( 'Provider saved.', 'users-plus-for-wordpress' ) );
@@ -411,6 +434,9 @@ function upfw_screen_provider( string $id, array $provider ): void {
 }
 
 /** «Cómo empezar»: qué crear, dónde, y qué URL pegar. */
+/**
+ * @param array<string, mixed> $provider
+ */
 function upfw_screen_provider_start( string $id, array $provider ): void {
 	$guide = upfw_sso_guide( $id );
 	?>
@@ -471,7 +497,16 @@ function upfw_screen_provider_start( string $id, array $provider ): void {
 	<h3><?php esc_html_e( 'And then, here', 'users-plus-for-wordpress' ); ?></h3>
 	<p><?php esc_html_e( 'Paste the client ID and the secret in Settings, run the live test, and turn the button on.', 'users-plus-for-wordpress' ); ?></p>
 	<p>
-		<a class="button button-primary" href="<?php echo esc_url( upfw_admin_url( 'upfw-social', array( 'provider' => $id, 'tab' => 'settings' ) ) ); ?>">
+		<?php
+		$upfw_ajustes = upfw_admin_url(
+			'upfw-social',
+			array(
+				'provider' => $id,
+				'tab'      => 'settings',
+			)
+		);
+		?>
+		<a class="button button-primary" href="<?php echo esc_url( $upfw_ajustes ); ?>">
 			<?php esc_html_e( 'I already created the app', 'users-plus-for-wordpress' ); ?>
 		</a>
 	</p>
@@ -568,7 +603,16 @@ function upfw_screen_provider_state( string $id, array $provider, string $state 
 		<p>
 			<?php upfw_sso_test_button( $id, $state ); ?>
 			<a class="button <?php echo 'enabled' === $state ? '' : 'button-primary'; ?>"
-				href="<?php echo esc_url( wp_nonce_url( upfw_admin_url( 'upfw-social', array( 'red' => $id, 'upfw_action' => 'enabled' === $state ? 'off' : 'on' ) ), 'upfw_social_toggle' ) ); ?>">
+				<?php
+				$upfw_toggle = upfw_admin_url(
+					'upfw-social',
+					array(
+						'red'         => $id,
+						'upfw_action' => 'enabled' === $state ? 'off' : 'on',
+					)
+				);
+				?>
+				href="<?php echo esc_url( wp_nonce_url( $upfw_toggle, 'upfw_social_toggle' ) ); ?>">
 				<?php echo 'enabled' === $state ? esc_html__( 'Disable', 'users-plus-for-wordpress' ) : esc_html__( 'Enable', 'users-plus-for-wordpress' ); ?>
 			</a>
 		</p>

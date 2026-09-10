@@ -2,7 +2,8 @@
 /**
  * Notificaciones.
  *
- * Variables: $user, $prefs.
+ * @var array<string, array<string, string>> $prefs
+ * @var WP_User                              $user
  *
  * @package UPFW
  */

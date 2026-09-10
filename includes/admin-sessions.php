@@ -12,6 +12,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
+/** Screen sessions. */
 function upfw_screen_sessions(): void {
 	$tabs = array(
 		'open'     => __( 'Open sessions', 'users-plus-for-wordpress' ),
@@ -21,13 +22,15 @@ function upfw_screen_sessions(): void {
 	$current = upfw_tab( $tabs );
 
 	if ( isset( $_POST['upfw_sessions_nonce'] ) && wp_verify_nonce( sanitize_key( wp_unslash( $_POST['upfw_sessions_nonce'] ) ), 'upfw_sessions_options' ) ) {
-		upfw_save_options( array(
-			// phpcs:disable WordPress.Security.NonceVerification.Missing -- verificado arriba.
-			'upfw_session_long_days'  => (int) ( $_POST['upfw_session_long_days'] ?? 30 ),
-			'upfw_session_short_days' => (int) ( $_POST['upfw_session_short_days'] ?? 2 ),
-			'upfw_sessions_show'      => isset( $_POST['upfw_sessions_show'] ) ? 1 : 0,
-			// phpcs:enable
-		) );
+		upfw_save_options(
+			array(
+				// phpcs:disable WordPress.Security.NonceVerification.Missing -- verificado arriba.
+				'upfw_session_long_days'  => absint( wp_unslash( $_POST['upfw_session_long_days'] ?? 30 ) ),
+				'upfw_session_short_days' => absint( wp_unslash( $_POST['upfw_session_short_days'] ?? 2 ) ),
+				'upfw_sessions_show'      => isset( $_POST['upfw_sessions_show'] ) ? 1 : 0,
+				// phpcs:enable
+			)
+		);
 
 		upfw_notice( __( 'Settings saved.', 'users-plus-for-wordpress' ) );
 	}
@@ -48,6 +51,7 @@ function upfw_screen_sessions(): void {
 	upfw_screen_close();
 }
 
+/** Screen sessions duration. */
 function upfw_screen_sessions_duration(): void {
 	upfw_intro( __( 'By default WordPress ends the session after 2 days, or 14 with “remember me”. On a passwordless site that means going through the email again and again.', 'users-plus-for-wordpress' ) );
 	?>
@@ -85,6 +89,7 @@ function upfw_screen_sessions_duration(): void {
 	<?php
 }
 
+/** Screen sessions list. */
 function upfw_screen_sessions_list(): void {
 	// phpcs:disable WordPress.Security.NonceVerification.Recommended -- es una búsqueda de lectura.
 	$search = isset( $_GET['s'] ) ? sanitize_text_field( wp_unslash( $_GET['s'] ) ) : '';
@@ -114,7 +119,17 @@ function upfw_screen_sessions_list(): void {
 			<?php esc_html_e( 'per page', 'users-plus-for-wordpress' ); ?>
 		</label>
 
-		<a class="button upfw-buscador__refrescar" href="<?php echo esc_url( upfw_admin_url( 'upfw-sessions', array( 's' => $search, 'per' => $per, 'paged' => $page ) ) ); ?>">
+		<?php
+		$upfw_refrescar = upfw_admin_url(
+			'upfw-sessions',
+			array(
+				's'     => $search,
+				'per'   => $per,
+				'paged' => $page,
+			)
+		);
+		?>
+		<a class="button upfw-buscador__refrescar" href="<?php echo esc_url( $upfw_refrescar ); ?>">
 			<span class="dashicons dashicons-update" aria-hidden="true"></span>
 			<?php esc_html_e( 'Refresh', 'users-plus-for-wordpress' ); ?>
 		</a>
@@ -150,15 +165,17 @@ function upfw_screen_sessions_list(): void {
 				<tr><td colspan="8"><?php esc_html_e( 'Nobody matches that.', 'users-plus-for-wordpress' ); ?></td></tr>
 			<?php endif; ?>
 
-			<?php foreach ( $result['rows'] as $row ) :
-				$vigente = $row['expires'] > time(); ?>
+			<?php
+			foreach ( $result['rows'] as $row ) :
+				$vigente = $row['expires'] > time();
+				?>
 				<tr>
 					<td class="upfw-list__name">
 						<strong><a href="<?php echo esc_url( get_edit_user_link( $row['user_id'] ) ); ?>"><?php echo esc_html( '' !== $row['name'] ? $row['name'] : $row['login'] ); ?></a></strong>
 						<span class="upfw-list__mail"><?php echo esc_html( $row['email'] ); ?></span>
 					</td>
-					<td><?php echo esc_html( $row['started'] ? wp_date( 'j M Y, H:i', $row['started'] ) : '—' ); ?></td>
-					<td><?php echo esc_html( $row['expires'] ? wp_date( 'j M Y, H:i', $row['expires'] ) : '—' ); ?></td>
+					<td><?php echo esc_html( $row['started'] ? (string) wp_date( 'j M Y, H:i', $row['started'] ) : '—' ); ?></td>
+					<td><?php echo esc_html( $row['expires'] ? (string) wp_date( 'j M Y, H:i', $row['expires'] ) : '—' ); ?></td>
 					<td>
 						<span class="upfw-pill upfw-pill--<?php echo $vigente ? 'on' : 'off'; ?>">
 							<?php echo $vigente ? esc_html__( 'Active', 'users-plus-for-wordpress' ) : esc_html__( 'Expired', 'users-plus-for-wordpress' ); ?>
@@ -183,14 +200,26 @@ function upfw_screen_sessions_list(): void {
 	<?php if ( $pages > 1 ) : ?>
 		<div class="tablenav"><div class="tablenav-pages">
 			<?php
-			echo wp_kses_post( paginate_links( array(
-				'base'      => upfw_admin_url( 'upfw-sessions', array( 's' => $search, 'per' => $per ) ) . '&paged=%#%',
-				'format'    => '',
-				'current'   => $page,
-				'total'     => $pages,
-				'prev_text' => '&lsaquo;',
-				'next_text' => '&rsaquo;',
-			) ) );
+			$upfw_base = upfw_admin_url(
+				'upfw-sessions',
+				array(
+					's'   => $search,
+					'per' => $per,
+				)
+			);
+
+			echo wp_kses_post(
+				paginate_links(
+					array(
+						'base'      => $upfw_base . '&paged=%#%',
+						'format'    => '',
+						'current'   => $page,
+						'total'     => $pages,
+						'prev_text' => '&lsaquo;',
+						'next_text' => '&rsaquo;',
+					)
+				)
+			);
 			?>
 		</div></div>
 	<?php endif; ?>

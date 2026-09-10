@@ -32,7 +32,7 @@ add_filter( 'auth_cookie_expiration', 'upfw_session_duration', 10, 3 );
  * Se mira el user agent, que miente si alguien quiere, pero acá no es una
  * medida de seguridad: es para que la persona reconozca cuál sesión es cuál.
  *
- * @return array{navegador: string, sistema: string, dispositivo: string}
+ * @return array{browser: string, os: string, device: string}
  */
 function upfw_user_agent( string $ua ): array {
 	$browser = __( 'Unknown browser', 'users-plus-for-wordpress' );
@@ -222,7 +222,10 @@ function upfw_sessions_search( string $search = '', int $page = 1, int $per = 20
 
 	$base = "FROM {$wpdb->usermeta} m INNER JOIN {$wpdb->users} u ON u.ID = m.user_id WHERE {$where}";
 
-	// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- $where se arma con marcadores y $args los llena.
+	// La tabla de sesiones no tiene una API de WordPress que la consulte, así
+	// que se va al meta directamente. No se cachea a propósito: es una
+	// pantalla de administración que se abre para ver el estado de ahora.
+	// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- $where se arma con marcadores y $args los llena.
 	$total = (int) ( $args
 		? $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) {$base}", $args ) )
 		: $wpdb->get_var( "SELECT COUNT(*) {$base}" ) );

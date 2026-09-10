@@ -62,8 +62,8 @@ add_action( 'init', 'upfw_load_textdomain' );
  * por orden alfabético a propósito: si alguno necesitara a otro para arrancar,
  * eso sería un acoplamiento que hay que resolver con un hook, no con el orden.
  */
-foreach ( glob( UPFW_DIR . 'includes/*.php' ) as $upfw_archivo ) {
-	require_once $upfw_archivo;
+foreach ( (array) glob( UPFW_DIR . 'includes/*.php' ) as $upfw_archivo ) {
+	require_once (string) $upfw_archivo;
 }
 
 

@@ -22,6 +22,9 @@
 defined( 'ABSPATH' ) || exit;
 
 /** Cuántos bytes de datos entran por versión, en modo byte y nivel L. */
+/**
+ * @return array<int, int>
+ */
 function upfw_qr_capacity(): array {
 	return array(
 		1  => 17,
@@ -41,6 +44,8 @@ function upfw_qr_capacity(): array {
  * Por versión: [ codewords de corrección por bloque, bloques grupo 1,
  * codewords de datos por bloque grupo 1, bloques grupo 2, codewords grupo 2 ].
  * Nivel L.
+ *
+ * @return array<int, array<int, int>>
  */
 function upfw_qr_blocks(): array {
 	return array(
@@ -58,6 +63,9 @@ function upfw_qr_blocks(): array {
 }
 
 /** Dónde van los patrones de alineación, por versión. */
+/**
+ * @return array<int, array<int, int>>
+ */
 function upfw_qr_alignment(): array {
 	return array(
 		1  => array(),
@@ -78,6 +86,8 @@ function upfw_qr_alignment(): array {
  *
  * Son 18 bits calculados con un BCH que no hace falta implementar: son cuatro
  * valores y están en el estándar.
+ *
+ * @return array<int, string>
  */
 function upfw_qr_version_info(): array {
 	return array(
@@ -98,6 +108,9 @@ const UPFW_QR_FORMAT = '111011111000100';
 /* ── Reed-Solomon sobre GF(256) ────────────────────────────────────── */
 
 /** Las tablas de exponentes y logaritmos del campo, calculadas una vez. */
+/**
+ * @return array<int, array<int, int>>
+ */
 function upfw_qr_gf(): array {
 	static $tables = null;
 
@@ -130,6 +143,9 @@ function upfw_qr_gf(): array {
 }
 
 /** El polinomio generador para n codewords de corrección. */
+/**
+ * @return array<int, int>
+ */
 function upfw_qr_generator( int $n ): array {
 	[ $exp, $log ] = upfw_qr_gf();
 
@@ -153,13 +169,24 @@ function upfw_qr_generator( int $n ): array {
 }
 
 /** Los codewords de corrección de un bloque de datos. */
+/**
+ * @return array<string, mixed>
+ */
+/**
+ * Los códigos de corrección de errores de un bloque de datos.
+ *
+ * @param array<int, float|int> $data
+ * @return array<int, float|int>
+ */
 function upfw_qr_ec( array $data, int $n ): array {
 	[ $exp, $log ] = upfw_qr_gf();
 
 	$gen  = upfw_qr_generator( $n );
 	$rest = array_merge( $data, array_fill( 0, $n, 0 ) );
 
-	for ( $i = 0; $i < count( $data ); $i++ ) {
+	$largo = count( $data );
+
+	for ( $i = 0; $i < $largo; $i++ ) {
 		$coef = $rest[ $i ];
 
 		if ( 0 === $coef ) {
@@ -181,7 +208,7 @@ function upfw_qr_ec( array $data, int $n ): array {
 /**
  * La matriz de módulos de un texto: true = negro.
  *
- * @return array<int, array<int, bool>>|null Null si el texto no entra.
+ * @return array<int, array<int, bool>>
  */
 function upfw_qr_matrix( string $text ): ?array {
 	$bytes  = array_map( 'ord', str_split( $text ) );
@@ -221,8 +248,12 @@ function upfw_qr_matrix( string $text ): ?array {
 	$padding = array( 0xEC, 0x11 );
 	$i       = 0;
 
-	while ( strlen( $bits ) < $total_data * 8 ) {
-		$bits .= str_pad( decbin( $padding[ $i % 2 ] ), 8, '0', STR_PAD_LEFT );
+	$objetivo = $total_data * 8;
+	$puestos  = strlen( $bits );
+
+	while ( $puestos < $objetivo ) {
+		$bits    .= str_pad( decbin( $padding[ $i % 2 ] ), 8, '0', STR_PAD_LEFT );
+		$puestos += 8;
 		++$i;
 	}
 
@@ -245,7 +276,9 @@ function upfw_qr_matrix( string $text ): ?array {
 
 	$stream = array();
 
-	for ( $i = 0; $i < max( $g1_words, $g2_words ); $i++ ) {
+	$mas_largo = max( $g1_words, $g2_words );
+
+	for ( $i = 0; $i < $mas_largo; $i++ ) {
 		foreach ( $data_blocks as $block ) {
 			if ( isset( $block[ $i ] ) ) {
 				$stream[] = $block[ $i ];
@@ -255,20 +288,25 @@ function upfw_qr_matrix( string $text ): ?array {
 
 	for ( $i = 0; $i < $ec_per_block; $i++ ) {
 		foreach ( $ec_blocks as $block ) {
-			$stream[] = $block[ $i ];
+			if ( isset( $block[ $i ] ) ) {
+				$stream[] = $block[ $i ];
+			}
 		}
 	}
 
 	$final = '';
 
 	foreach ( $stream as $codeword ) {
-		$final .= str_pad( decbin( $codeword ), 8, '0', STR_PAD_LEFT );
+		$final .= str_pad( decbin( (int) $codeword ), 8, '0', STR_PAD_LEFT );
 	}
 
-	return upfw_qr_place( $version, $final );
+	return upfw_qr_place( (int) $version, $final );
 }
 
 /** Dibuja la matriz: patrones fijos, datos y máscara. */
+/**
+ * @return array<int, array<int, bool>>
+ */
 function upfw_qr_place( int $version, string $bits ): array {
 	$size = 17 + 4 * $version;
 

@@ -74,6 +74,9 @@ function upfw_avatar_svg( int $user_id, int $size ): string {
  *
  * WordPress lo pasa de cinco formas distintas según quién llame. Sin esto, el
  * avatar aparece en el perfil y no en los comentarios, o al revés.
+ *
+ * @param mixed $id_or_email Lo que haya mandado WordPress: un id, un correo,
+ *                           un WP_User, un WP_Comment o un WP_Post.
  */
 function upfw_avatar_user_id( $id_or_email ): int {
 	if ( is_numeric( $id_or_email ) ) {
@@ -154,6 +157,9 @@ add_filter( 'pre_get_avatar_data', 'upfw_avatar_data', 99, 2 );
 /* ── Subir y sacar ─────────────────────────────────────────────────── */
 
 /** Los tipos que se aceptan. Nada de SVG: es código, no una foto. */
+/**
+ * @return array<int, string>
+ */
 function upfw_avatar_types(): array {
 	return array( 'image/jpeg', 'image/png', 'image/gif', 'image/webp' );
 }
@@ -161,6 +167,7 @@ function upfw_avatar_types(): array {
 /**
  * Guarda la foto que subió alguien.
  *
+ * @param array<string, mixed> $file
  * @return int|WP_Error El id del adjunto.
  */
 function upfw_avatar_upload( int $user_id, array $file ) {
@@ -198,7 +205,10 @@ function upfw_avatar_upload( int $user_id, array $file ) {
 	require_once ABSPATH . 'wp-admin/includes/image.php';
 
 	$attachment_id = media_handle_sideload(
-		array( 'name' => $file['name'], 'tmp_name' => $file['tmp_name'] ),
+		array(
+			'name'     => $file['name'],
+			'tmp_name' => $file['tmp_name'],
+		),
 		0,
 		null,
 		array( 'post_author' => $user_id )
@@ -242,12 +252,15 @@ function upfw_shortcode_avatar(): string {
 
 	$user = wp_get_current_user();
 
-	return upfw_render( 'account/avatar', array(
-		'user'  => $user,
-		'has'   => upfw_avatar_id( $user->ID ) > 0,
-		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- sólo elige el mensaje.
-		'error' => isset( $_GET['upfw_avatar'] ) ? sanitize_text_field( wp_unslash( $_GET['upfw_avatar'] ) ) : '',
-	) );
+	return upfw_render(
+		'account/avatar',
+		array(
+			'user'  => $user,
+			'has'   => upfw_avatar_id( $user->ID ) > 0,
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- sólo elige el mensaje.
+			'error' => isset( $_GET['upfw_avatar'] ) ? sanitize_text_field( wp_unslash( $_GET['upfw_avatar'] ) ) : '',
+		)
+	);
 }
 add_shortcode( 'upfw_avatar', 'upfw_shortcode_avatar' );
 

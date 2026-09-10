@@ -16,6 +16,9 @@
 defined( 'ABSPATH' ) || exit;
 
 /** Convierte un nombre en una clave válida y única. */
+/**
+ * @param array<string, mixed> $used
+ */
 function upfw_key_from( string $label, array $used ): string {
 	$base = sanitize_key( remove_accents( $label ) );
 	$base = 'upfw_' . ( '' === $base ? 'field' : $base );
@@ -61,6 +64,9 @@ function upfw_field_options_from( string $type, array $input ): array {
 }
 
 /** Guarda un campo (nuevo o existente) y devuelve su clave. */
+/**
+ * @param array<string, mixed> $input
+ */
 function upfw_field_save( array $input ): string {
 	$fields = upfw_fields( '', false );
 	$key    = sanitize_key( (string) ( $input['key'] ?? '' ) );
@@ -136,12 +142,12 @@ function upfw_field_delete( string $key ): void {
  */
 function upfw_fields_actions(): void {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
-	if ( 'upfw-fields' !== ( $_GET['page'] ?? '' ) || ! current_user_can( 'manage_options' ) ) {
+	if ( 'upfw-fields' !== sanitize_key( wp_unslash( $_GET['page'] ?? '' ) ) || ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
 
 	if ( isset( $_POST['upfw_field_nonce'] ) && wp_verify_nonce( sanitize_key( wp_unslash( $_POST['upfw_field_nonce'] ) ), 'upfw_field' ) ) {
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verificado arriba.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- verificado arriba; lo sanea campo por campo upfw_field_save().
 		$key = upfw_field_save( (array) wp_unslash( $_POST['upfw_field'] ?? array() ) );
 
 		wp_safe_redirect( upfw_admin_url( 'upfw-fields', array( 'upfw_done' => '' === $key ? 'nolabel' : 'saved' ) ) );
@@ -181,7 +187,7 @@ function upfw_field_move( string $key, int $dir ): void {
 		return;
 	}
 
-	$j = $i + $dir;
+	$j = (int) $i + $dir;
 
 	if ( $j < 0 || $j >= count( $fields ) ) {
 		return;
@@ -194,6 +200,7 @@ function upfw_field_move( string $key, int $dir ): void {
 
 /* ── La pantalla ───────────────────────────────────────────────────── */
 
+/** La pantalla de campos: el listado, o la ficha de uno. */
 function upfw_screen_fields(): void {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended
 	$editing = isset( $_GET['field'] ) ? sanitize_key( wp_unslash( $_GET['field'] ) ) : '';
@@ -233,6 +240,7 @@ function upfw_screen_fields(): void {
 	upfw_screen_close();
 }
 
+/** Screen fields list. */
 function upfw_screen_fields_list(): void {
 	$fields = upfw_fields( '', false );
 	$types  = upfw_field_types();
@@ -288,8 +296,9 @@ function upfw_screen_fields_list(): void {
 
 							<?php
 							/*
-							Los de WordPress no se borran: el dato existe igual y lo
-									usan el escritorio y medio plugin del sitio. Se esconden. */
+							 * Los de WordPress no se borran: el dato existe igual y lo
+							 * usan el escritorio y medio plugin del sitio. Se esconden.
+							 */
 							?>
 							<?php if ( ! upfw_field_is_native( $field['key'] ) ) : ?>
 								<span class="trash"> |
@@ -310,7 +319,7 @@ function upfw_screen_fields_list(): void {
 										);
 										?>
 												"
-										onclick="return confirm(<?php echo esc_attr( wp_json_encode( __( 'Delete this field? The data already stored is kept.', 'users-plus-for-wordpress' ) ) ); ?>);">
+										onclick="return confirm(<?php echo esc_attr( (string) wp_json_encode( __( 'Delete this field? The data already stored is kept.', 'users-plus-for-wordpress' ) ) ); ?>);">
 										<?php esc_html_e( 'Delete', 'users-plus-for-wordpress' ); ?>
 									</a>
 								</span>
@@ -428,8 +437,9 @@ function upfw_screen_field_edit( string $key ): void {
 				<td>
 					<?php
 					/*
-					Los de WordPress vienen con su tipo puesto: cambiarle el
-							tipo al nombre no lo mejora, y lo puede romper. */
+					 * Los de WordPress vienen con su tipo puesto: cambiarle el
+					 * tipo al nombre no lo mejora, y lo puede romper.
+					 */
 					?>
 					<select id="upfw-type" name="upfw_field[type]" <?php disabled( upfw_field_is_native( $field['key'] ) ); ?>>
 						<?php foreach ( upfw_field_types() as $value => $name ) : ?>
@@ -556,6 +566,7 @@ function upfw_screen_field_edit( string $key ): void {
 	upfw_screen_close();
 }
 
+/** Screen fields usage. */
 function upfw_screen_fields_usage(): void {
 	upfw_intro( __( 'The fields show up on their own in the dashboard profile, when adding a user and in the WordPress registration form. On the front end you place them with a shortcode.', 'users-plus-for-wordpress' ) );
 	?>

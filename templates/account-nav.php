@@ -2,7 +2,8 @@
 /**
  * La navegación del área de cuenta.
  *
- * Variables: $sections, $current.
+ * @var string                              $current
+ * @var array<string, array<string, mixed>> $sections
  *
  * @package UPFW
  */

@@ -149,14 +149,15 @@ function upfw_screen_login_link(): void {
 			<th scope="row"><?php esc_html_e( 'Sign-in page', 'users-plus-for-wordpress' ); ?></th>
 			<td>
 				<?php
-				wp_dropdown_pages(
-					array(
-						'name'              => 'upfw_login_page',
-						'selected'          => (int) upfw_option( 'upfw_login_page' ),
-						'show_option_none'  => __( '— Use wp-login.php —', 'users-plus-for-wordpress' ),
-						'option_none_value' => 0,
-					)
+				/** @var array<string, mixed> $upfw_dropdown */
+				$upfw_dropdown = array(
+					'name'              => 'upfw_login_page',
+					'selected'          => (int) upfw_option( 'upfw_login_page' ),
+					'show_option_none'  => __( '— Use wp-login.php —', 'users-plus-for-wordpress' ),
+					'option_none_value' => 0,
 				);
+
+				wp_dropdown_pages( $upfw_dropdown );
 				?>
 				<p class="description"><?php esc_html_e( 'The page holding the form. Without it, passwordless mode is not applied: it would leave the site with no way in.', 'users-plus-for-wordpress' ); ?></p>
 			</td>
@@ -588,7 +589,7 @@ function upfw_screen_login_passkeys(): void {
 					);
 					?>
 				</p>
-				<?php if ( ! is_ssl() && ! wp_is_local_environment() ) : ?>
+				<?php if ( ! is_ssl() && 'local' !== wp_get_environment_type() ) : ?>
 					<p class="description upfw-danger"><?php esc_html_e( 'This site is not on HTTPS. Browsers will refuse passkeys until it is.', 'users-plus-for-wordpress' ); ?></p>
 				<?php endif; ?>
 			</td>

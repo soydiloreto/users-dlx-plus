@@ -33,10 +33,16 @@ function upfw_home_numbers(): array {
 
 	global $wpdb;
 
+	// Dos conteos para la pantalla de resumen. `count_users()` recorre todos
+	// los roles para devolver uno de estos números, y en un sitio de 25.000
+	// personas eso tarda; el otro no tiene API ninguna. No se cachean porque
+	// la pantalla existe para mostrar cómo está el sitio ahora.
+	// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 	$numbers = array(
 		'users'    => (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->users}" ),
 		'sessions' => (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->usermeta} WHERE meta_key = 'session_tokens'" ),
 	);
+	// phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 
 	set_transient( 'upfw_home_numbers', $numbers, 15 * MINUTE_IN_SECONDS );
 
@@ -87,6 +93,7 @@ function upfw_status_row( string $what, string $state, string $detail, string $l
 	<?php
 }
 
+/** Screen home. */
 function upfw_screen_home(): void {
 	$numbers   = upfw_home_numbers();
 	$fields    = upfw_fields( '', false );

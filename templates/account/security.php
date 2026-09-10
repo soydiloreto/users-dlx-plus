@@ -9,7 +9,7 @@
  * y al final la aplicación autenticadora, que es un detalle de ese segundo
  * factor y no tiene sentido antes de haberlo prendido.
  *
- * Variables: $user.
+ * @var WP_User $user
  *
  * @package UPFW
  */
@@ -64,9 +64,10 @@ if ( upfw_passkeys_enabled() ) {
 
 <?php
 /*
-Las passkeys van antes que el segundo factor porque son la mejor
-		respuesta al mismo problema, no un accesorio de la respuesta anterior:
-		quien pueda usarlas no necesita nada de lo que viene abajo. */
+ * Las passkeys van antes que el segundo factor porque son la mejor
+ * respuesta al mismo problema, no un accesorio de la respuesta anterior:
+ * quien pueda usarlas no necesita nada de lo que viene abajo.
+ */
 ?>
 <?php if ( upfw_passkeys_enabled() ) : ?>
 	<?php upfw_panel_open( __( 'Passkeys', 'users-plus-for-wordpress' ) ); ?>
@@ -84,11 +85,12 @@ Las passkeys van antes que el segundo factor porque son la mejor
 					<li>
 						<?php
 						/*
-						El nombre se lee, no se edita: una fila con un
-								campo de texto siempre abierto parece un
-								formulario a medio llenar. Se abre cuando se
-								lo pide, y ahí adentro vive también el quitar,
-								que es lo que no conviene tener a un clic. */
+						 * El nombre se lee, no se edita: una fila con un
+						 * campo de texto siempre abierto parece un
+						 * formulario a medio llenar. Se abre cuando se
+						 * lo pide, y ahí adentro vive también el quitar,
+						 * que es lo que no conviene tener a un clic.
+						 */
 						?>
 						<details class="upfw-llave">
 							<summary class="upfw-llave__fila">
@@ -145,9 +147,10 @@ Las passkeys van antes que el segundo factor porque son la mejor
 
 		<?php
 		/*
-		El nombre se pide al dar de alta y no después: con dos o tres
-				llaves, «Passkey, Passkey, Passkey» no le dice a nadie cuál
-				sacar cuando pierde el teléfono. */
+		 * El nombre se pide al dar de alta y no después: con dos o tres
+		 * llaves, «Passkey, Passkey, Passkey» no le dice a nadie cuál
+		 * sacar cuando pierde el teléfono.
+		 */
 		?>
 		<p class="upfw-llave-alta">
 			<span class="upfw-llave__campo">
@@ -300,9 +303,10 @@ Las passkeys van antes que el segundo factor porque son la mejor
 
 <?php
 /*
-Va en un panel como todo lo demás de esta pantalla: un título suelto
-		hereda el tamaño de h3 del tema y queda de otro cuerpo que los de
-		arriba. Acá todos los bloques son la misma caja. */
+ * Va en un panel como todo lo demás de esta pantalla: un título suelto
+ * hereda el tamaño de h3 del tema y queda de otro cuerpo que los de
+ * arriba. Acá todos los bloques son la misma caja.
+ */
 ?>
 <?php if ( upfw_option( 'upfw_sessions_show' ) ) : ?>
 	<?php upfw_panel_open( __( 'Where you are signed in', 'users-plus-for-wordpress' ) ); ?>

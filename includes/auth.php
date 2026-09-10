@@ -25,10 +25,10 @@ const UPFW_2FA_WINDOW = 10 * MINUTE_IN_SECONDS;
 /* ── Los segundos factores disponibles ─────────────────────────────── */
 
 /*
- * Una passkey no está en esta lista, y no es un olvido: no es un segundo
- * factor sino una forma de entrar que ya lleva los dos adentro —algo que se
- * tiene, el dispositivo, y algo que se es o se sabe, la huella o el PIN—.
- * Ponerla acá significaría pedir tres cosas a quien ya dio dos.
+ * * Una passkey no está en esta lista, y no es un olvido: no es un segundo
+ * * factor sino una forma de entrar que ya lleva los dos adentro —algo que se
+ * * tiene, el dispositivo, y algo que se es o se sabe, la huella o el PIN—.
+ * * Ponerla acá significaría pedir tres cosas a quien ya dio dos.
  */
 
 /**
@@ -280,7 +280,15 @@ function upfw_2fa_trust( int $user_id ): void {
 	$expires = time() + $days * DAY_IN_SECONDS;
 	$value   = $user_id . '|' . $expires . '|' . wp_hash( $user_id . '|' . $expires, 'secure_auth' );
 
-	setcookie( 'upfw_2fa_' . COOKIEHASH, $value, $expires, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
+	setcookie(
+		'upfw_2fa_' . COOKIEHASH,
+		$value,
+		$expires,
+		defined( 'COOKIEPATH' ) ? COOKIEPATH : '/',
+		defined( 'COOKIE_DOMAIN' ) ? (string) COOKIE_DOMAIN : '',
+		is_ssl(),
+		true
+	);
 }
 
 /* ── El único camino de entrada ────────────────────────────────────── */
@@ -374,6 +382,9 @@ function upfw_2fa_challenge( int $user_id, string $via, bool $remember, string $
 }
 
 /** El intento pendiente de alguien, si sigue vivo y el nonce es el suyo. */
+/**
+ * @return array<string, mixed>
+ */
 function upfw_2fa_pending( int $user_id, string $nonce ): array {
 	$pending = (array) get_user_meta( $user_id, 'upfw_2fa_pending', true );
 

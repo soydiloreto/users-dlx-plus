@@ -36,10 +36,12 @@ const UPFW_PASSKEY_TTL = 5 * MINUTE_IN_SECONDS;
 
 /* ── Base64url, que es como viaja todo esto ────────────────────────── */
 
+/** Codifica en base64url, que es como WebAuthn manda y espera todo. */
 function upfw_b64url_encode( string $bytes ): string {
 	return rtrim( strtr( base64_encode( $bytes ), '+/', '-_' ), '=' );
 }
 
+/** B64url decode. */
 function upfw_b64url_decode( string $text ): string {
 	$text = strtr( $text, '-_', '+/' );
 
@@ -94,7 +96,11 @@ function upfw_passkeys_ready( int $user_id ): bool {
 	return array() !== upfw_passkeys( $user_id );
 }
 
-/** Guarda la lista. */
+/**
+ * Guarda la lista de passkeys de una persona.
+ *
+ * @param array<int, array<string, mixed>> $keys
+ */
 function upfw_passkeys_save( int $user_id, array $keys ): void {
 	update_user_meta( $user_id, 'upfw_passkeys', array_values( $keys ) );
 }
@@ -219,7 +225,7 @@ function upfw_passkey_auth_data( string $bytes ): ?array {
 
 	return array(
 		'flags'   => $flags,
-		'counter' => (int) unpack( 'N', substr( $bytes, 33, 4 ) )[1],
+		'counter' => (int) ( ( (array) unpack( 'N', substr( $bytes, 33, 4 ) ) )[1] ?? 0 ),
 	);
 }
 
@@ -261,6 +267,9 @@ function upfw_passkeys_enabled(): bool {
 }
 
 /** Los datos para empezar un alta. */
+/**
+ * @return array<string, mixed>
+ */
 function upfw_passkeys_register_options(): array {
 	$user = wp_get_current_user();
 
@@ -291,6 +300,9 @@ function upfw_passkeys_register_options(): array {
 }
 
 /** Los datos para empezar un ingreso. */
+/**
+ * @return array<string, mixed>
+ */
 function upfw_passkeys_login_options(): array {
 	return array(
 		'challenge'        => upfw_passkey_challenge_new( 'log' ),
@@ -319,19 +331,15 @@ function upfw_passkeys_ajax(): void {
 	switch ( $step ) {
 		case 'register-options':
 			wp_send_json_success( upfw_passkeys_register_options() );
-			break;
 
 		case 'register':
 			wp_send_json( upfw_passkeys_register( wp_unslash( $_POST ) ) );
-			break;
 
 		case 'login-options':
 			wp_send_json_success( upfw_passkeys_login_options() );
-			break;
 
 		case 'login':
 			wp_send_json( upfw_passkeys_login( wp_unslash( $_POST ) ) );
-			break;
 	}
 	// phpcs:enable
 
@@ -341,6 +349,13 @@ add_action( 'wp_ajax_upfw_passkeys', 'upfw_passkeys_ajax' );
 add_action( 'wp_ajax_nopriv_upfw_passkeys', 'upfw_passkeys_ajax' );
 
 /** Da de alta una passkey nueva. */
+/**
+ * @return array<string, mixed>
+ */
+/**
+ * @param array<string, mixed> $post
+ * @return array<string, mixed>
+ */
 function upfw_passkeys_register( array $post ): array {
 	$user_id = get_current_user_id();
 	$id      = sanitize_text_field( (string) ( $post['id'] ?? '' ) );
@@ -452,6 +467,13 @@ function upfw_passkey_label(): string {
 }
 
 /** Entra con una passkey. */
+/**
+ * @return array<string, mixed>
+ */
+/**
+ * @param array<string, mixed> $post
+ * @return array<string, mixed>
+ */
 function upfw_passkeys_login( array $post ): array {
 	$id        = sanitize_text_field( (string) ( $post['id'] ?? '' ) );
 	$json      = (string) ( $post['clientDataJSON'] ?? '' );
@@ -579,7 +601,7 @@ function upfw_passkeys_manage(): void {
 		upfw_notify_security( $user_id, __( 'A passkey was removed.', 'users-plus-for-wordpress' ) );
 		$aviso = 'passkeyoff';
 	} else {
-		upfw_passkey_rename( $user_id, $id, (string) wp_unslash( $_POST['upfw_passkey_label'] ?? '' ) );
+		upfw_passkey_rename( $user_id, $id, sanitize_text_field( wp_unslash( $_POST['upfw_passkey_label'] ?? '' ) ) );
 		$aviso = 'passkeyname';
 	}
 	// phpcs:enable

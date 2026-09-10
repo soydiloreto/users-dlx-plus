@@ -60,7 +60,7 @@ function upfw_ip_from( string $value ): string {
 			$candidate = (string) preg_replace( '/^\[([^\]]+)\](:\d+)?$/', '$1', $candidate );
 		} elseif ( 1 === substr_count( $candidate, ':' ) ) {
 			// Un solo ":" es IPv4 con puerto; dos o más, IPv6 sin corchetes.
-			$candidate = strtok( $candidate, ':' );
+			$candidate = (string) strtok( $candidate, ':' );
 		}
 
 		if ( filter_var( $candidate, FILTER_VALIDATE_IP ) ) {

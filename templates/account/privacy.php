@@ -2,7 +2,9 @@
 /**
  * Privacidad: bajar tus datos o pedir que se borre la cuenta.
  *
- * Variables: $user, $exports, $erasures, $can_erase.
+ * @var bool                $can_erase
+ * @var array<int, WP_Post> $erasures
+ * @var array<int, WP_Post> $exports
  *
  * @package UPFW
  */
@@ -35,7 +37,7 @@ $upfw_tabla = static function ( array $pedidos ) use ( $upfw_estados ): void {
 				$upfw_archivo               = upfw_data_file( $upfw_pedido );
 				?>
 				<tr>
-					<td><?php echo esc_html( wp_date( 'j M Y, H:i', (int) get_post_timestamp( $upfw_pedido ) ) ); ?></td>
+					<td><?php echo esc_html( (string) wp_date( 'j M Y, H:i', (int) get_post_timestamp( $upfw_pedido ) ) ); ?></td>
 					<td><span class="upfw-pill upfw-pill--<?php echo esc_attr( $upfw_tono ); ?>"><?php echo esc_html( $upfw_texto ); ?></span></td>
 					<td class="upfw-pedidos__accion">
 						<?php if ( '' !== $upfw_archivo ) : ?>
@@ -89,8 +91,9 @@ $upfw_tabla = static function ( array $pedidos ) use ( $upfw_estados ): void {
 <?php if ( upfw_option( 'upfw_privacy_delete' ) ) : ?>
 	<?php
 	/*
-	La primera caja se abre. Si la de arriba no está, ésta pasa a ser la
-		primera y la que se abre es ésta. */
+	 * La primera caja se abre. Si la de arriba no está, ésta pasa a ser la
+	 * primera y la que se abre es ésta.
+	 */
 	?>
 	<?php upfw_panel_open( __( 'Delete your account', 'users-plus-for-wordpress' ), ! upfw_option( 'upfw_privacy_export' ), 'upfw-panel--peligro' ); ?>
 

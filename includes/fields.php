@@ -267,6 +267,9 @@ function upfw_fields( string $group = '', bool $solo_activos = true ): array {
 }
 
 /** Un campo por su clave, o null. */
+/**
+ * @return array<string, mixed>
+ */
 function upfw_field( string $key ): ?array {
 	foreach ( upfw_fields( '', false ) as $field ) {
 		if ( $field['key'] === $key ) {
@@ -346,6 +349,9 @@ function upfw_field_edits( int $user_id, string $key ): int {
 }
 
 /** Cuántos cambios le quedan. -1 si no hay límite. */
+/**
+ * @param array<string, mixed> $field
+ */
 function upfw_field_edits_left( array $field, int $user_id ): int {
 	if ( 'limited' !== $field['edit'] ) {
 		return -1;
@@ -359,6 +365,8 @@ function upfw_field_edits_left( array $field, int $user_id ): int {
  *
  * Quien administra siempre puede: si no, un campo de una sola edición se
  * convierte en un dato que ya nadie puede corregir, ni con motivo.
+ *
+ * @param array<string, mixed> $field
  */
 function upfw_field_editable( array $field, int $user_id ): bool {
 	if ( current_user_can( 'edit_users' ) && get_current_user_id() !== $user_id ) {
@@ -375,6 +383,8 @@ function upfw_field_editable( array $field, int $user_id ): bool {
 /**
  * Lo que se le dice a la persona debajo del campo sobre cuántas veces puede
  * cambiarlo. Vacío cuando no hay nada que aclarar.
+ *
+ * @param array<string, mixed> $field
  */
 function upfw_field_edit_note( array $field, int $user_id ): string {
 	if ( 'never' === $field['edit'] ) {

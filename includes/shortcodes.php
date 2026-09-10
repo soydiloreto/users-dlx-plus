@@ -56,6 +56,11 @@ function upfw_login_challenge(): array {
 	);
 }
 
+/**
+ * Shortcode login.
+ *
+ * @param array<string, string>|string $atts WordPress manda '' cuando no hay ninguno.
+ */
 function upfw_shortcode_login( $atts = array() ): string {
 	if ( is_user_logged_in() ) {
 		return '';
@@ -91,6 +96,8 @@ add_shortcode( 'upfw_login', 'upfw_shortcode_login' );
  * `grupo` limita a los campos de un grupo, para que un sitio pueda partir el
  * formulario en dos bloques como hace el nuestro (lo que hace falta arriba, lo
  * opcional abajo).
+ *
+ * @param array<string, string>|string $atts WordPress manda '' cuando no hay ninguno.
  */
 function upfw_shortcode_fields( $atts = array() ): string {
 	if ( ! is_user_logged_in() ) {
@@ -102,7 +109,7 @@ function upfw_shortcode_fields( $atts = array() ): string {
 			'group' => '',
 			'title' => '',
 		),
-		$atts,
+		(array) $atts,
 		'upfw_fields_save'
 	);
 
@@ -139,6 +146,11 @@ function upfw_save_fields_form(): void {
 }
 add_action( 'admin_post_upfw_fields_save', 'upfw_save_fields_form' );
 
+/**
+ * Shortcode sessions.
+ *
+ * @param array<string, string>|string $atts WordPress manda '' cuando no hay ninguno.
+ */
 function upfw_shortcode_sessions( $atts = array() ): string {
 	if ( ! is_user_logged_in() ) {
 		return '';
@@ -163,6 +175,8 @@ add_shortcode( 'upfw_sessions', 'upfw_shortcode_sessions' );
  * El atributo `only` parte la lista: `linked` son con las que ya entra y
  * `available` las que podría sumar. Sin él, todas juntas. Un sitio que las
  * muestra en dos cajas distintas no tiene que filtrar nada por su cuenta.
+ *
+ * @param array<string, string>|string $atts WordPress manda '' cuando no hay ninguno.
  */
 function upfw_shortcode_accounts( $atts = array() ): string {
 	if ( ! is_user_logged_in() ) {
@@ -171,7 +185,7 @@ function upfw_shortcode_accounts( $atts = array() ): string {
 
 	upfw_enqueue_styles();
 
-	$atts    = shortcode_atts( array( 'only' => '' ), $atts, 'upfw_accounts' );
+	$atts    = shortcode_atts( array( 'only' => '' ), (array) $atts, 'upfw_accounts' );
 	$user_id = get_current_user_id();
 
 	// De dónde vino, para volver ahí después de ir y venir del proveedor.

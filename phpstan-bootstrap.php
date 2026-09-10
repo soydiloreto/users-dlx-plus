@@ -27,3 +27,18 @@ if ( ! defined( 'UPFW_URL' ) ) {
 if ( ! defined( 'UPFW_FILE' ) ) {
 	define( 'UPFW_FILE', __DIR__ . '/users-plus-for-wordpress.php' );
 }
+
+// Constantes que WordPress define en tiempo de ejecución y que el análisis
+// estático no ve porque salen de wp-includes/default-constants.php.
+if ( ! defined( 'COOKIEHASH' ) ) {
+	define( 'COOKIEHASH', 'phpstan' );
+}
+if ( ! defined( 'MINUTE_IN_SECONDS' ) ) {
+	define( 'MINUTE_IN_SECONDS', 60 );
+}
+if ( ! defined( 'HOUR_IN_SECONDS' ) ) {
+	define( 'HOUR_IN_SECONDS', 3600 );
+}
+if ( ! defined( 'DAY_IN_SECONDS' ) ) {
+	define( 'DAY_IN_SECONDS', 86400 );
+}

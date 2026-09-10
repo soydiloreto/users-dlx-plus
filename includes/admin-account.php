@@ -16,6 +16,9 @@
 defined( 'ABSPATH' ) || exit;
 
 /** Guarda la configuración de una sección, mezclándola con la que ya había. */
+/**
+ * @param array<string, mixed> $config
+ */
 function upfw_section_config_save( string $id, array $config ): void {
 	$all = (array) upfw_option( 'upfw_account_sections' );
 
@@ -411,7 +414,7 @@ function upfw_screen_account_section( string $id, array $sections, int $page ): 
 						);
 						?>
 								"
-						onclick="return confirm(<?php echo esc_attr( wp_json_encode( __( 'Delete this section?', 'users-plus-for-wordpress' ) ) ); ?>);">
+						onclick="return confirm(<?php echo esc_attr( (string) wp_json_encode( __( 'Delete this section?', 'users-plus-for-wordpress' ) ) ); ?>);">
 						<?php esc_html_e( 'Remove', 'users-plus-for-wordpress' ); ?>
 					</a>
 				<?php endif; ?>
@@ -540,15 +543,22 @@ function upfw_screen_account_layout(): void {
 				<th scope="row"><label for="upfw_account_page"><?php esc_html_e( 'The account page', 'users-plus-for-wordpress' ); ?></label></th>
 				<td>
 					<?php
-					wp_dropdown_pages(
-						array(
-							'name'              => 'upfw_account_page',
-							'id'                => 'upfw_account_page',
-							'selected'          => upfw_account_page_id(),
-							'show_option_none'  => __( '— none —', 'users-plus-for-wordpress' ),
-							'option_none_value' => 0,
-						)
+					/*
+					 * El array va por una variable porque el tipado de
+					 * wp_dropdown_pages() no incluye `option_none_value`, que
+					 * WordPress sí acepta y es lo que hace que «ninguna»
+					 * valga 0 en vez de -1.
+					 */
+					/** @var array<string, mixed> $upfw_dropdown */
+					$upfw_dropdown = array(
+						'name'              => 'upfw_account_page',
+						'id'                => 'upfw_account_page',
+						'selected'          => (int) upfw_account_page_id(),
+						'show_option_none'  => __( '— none —', 'users-plus-for-wordpress' ),
+						'option_none_value' => 0,
 					);
+
+					wp_dropdown_pages( $upfw_dropdown );
 					?>
 					<p class="description">
 						<?php
