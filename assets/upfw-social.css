@@ -1,0 +1,94 @@
+/* ============================================================================
+   Botones de las redes sociales.
+   El color de cada marca llega como --upfw-brand en el propio botón, así que
+   una red nueva no necesita una regla nueva acá.
+   ========================================================================= */
+
+.upfw-socials {
+	display: grid;
+	gap: 10px;
+	margin: 0 0 20px;
+}
+
+.upfw-socials--cols-1 { grid-template-columns: minmax(0, 1fr); }
+.upfw-socials--cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.upfw-socials--cols-0 { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+
+/* Sólo logo: los botones dejan de ser barras y pasan a ser cuadraditos que se
+   acomodan solos, sin importar cuántas columnas pida el ajuste. */
+.upfw-socials--icon { grid-template-columns: repeat(auto-fit, 52px); }
+
+/* Un solo botón no se queda a media caja mirando un hueco. */
+.upfw-socials--cols-2 > .upfw-social:only-child { grid-column: 1 / -1; }
+
+@media (max-width: 480px) {
+	.upfw-socials--cols-2 { grid-template-columns: minmax(0, 1fr); }
+}
+
+.upfw-social {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	min-height: 48px;
+	padding: 0 16px;
+	border: 1.5px solid transparent;
+	border-radius: 10px;
+	font: 600 15px/1.2 inherit;
+	text-align: center;
+	text-decoration: none;
+	transition: filter .15s ease, background-color .15s ease, border-color .15s ease;
+}
+
+.upfw-social:focus-visible { outline: 2px solid var(--upfw-brand); outline-offset: 2px; }
+
+.upfw-social__logo { flex: 0 0 auto; }
+
+/* ── Acabados ───────────────────────────────────────────────────────────── */
+
+.upfw-socials--brand .upfw-social { background: var(--upfw-brand); color: #fff; }
+.upfw-socials--brand .upfw-social:hover { filter: brightness(0.92); color: #fff; }
+/* Google pide que su botón vaya blanco con el logo a color: es la única marca
+   cuya guía lo exige, y el logo multicolor sobre rojo además no se lee. */
+.upfw-socials--brand .upfw-social--google,
+.upfw-socials--brand .upfw-social--microsoft {
+	background: #fff;
+	border-color: #dadce0;
+	color: #3c4043;
+}
+.upfw-socials--brand .upfw-social--google:hover,
+.upfw-socials--brand .upfw-social--microsoft:hover { background: #f7f8f8; color: #3c4043; }
+
+.upfw-socials--light .upfw-social {
+	background: #fff;
+	border-color: #d8dae0;
+	color: #1d2129;
+}
+.upfw-socials--light .upfw-social:hover { border-color: var(--upfw-brand); color: #1d2129; }
+
+.upfw-socials--dark .upfw-social {
+	background: #16181d;
+	border-color: #2b2f38;
+	color: #fff;
+}
+.upfw-socials--dark .upfw-social:hover { background: #1f2229; color: #fff; }
+
+/* ── Formas ─────────────────────────────────────────────────────────────── */
+
+.upfw-socials--pill .upfw-social { border-radius: 999px; }
+.upfw-socials--square .upfw-social { border-radius: 0; }
+
+/* ── Sólo logo ──────────────────────────────────────────────────────────── */
+
+.upfw-socials--icon .upfw-social { width: 52px; min-height: 52px; padding: 0; }
+.upfw-socials--icon .upfw-social__text {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	white-space: nowrap;
+	border: 0;
+}
